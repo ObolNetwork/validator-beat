@@ -1,0 +1,24 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["@typescript-eslint"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@typescript-eslint/recommended"],
+      "rules": {
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_"
+          }
+        ]
+      },
+      "parserOptions": {
+        "project": "./tsconfig.json"
+      }
+    }
+  ]
+}
