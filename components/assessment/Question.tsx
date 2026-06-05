@@ -12,6 +12,11 @@ import {
   OptionSub,
   QuestionCount,
   QuestionHelper,
+  QuestionRefLink,
+  QuestionRefs,
+  QuestionRisk,
+  QuestionRiskBody,
+  QuestionRiskHead,
   QuestionRoot,
   QuestionSlice,
   QuestionTitle,
@@ -74,6 +79,30 @@ export function Question({
           );
         })}
       </OptionList>
+      {(data.risk || (data.references && data.references.length > 0)) && (
+        <QuestionRisk>
+          {data.risk && (
+            <>
+              <QuestionRiskHead>Why this matters</QuestionRiskHead>
+              <QuestionRiskBody>{data.risk}</QuestionRiskBody>
+            </>
+          )}
+          {data.references && data.references.length > 0 && (
+            <QuestionRefs>
+              {data.references.map((r) => (
+                <QuestionRefLink
+                  key={r.url + r.label}
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {r.label} ↗
+                </QuestionRefLink>
+              ))}
+            </QuestionRefs>
+          )}
+        </QuestionRisk>
+      )}
       {index > 0 && onBack && (
         <BackButton type="button" onClick={onBack}>
           ← Back

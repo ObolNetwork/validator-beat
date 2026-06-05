@@ -38,11 +38,11 @@ export default function MethodologyPage() {
             </li>
             <li>
               <strong>Stage 1 — Safety:</strong> No red slices, but not all green — no single
-              party should be able to get you slashed.
+              failure should be able to expose you to slashing.
             </li>
             <li>
-              <strong>Stage 2 — Liveness:</strong> All six slices green — no single failure should
-              be able to slash you, stop you, or censor you.
+              <strong>Stage 2 — Liveness:</strong> All six slices green — no single point of
+              failure should be able to slash you, stop you, or censor you.
             </li>
           </ul>
         </section>
@@ -57,10 +57,51 @@ export default function MethodologyPage() {
             ))}
           </ol>
           <p>
-            For infrastructure, OS, CPU, and geography, questions assume each validator runs as a{" "}
-            <strong>distributed validator (DVT)</strong> or behind a <strong>multiplexer</strong> —
-            duties split across independent nodes so diversity translates into uptime.
+            For infrastructure, OS, CPU, and geography, diversity only translates into resilience
+            when your validator runs <strong>active/active</strong>: several cooperating nodes back
+            the same stake, with signing continuing as long as enough of them stay up. The stake
+            isn&apos;t partitioned across machines — it&apos;s one aggregate validator whose
+            cooperating machines you&apos;ve diversified. Several setups achieve this —
+            multi-operator <strong>distributed validators (DVT)</strong> coordinated by Charon, or
+            validator clients like <strong>Vouch</strong> paired with multiplexers like{" "}
+            <strong>Vero</strong> and remote signers like <strong>Dirk</strong> or{" "}
+            <strong>Web3Signer</strong>. The common requirement: no single party holds enough key
+            material to sign alone — at least two independent parties involved, backups kept
+            separate, so compromising one doesn&apos;t leak the full private key.
           </p>
+        </section>
+
+        <section>
+          <h2>Further reading</h2>
+          <ul>
+            <li>
+              <a
+                href="https://lidofinance.github.io/valos/valos-spec.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                VALOS — Validator Operator Standards
+              </a>
+              {" "}— the canonical risk-and-mitigation catalogue for validator operators. Nearly
+              every risk surfaced in this assessment has a corresponding mitigation in VALOS.
+            </li>
+            <li>
+              <a
+                href="https://clientdiversity.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                clientdiversity.org
+              </a>
+              {" "}— live network share for each Ethereum consensus and execution client.
+            </li>
+            <li>
+              <a href="https://docs.obol.org/" target="_blank" rel="noopener noreferrer">
+                Obol docs
+              </a>
+              {" "}— distributed validators, Charon, and chain-split safety settings.
+            </li>
+          </ul>
         </section>
 
         <section>

@@ -5,7 +5,6 @@ import {
   IntroGoal,
   IntroGoalText,
   IntroLede,
-  IntroNote,
   IntroRoot,
   IntroTitle,
   StartButtonWrap,
@@ -22,8 +21,9 @@ export function Intro({ onStart }: IntroProps) {
       <Eyebrow>A neutral resource for validator fault tolerance</Eyebrow>
       <IntroTitle>How resilient is your validator setup?</IntroTitle>
       <IntroLede>
-        Six quick questions about how you run. Each one checks for a single point of failure — one
-        party, client, provider, or place that, if it broke or turned hostile, could get you
+        Six quick questions about how you run. Each one checks for a single point of failure —
+        any party, client, provider, machine, or place that, if it broke or turned hostile, could
+        get you
         <span style={{ color: risk.red, fontWeight: 600 }}> slashed</span>, knocked
         <span style={{ color: risk.yellow, fontWeight: 600 }}> offline</span>, or
         <span style={{ color: risk.red, fontWeight: 600 }}> censored</span>. Your answers fill the
@@ -37,11 +37,6 @@ export function Intro({ onStart }: IntroProps) {
         </IntroGoalText>
         <StageLadder stage={null} vertical />
       </IntroGoal>
-      <IntroNote>
-        Assumes each validator runs as a <b>distributed validator</b> (DVT) or behind a{" "}
-        <b>multiplexer</b> — its duties split across several nodes, so if one node&apos;s provider,
-        OS, or region fails, the rest keep signing.
-      </IntroNote>
       <StartButtonWrap>
         <VbButton onClick={onStart}>Start the assessment →</VbButton>
       </StartButtonWrap>

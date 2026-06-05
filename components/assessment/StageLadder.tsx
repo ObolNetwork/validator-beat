@@ -24,7 +24,7 @@ const LADDER = [
     n: 1 as const,
     name: "Stage 1",
     kind: "Safety",
-    tag: "No single party can slash you",
+    tag: "No single failure can get you slashed",
     tone: "yellow" as const,
   },
   {
