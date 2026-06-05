@@ -2,8 +2,13 @@
 
 const path = require("path");
 
+/** GitHub Pages project sites live at /{repo}/ — set empty when using a root custom domain. */
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const nextConfig = {
   output: "export",
+  basePath,
+  assetPrefix: basePath || undefined,
   trailingSlash: true,
   images: {
     unoptimized: true,

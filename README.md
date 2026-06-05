@@ -29,8 +29,10 @@ Every push to `main` runs CI and, on success, deploys the static `out/` folder t
 **One-time repo setup**
 
 1. **Settings → Pages → Build and deployment** — set **Source** to **GitHub Actions**.
-2. If you use a custom domain (e.g. `validatorbeat.com`), set it under **Custom domain** and point DNS at GitHub Pages.
-3. Production builds set `NEXT_PUBLIC_SITE_URL=https://validatorbeat.com` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) so share links and OG image URLs are absolute.
+2. Production builds use the GitHub Pages project path in [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
+   - `NEXT_PUBLIC_BASE_PATH=/validator-beat` — required so `/_next/` JS/CSS load at `obolnetwork.github.io/validator-beat/`
+   - `NEXT_PUBLIC_SITE_URL=https://obolnetwork.github.io/validator-beat` — share links and OG URLs
+3. **Custom domain** (`validatorbeat.com`): point DNS at GitHub Pages, then rebuild with `NEXT_PUBLIC_BASE_PATH=` (empty) and `NEXT_PUBLIC_SITE_URL=https://validatorbeat.com`.
 
 **Theming:** edit [`styles/theme-tokens.css`](styles/theme-tokens.css) to change colors (Lido forum–aligned by default). If you change pizza slice colors, also update [`lib/theme/tokens.ts`](lib/theme/tokens.ts).
 
