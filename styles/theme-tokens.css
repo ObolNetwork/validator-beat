@@ -1,18 +1,20 @@
 /* =============================================================================
    VALIDATOR BEAT — THEME (edit this file to change colors)
 
-   Palette aligned with Lido Governance forum (research.lido.fi):
-   light surfaces, #00A3FF accent, semantic success / warning / danger.
+   Light surfaces with semantic success / warning / danger. Brand accents draw
+   from the Obol palette (obol-ui DESIGN.md: obolDarkDark / obolGreen / obolGreenHover)
+   while staying readable on white backgrounds.
 
    Only change the hex values in the block below. The rest of the app maps
    these automatically (CSS variables + pizza SVG colors in lib/theme/tokens.ts).
    ============================================================================= */
 
 :root {
-  /* ---- Brand accent (links, primary buttons, wordmark highlight) ---- */
-  --theme-brand: #00a3ff;
-  --theme-brand-hover: #0088d4;
-  --theme-brand-highlight: #3369ff;
+  /* ---- Brand accent (links, primary buttons, wordmark highlight) ----
+     Obol-palette greens, picked for contrast on white surfaces. */
+  --theme-brand: #16968e;          /* obolDarkDark — readable on white */
+  --theme-brand-hover: #0f7c76;    /* darker neighbour in Obol palette */
+  --theme-brand-highlight: #2fe4ab; /* obolGreen — decorative tints / confetti */
 
   /* ---- Page surfaces ---- */
   --theme-surface-page: #f7f7f7;
@@ -29,13 +31,15 @@
   --theme-text-faint: #cccccc;
   --theme-text-on-brand: #ffffff;
 
-  /* ---- Pizza / risk slices (green = good, yellow = partial, red = SPOF) ---- */
-  --theme-risk-green: #3d854d;
+  /* ---- Pizza / risk slices (green = good, yellow = partial, red = SPOF) ----
+     Stage-2 green nudged toward the Obol mint family while staying legible as
+     "green" alongside the yellow and red in the traffic-light triad. */
+  --theme-risk-green: #1f9b6b;
   --theme-risk-yellow: #e7c300;
   --theme-risk-red: #bb1122;
 
   /* ---- Pizza ring tints (lighter than slice fill, for center progress ring) ---- */
-  --theme-risk-green-ring: #8fd4a0;
+  --theme-risk-green-ring: #82edcc;  /* obolGreenHover */
   --theme-risk-yellow-ring: #ffe566;
   --theme-risk-red-ring: #e85c6f;
 

@@ -7,15 +7,21 @@ import { allShareCodes } from "../lib/theme/share-codes";
 
 const OUT_DIR = path.join(__dirname, "..", "public", "og");
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://validatorbeat.com";
+const DISPLAY_HOST = SITE_URL.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const codes = allShareCodes();
   let done = 0;
 
+  console.log(`OG images: using display host "${DISPLAY_HOST}"`);
+
   for (const code of codes) {
     const answers = decodeShareCode(code);
     if (!answers) continue;
-    const svg = pizzaOgSvg(answers, code);
+    const svg = pizzaOgSvg(answers, code, DISPLAY_HOST);
     const out = path.join(OUT_DIR, `${code}.png`);
     await sharp(Buffer.from(svg)).png().toFile(out);
     done++;

@@ -9,11 +9,19 @@ const Body = styled("body", {
   color: "var(--fg-1)",
 });
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export default function Document() {
   return (
     <Html lang="en">
       <Head>
         <style id="obol" dangerouslySetInnerHTML={{ __html: getCssText() }} />
+        <link rel="icon" type="image/svg+xml" href={`${BASE_PATH}/icon.svg`} />
+        <link rel="icon" type="image/png" sizes="32x32" href={`${BASE_PATH}/favicon-32.png`} />
+        <link rel="icon" type="image/png" sizes="16x16" href={`${BASE_PATH}/favicon-16.png`} />
+        <link rel="apple-touch-icon" sizes="180x180" href={`${BASE_PATH}/apple-touch-icon.png`} />
+        <link rel="manifest" href={`${BASE_PATH}/site.webmanifest`} />
+        <meta name="theme-color" content="#16968E" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

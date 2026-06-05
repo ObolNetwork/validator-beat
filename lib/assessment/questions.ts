@@ -72,7 +72,7 @@ export const QUESTIONS: Record<SliceId, Question> = {
         sub: "A consensus-client bug could drag you into signing the wrong chain — no software safety net to catch it.",
       },
     ],
-    risk: "On a recent public test network, a bug in one consensus client caused every validator using it to sign an incorrect chain. Because that client held a supermajority share of the testnet's validators, the result was mass slashing — the same pattern on mainnet would have destroyed billions of dollars of stake. Refuse-to-attest only saves you when your clients disagree; if they all run software in the bad supermajority, they fork in unison and the safeguard never fires.",
+    risk: "On a recent public test network, a bug in one consensus client caused every validator using it to sign an incorrect chain. Because that client held a supermajority share of the testnet's validators, the result was mass slashing — the same pattern on mainnet would have destroyed billions of dollars of stake. Ethereum's slashing penalty already scales with how many validators are slashed in the same window, so a correlated event costs each affected validator far more than an isolated slashing would. Refuse-to-attest only saves you when your clients disagree; if they all run software in the bad supermajority, they fork in unison and the safeguard never fires.",
     references: [
       { label: "VALOS: Slashing Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-slashing" },
       { label: "VALOS: Client Diversity", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-client-diversity" },
@@ -107,6 +107,7 @@ export const QUESTIONS: Record<SliceId, Question> = {
       { label: "VALOS: Infrastructure Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-infra" },
       { label: "VALOS: Physically Distributed Infrastructure", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware" },
       { label: "VALOS: Utility Failure", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-utilities" },
+      { label: "EIP-7716: Anti-correlation penalties", url: "https://eips.ethereum.org/EIPS/eip-7716" },
     ],
   },
   osDiversity: {
@@ -181,6 +182,7 @@ export const QUESTIONS: Record<SliceId, Question> = {
       { label: "VALOS: Physically Distributed Infrastructure", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware" },
       { label: "VALOS: Environmental Threat Protection", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-from-environment" },
       { label: "VALOS: Environmental Controls", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-controls-environment" },
+      { label: "EIP-7716: Anti-correlation penalties", url: "https://eips.ethereum.org/EIPS/eip-7716" },
     ],
   },
 };

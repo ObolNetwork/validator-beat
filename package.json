@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build:og": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/generate-og-images.ts",
+    "build:icons": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/generate-icons.ts",
     "build": "yarn build:og && next build",
     "start": "next start",
     "lint": "next lint",
