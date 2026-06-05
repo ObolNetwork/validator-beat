@@ -4,16 +4,16 @@
  */
 import type { SliceColor } from "@lib/rubric/types";
 
-export const THEME_BRAND = "#00a3ff";
+export const THEME_BRAND = "#16968e";
 
 export const PIZZA_FILL: Record<SliceColor, string> = {
-  green: "#3d854d",
+  green: "#1f9b6b",
   yellow: "#e7c300",
   red: "#bb1122",
 };
 
 export const PIZZA_RING: Record<SliceColor, string> = {
-  green: "#8fd4a0",
+  green: "#82edcc",
   yellow: "#ffe566",
   red: "#e85c6f",
 };
@@ -25,7 +25,7 @@ export const PIZZA_INK = "#000000";
 
 export const CONFETTI_BRAND = [
   THEME_BRAND,
-  "#3369ff",
+  "#2fe4ab",
   PIZZA_FILL.green,
   PIZZA_FILL.yellow,
   "#ffffff",

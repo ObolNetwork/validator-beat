@@ -26,8 +26,8 @@ function wedgePath(cx: number, cy: number, r: number, a0: number, a1: number) {
 
 const STAGE_LINE: Record<Stage, string> = {
   0: "Has a single point of failure — for now.",
-  1: "Safe from slashing — no single party can get it slashed.",
-  2: "Maximum resilience — can't be slashed, stopped, or censored.",
+  1: "No single failure risks slashing.",
+  2: "Can't be slashed or stopped by a single failure.",
 };
 
 const STAGE_KIND: Record<Stage, string> = {
@@ -46,7 +46,11 @@ function escapeXml(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-export function pizzaOgSvg(answers: Answers, code: string): string {
+export function pizzaOgSvg(
+  answers: Answers,
+  code: string,
+  displayHost: string = "validatorbeat.com",
+): string {
   const stage = computeStage(answers);
   const cx = 300;
   const cy = 315;
@@ -77,7 +81,11 @@ export function pizzaOgSvg(answers: Answers, code: string): string {
       <text x="620" y="310" font-family="DM Sans, system-ui, sans-serif" font-size="56" font-weight="700" fill="${STAGE_COLOR[stage]}">Stage ${stage}</text>
       <text x="620" y="352" font-family="DM Sans, system-ui, sans-serif" font-size="16" font-weight="700" fill="${STAGE_COLOR[stage]}" letter-spacing="0.06em">${STAGE_KIND[stage].toUpperCase()}</text>
       <text x="620" y="400" font-family="DM Sans, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000">${escapeXml(STAGE_LINE[stage])}</text>
-      <text x="620" y="460" font-family="DM Sans, system-ui, sans-serif" font-size="17" fill="#696969">${SLICES.map((s) => `${s.short} ${answers[s.id] ? answers[s.id]![0].toUpperCase() : "—"}`).join(" · ")}</text>`;
+      <text x="620" y="460" font-family="DM Sans, system-ui, sans-serif" font-size="17" fill="#696969">${SLICES.map((s) => {
+        const col = answers[s.id];
+        const dot = col ? PIZZA_FILL[col] : PIZZA_EMPTY_STROKE;
+        return `${escapeXml(s.short)} <tspan fill="${dot}" font-size="22" dy="2">●</tspan><tspan dy="-2"> </tspan>`;
+      }).join("· ")}</text>`;
 
   const hub =
     stage != null
@@ -91,11 +99,11 @@ export function pizzaOgSvg(answers: Answers, code: string): string {
   <rect width="${W}" height="${H}" fill="#f7f7f7"/>
   <rect x="40" y="40" width="${W - 80}" height="${H - 80}" rx="16" fill="#ffffff" stroke="#e6e6e6"/>
   <text x="72" y="88" font-family="DM Sans, system-ui, sans-serif" font-size="22" font-weight="700" fill="${PIZZA_INK}">Validator <tspan fill="${THEME_BRAND}">Beat</tspan></text>
-  <text x="${W - 72}" y="88" text-anchor="end" font-family="ui-monospace, monospace" font-size="16" fill="#999999">${code}</text>
+  <text x="${W - 72}" y="88" text-anchor="end" font-family="ui-monospace, monospace" font-size="16" fill="#999999">${escapeXml(displayHost)}/${code}</text>
   <circle cx="${cx}" cy="${cy}" r="${r + 8}" fill="${PIZZA_PLATE}"/>
   ${wedges}
   ${hub}
   ${stageBlock}
-  <text x="72" y="${H - 56}" font-family="DM Sans, system-ui, sans-serif" font-size="18" fill="#696969">How resilient is your validator? Find out →</text>
+  <text x="72" y="${H - 56}" font-family="DM Sans, system-ui, sans-serif" font-size="18" fill="#696969">How resilient is your validator? Find out at <tspan fill="${THEME_BRAND}" font-weight="700">ValidatorBeat.com→</tspan></text>
 </svg>`;
 }

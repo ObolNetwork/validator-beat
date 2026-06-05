@@ -101,7 +101,40 @@ export default function MethodologyPage() {
               </a>
               {" "}— distributed validators, Charon, and chain-split safety settings.
             </li>
+            <li>
+              <a
+                href="https://eips.ethereum.org/EIPS/eip-7716"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                EIP-7716 — Anti-correlation attestation penalties
+              </a>
+              {" "}— proposal to scale downtime penalties by correlation, so diversified setups
+              pay less when many validators miss attestations together.
+            </li>
           </ul>
+        </section>
+
+        <section>
+          <h2>Why correlation matters</h2>
+          <p>
+            Ethereum&apos;s penalty math is already super-linear in correlation. Slashing penalties
+            scale with how many validators are slashed in the same window — an event that takes
+            out many validators at once costs each affected validator far more than an isolated
+            slashing would.{" "}
+            <a
+              href="https://eips.ethereum.org/EIPS/eip-7716"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              EIP-7716
+            </a>{" "}
+            (&ldquo;Anti-correlation attestation penalties&rdquo;) proposes the same shape for
+            <em> outages</em>: more diversified entities get lower penalties, while entities with
+            high correlations in their setup face more severe ones. Spreading across the six
+            slices here isn&apos;t just defensive — it materially reduces the magnitude of any
+            single bad day, today for slashing and (under EIP-7716) tomorrow for downtime.
+          </p>
         </section>
 
         <section>

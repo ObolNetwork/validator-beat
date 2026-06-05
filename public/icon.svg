@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Obol-green circular background (obolDarkDark #16968E — matches the site accent) -->
+  <circle cx="256" cy="256" r="256" fill="#16968E"/>
+  <!--
+    Ethereum eth-diamond logomark, white on color.
+    Polygon points from the canonical SVG (Wikimedia, viewBox 256x417), scaled
+    by 0.7 and translated to centre on the 512x512 canvas:
+      transform = translate(166.4, 110.05) scale(0.7)
+    Opacity tiers preserve the 3D depth at larger icon sizes without harming
+    readability at 16x16/32x32 (small-size renders blend visually to a solid
+    white silhouette, which is what we want).
+  -->
+  <g transform="translate(166.4 110.05) scale(0.7)" fill="#FFFFFF">
+    <polygon opacity="1"    points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32"/>
+    <polygon opacity="0.6"  points="127.962 0 0 212.32 127.962 287.959 127.962 154.158"/>
+    <polygon opacity="1"    points="127.9611 312.1866 126.3861 314.1066 126.3861 412.3056 127.9611 416.9066 255.9991 236.5866"/>
+    <polygon opacity="0.6"  points="127.962 416.9052 127.962 312.1852 0 236.5852"/>
+    <polygon opacity="0.45" points="127.9611 287.9577 255.9211 212.3207 127.9611 154.1587"/>
+    <polygon opacity="0.8"  points="0.0009 212.3208 127.9609 287.9578 127.9609 154.1588"/>
+  </g>
+</svg>
