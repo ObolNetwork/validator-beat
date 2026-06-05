@@ -237,16 +237,6 @@ export const IntroGoalText = styled(Text, {
   "& b": { color: "$body" },
 });
 
-export const IntroNote = styled(Text, {
-  fontSize: "$2",
-  lineHeight: 1.5,
-  color: "$textMiddle",
-  marginTop: "$xs",
-  paddingLeft: "$xs",
-  borderLeft: "2px solid $bg05",
-  "& b": { color: "$textLight" },
-});
-
 export const StartButtonWrap = styled(Box, {
   alignSelf: "flex-start",
   marginTop: "$md",
@@ -510,6 +500,46 @@ export const OptionCheck = styled(Text, {
   variants: {
     selected: { true: { color: "$body" } },
   },
+});
+
+export const QuestionRisk = styled(Box, {
+  marginTop: "$md",
+  padding: "12px 14px",
+  backgroundColor: "$bg02",
+  border: "1px solid $bg05",
+  borderLeft: "3px solid $bg07",
+  borderRadius: "$3",
+});
+
+export const QuestionRiskHead = styled(Text, {
+  fontSize: "$1",
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  color: "$textMiddle",
+  fontWeight: 600,
+  marginBottom: 6,
+});
+
+export const QuestionRiskBody = styled(Text, {
+  fontSize: "$2",
+  lineHeight: 1.55,
+  color: "$textLight",
+});
+
+export const QuestionRefs = styled(Box, {
+  marginTop: 10,
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "$xs",
+});
+
+export const QuestionRefLink = styled("a", {
+  fontSize: "$1",
+  color: "$textMiddle",
+  textDecoration: "underline",
+  textDecorationStyle: "dotted",
+  textUnderlineOffset: "2px",
+  "&:hover": { color: "$textLight" },
 });
 
 export const BackButton = styled("button", {

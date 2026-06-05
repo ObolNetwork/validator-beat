@@ -84,3 +84,7 @@ Paste a live share link such as `https://validatorbeat.com/GYRYGG`. Debuggers ca
 - Image loads: `https://validatorbeat.com/og/GYRYGG.png`
 - `og:image` in page source matches that URL (must be absolute HTTPS)
 - Slack / Discord / iMessage: paste the URL in a draft message to see the unfurl
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE).

@@ -65,13 +65,13 @@ const STAGE = {
     name: "Stage 0",
     kind: "Getting started",
     tone: "red" as const,
-    line: "Every operator starts here. Clear the items in red below to reach Stage 1 — where no single party can get your validator slashed.",
+    line: "Every operator starts here. Clear the items in red below to reach Stage 1 — where no single failure can expose you to slashing.",
   },
   1: {
     name: "Stage 1",
     kind: "Safety",
     tone: "yellow" as const,
-    line: "No single party can get you slashed. One more climb to Stage 2 — where no single failure can take you offline or censor you.",
+    line: "No single failure can expose you to slashing. One more climb to Stage 2 — where no single point of failure can take you offline or censor you either.",
   },
   2: {
     name: "Stage 2",
@@ -82,8 +82,8 @@ const STAGE = {
 } as const;
 
 const WHY_MAXED: Record<SliceId, string> = {
-  keyCustody: "No single party can sign with your stake.",
-  clientDiversity: "No supermajority-client bug can slash you.",
+  keyCustody: "No single compromise can sign with your stake.",
+  clientDiversity: "No supermajority-client fork can drag you in.",
   infraDiversity: "No single provider can take your validator offline.",
   osDiversity: "No single OS bug can stop your validator.",
   cpuDiversity: "No single CPU-architecture supply-chain risk.",
@@ -92,7 +92,7 @@ const WHY_MAXED: Record<SliceId, string> = {
 
 const SHARE_LINE: Record<Stage, string> = {
   0: "Has a single point of failure — for now.",
-  1: "Safe from slashing — no single party can get it slashed.",
+  1: "Safe from slashing — no single failure can get it slashed.",
   2: "Maximum resilience — can't be slashed, stopped, or censored.",
 };
 
