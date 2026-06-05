@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build:og": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/generate-og-images.ts",
+    "build": "yarn build:og && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
@@ -21,6 +22,7 @@
     "@obolnetwork/obol-ui": "1.1.19",
     "@radix-ui/react-tooltip": "1.2.8",
     "@stitches/react": "1.2.8",
+    "html-to-image": "1.11.13",
     "next": "15.5.15",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -42,8 +44,10 @@
     "js-yaml": "4.1.1",
     "lint-staged": "16.4.0",
     "prettier": "3.8.3",
+    "sharp": "0.33.5",
     "ts-jest": "29.4.9",
     "ts-node": "10.9.2",
+    "tsconfig-paths": "4.2.0",
     "typescript": "5.9.3",
     "zod": "3.25.76"
   },

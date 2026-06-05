@@ -1,24 +1,84 @@
 # Validator Beat
 
-Public transparency dashboard for Ethereum node operators — stage + six-slice risk profile per operator.
+Neutral, public-good **self-assessment** for Ethereum validator operators — six questions, six pizza slices, one Stage. Runs entirely in your browser; nothing is submitted or stored.
 
-**Planning:** See [docs/PLAN.md](./docs/PLAN.md) for the full setup and implementation plan.
-
-**Prototype:** https://stately-bienenstitch-8e3cfc.netlify.app/
+**Planning:** [docs/PLAN.md](./docs/PLAN.md)
 
 ## Development
 
 ```bash
-cp .env.example .env.local   # optional: NEXT_PUBLIC_SURVEY_URL
 yarn install
 yarn dev
 ```
 
+Open http://localhost:3000
+
 | Command | Description |
 |---------|-------------|
 | `yarn dev` | Local dev server |
-| `yarn build` | Static export to `out/` (deploy via GitHub Pages later — see plan) |
+| `yarn build` | Static export to `out/` |
+| `yarn test` | Rubric unit tests |
 | `yarn lint` | ESLint |
-| `yarn test` | Jest (rubric unit tests) |
 
-Stack: Next.js 15 (Pages Router), static export, `@obolnetwork/obol-ui`, TypeScript.
+Optional: set `NEXT_PUBLIC_SITE_URL` in `.env.local` for share links (defaults to `https://validatorbeat.com`).
+
+## Deploy (GitHub Pages)
+
+Every push to `main` runs CI and, on success, deploys the static `out/` folder to GitHub Pages.
+
+**One-time repo setup**
+
+1. **Settings → Pages → Build and deployment** — set **Source** to **GitHub Actions**.
+2. If you use a custom domain (e.g. `validatorbeat.com`), set it under **Custom domain** and point DNS at GitHub Pages.
+3. Production builds set `NEXT_PUBLIC_SITE_URL=https://validatorbeat.com` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) so share links and OG image URLs are absolute.
+
+**Theming:** edit [`styles/theme-tokens.css`](styles/theme-tokens.css) to change colors (Lido forum–aligned by default). If you change pizza slice colors, also update [`lib/theme/tokens.ts`](lib/theme/tokens.ts).
+
+## v0.1 routes
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Self-assessment (intro → 6 slices → results) |
+| `/GYRYGG` | Open a shared result (729 static pages + OG preview image) |
+| `/GYRYGG?n=Kody%27s%20Cluster` | Same, with optional display name (not in link preview) |
+| `/methodology/` | Framework and stage definitions |
+| `/operators/` | Redirects to `/` until operator registry ships |
+
+## Share codes
+
+Six characters: `G` green, `Y` yellow, `R` red — one per slice in order (Keys → Geo).
+
+## Link previews (OG / Twitter cards)
+
+Share pages expose Open Graph tags and a per-code image at `/og/{code}.png` (e.g. `/og/GYRYGG.png`).
+
+**Local**
+
+```bash
+yarn build
+npx serve out
+```
+
+Then open a share URL (e.g. `http://localhost:3000/GYRYGG/`) and confirm meta tags:
+
+```bash
+curl -s http://localhost:3000/GYRYGG/ | grep -E 'og:|twitter:'
+```
+
+Open the image directly: `http://localhost:3000/og/GYRYGG.png`.
+
+**After deploy**
+
+| Tool | URL |
+|------|-----|
+| Meta Tags | https://metatags.io/ (paste your share URL) |
+| Facebook / LinkedIn debugger | https://developers.facebook.com/tools/debug/ |
+| opengraph.xyz | https://www.opengraph.xyz/ |
+
+Paste a live share link such as `https://validatorbeat.com/GYRYGG`. Debuggers cache previews — use “Scrape again” if you redeployed OG images.
+
+**Quick checks**
+
+- Image loads: `https://validatorbeat.com/og/GYRYGG.png`
+- `og:image` in page source matches that URL (must be absolute HTTPS)
+- Slack / Discord / iMessage: paste the URL in a draft message to see the unfurl

@@ -42,10 +42,10 @@ export function Navbar() {
             <NextLink key={href} href={href} passHref legacyBehavior>
               <Link
                 css={{
-                  color: active ? "$obolGreen" : "$body",
+                  color: active ? "var(--theme-brand)" : "$body",
                   fontWeight: active ? "$semibold" : "$normal",
                   textDecoration: "none",
-                  "&:hover": { color: "$obolGreen" },
+                  "&:hover": { color: "var(--theme-brand)" },
                 }}
               >
                 {label}

@@ -1,0 +1,89 @@
+/* =============================================================================
+   VALIDATOR BEAT — THEME (edit this file to change colors)
+
+   Palette aligned with Lido Governance forum (research.lido.fi):
+   light surfaces, #00A3FF accent, semantic success / warning / danger.
+
+   Only change the hex values in the block below. The rest of the app maps
+   these automatically (CSS variables + pizza SVG colors in lib/theme/tokens.ts).
+   ============================================================================= */
+
+:root {
+  /* ---- Brand accent (links, primary buttons, wordmark highlight) ---- */
+  --theme-brand: #00a3ff;
+  --theme-brand-hover: #0088d4;
+  --theme-brand-highlight: #3369ff;
+
+  /* ---- Page surfaces ---- */
+  --theme-surface-page: #f7f7f7;
+  --theme-surface-card: #ffffff;
+  --theme-surface-panel: #f0f0f0;
+  --theme-surface-hover: #ebebeb;
+  --theme-border: #e6e6e6;
+  --theme-border-strong: #cccccc;
+
+  /* ---- Text ---- */
+  --theme-text-primary: #000000;
+  --theme-text-secondary: #696969;
+  --theme-text-muted: #999999;
+  --theme-text-faint: #cccccc;
+  --theme-text-on-brand: #ffffff;
+
+  /* ---- Pizza / risk slices (green = good, yellow = partial, red = SPOF) ---- */
+  --theme-risk-green: #3d854d;
+  --theme-risk-yellow: #e7c300;
+  --theme-risk-red: #bb1122;
+
+  /* ---- Pizza ring tints (lighter than slice fill, for center progress ring) ---- */
+  --theme-risk-green-ring: #8fd4a0;
+  --theme-risk-yellow-ring: #ffe566;
+  --theme-risk-red-ring: #e85c6f;
+
+  /* ---- Pizza plate / empty wedge ---- */
+  --theme-pizza-plate: #ffffff;
+  --theme-pizza-empty: #f0f0f0;
+  --theme-pizza-empty-stroke: #cccccc;
+  --theme-pizza-ink: #000000;
+}
+
+/* ---- App aliases (handoff CSS; mirror obol-ui $bg01 / $obolGreen tokens) ---- */
+:root {
+  --bg-01: var(--colors-bg01, var(--theme-surface-page));
+  --bg-02: var(--colors-bg02, var(--theme-surface-card));
+  --bg-03: var(--colors-bg03, var(--theme-surface-panel));
+  --bg-04: var(--colors-bg04, var(--theme-surface-hover));
+  --bg-05: var(--colors-bg05, var(--theme-border));
+
+  --brand: var(--theme-brand);
+  --obol-green: var(--brand);
+  --obol-green-deep: var(--theme-brand-hover);
+  --obol-green-tint: color-mix(in srgb, var(--theme-brand) 8%, transparent);
+  --obol-green-2x: color-mix(in srgb, var(--theme-brand) 20%, transparent);
+  --lime: var(--theme-brand-highlight);
+
+  --gold: var(--theme-risk-yellow);
+  --error: var(--theme-risk-red);
+  --error-bright: #ef5350;
+
+  --fg-1: var(--theme-text-primary);
+  --fg-2: var(--theme-text-secondary);
+  --fg-3: var(--theme-text-muted);
+  --fg-4: var(--theme-text-faint);
+  --ice: var(--theme-brand);
+  --on-accent: var(--theme-text-on-brand);
+
+  --vb-green: var(--theme-risk-green);
+  --vb-yellow: var(--theme-risk-yellow);
+  --vb-red: var(--theme-risk-red);
+  --vb-green-t: color-mix(in srgb, var(--theme-risk-green) 14%, transparent);
+  --vb-yellow-t: color-mix(in srgb, var(--theme-risk-yellow) 14%, transparent);
+  --vb-red-t: color-mix(in srgb, var(--theme-risk-red) 14%, transparent);
+  --vb-green-b: color-mix(in srgb, var(--theme-risk-green) 50%, transparent);
+  --vb-yellow-b: color-mix(in srgb, var(--theme-risk-yellow) 50%, transparent);
+  --vb-red-b: color-mix(in srgb, var(--theme-risk-red) 50%, transparent);
+
+  --vb-plate: var(--theme-pizza-plate);
+  --vb-empty: var(--theme-pizza-empty);
+  --vb-empty-stroke: var(--theme-pizza-empty-stroke);
+  --vb-ink: var(--theme-pizza-ink);
+}

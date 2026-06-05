@@ -1,10 +1,14 @@
-import { Box, Link, Text } from "@obolnetwork/obol-ui";
+import Link from "next/link";
 
 export default function NotFoundPage() {
   return (
-    <Box css={{ display: "flex", flexDirection: "column", gap: "$md" }}>
-      <Text variant="h3">Page not found</Text>
-      <Link href="/">Back to home</Link>
-    </Box>
+    <div className="vb-methodology">
+      <main className="vb-methodology__main">
+        <h1>Page not found</h1>
+        <p>
+          <Link href="/">Back to Validator Beat</Link>
+        </p>
+      </main>
+    </div>
   );
 }

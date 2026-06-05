@@ -19,8 +19,10 @@
     "paths": {
       "@components/*": ["components/*"],
       "@constants/*": ["constants/*"],
+      "@hooks/*": ["hooks/*"],
       "@lib/*": ["lib/*"],
-      "@public/*": ["public/*"]
+      "@public/*": ["public/*"],
+      "@styles/*": ["styles/*"]
     }
   },
   "include": [

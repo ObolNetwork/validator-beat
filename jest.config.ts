@@ -12,6 +12,7 @@ const config: Config = {
     "^@components/(.*)$": "<rootDir>/components/$1",
     "^@constants/(.*)$": "<rootDir>/constants/$1",
     "^@lib/(.*)$": "<rootDir>/lib/$1",
+    "^@hooks/(.*)$": "<rootDir>/hooks/$1",
   },
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/", "<rootDir>/out/"],
 };

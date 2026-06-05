@@ -1,0 +1,32 @@
+/* =============================================================================
+   obol-ui bridge — override Stitches --colors-* from theme-tokens.css.
+
+   Handoff CSS uses --bg-01 / --fg-1 aliases; obol-ui Box/Button use $bg01 etc.
+   Both resolve to the same values here so components can migrate to Stitches later.
+   Load after getCssText() in _document (via _app imports).
+   ============================================================================= */
+
+:root {
+  /* Surfaces ($bg01–$bg05) */
+  --colors-bg01: var(--theme-surface-page);
+  --colors-bg02: var(--theme-surface-card);
+  --colors-bg03: var(--theme-surface-panel);
+  --colors-bg04: var(--theme-surface-hover);
+  --colors-bg05: var(--theme-border);
+
+  /* Brand / accent — Lido blue maps onto obol-ui primary token names */
+  --colors-obolGreen: var(--theme-brand);
+  --colors-obolGreenHover: var(--theme-brand-hover);
+  --colors-obolGreenLight: var(--theme-brand-highlight);
+
+  /* Text ($body, $textLight, $textMiddle) */
+  --colors-body: var(--theme-text-primary);
+  --colors-textLight: var(--theme-text-primary);
+  --colors-textMiddle: var(--theme-text-secondary);
+  --colors-textLighter: var(--theme-text-muted);
+  --colors-primaryTextDefault: var(--theme-text-secondary);
+
+  /* Semantic */
+  --colors-obolGold: var(--theme-risk-yellow);
+  --colors-textGreen1: var(--theme-risk-green);
+}
