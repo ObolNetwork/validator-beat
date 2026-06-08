@@ -18,6 +18,7 @@ import {
 } from "./Blockers";
 import { Intro } from "./Intro";
 import { Question } from "./Question";
+import { ThemeToggle } from "./ThemeToggle";
 import { LevelUp, ResultHero, ShareModal } from "./Results";
 import {
   BrandAccent,
@@ -122,6 +123,7 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
         <Link href="/methodology/" passHref legacyBehavior>
           <TopNavLink>Methodology</TopNavLink>
         </Link>
+        <ThemeToggle />
       </TopBar>
 
       <MainGrid>

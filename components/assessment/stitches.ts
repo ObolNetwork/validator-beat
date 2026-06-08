@@ -78,6 +78,21 @@ export const TopNavLink = styled("a", {
   "&:hover": { color: "$body" },
 });
 
+export const ThemeToggleButton = styled("button", {
+  all: "unset",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 30,
+  height: 30,
+  borderRadius: "$round",
+  color: "$textMiddle",
+  border: "1px solid $bg05",
+  "&:hover": { color: "$body", backgroundColor: "$bg04" },
+  "&:focus-visible": { outline: "2px solid var(--theme-brand)", outlineOffset: 2 },
+});
+
 export const MainGrid = styled(Box, {
   flex: 1,
   minHeight: 0,
