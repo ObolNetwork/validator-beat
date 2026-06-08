@@ -23,14 +23,14 @@ export type Question = {
 
 export const QUESTIONS: Record<SliceId, Question> = {
   keyCustody: {
-    q: "What's the largest share of your signing power that any single point of failure could control or compromise — counting key backups the same as live keys?",
+    q: "What's the largest share of your signing power that any single point of failure could compromise, including both runtime keys and backups?",
     helper:
       "A “point of failure” is anywhere your signing power can converge: a person, a team, a machine, a custodian, or even one piece of software (an RCE bug in your validator client could leak whatever key material it holds). With threshold signing, no single compromise can sign unless it controls more than ⅔ of the shares.",
     options: [
       {
         color: "green",
         label: "No more than ⅓",
-        sub: "Signing needs at least 3 independent components to converge — no single compromise can sign.",
+        sub: "Producing a valid signature would take at least two separate compromises.",
       },
       {
         color: "yellow",
@@ -52,24 +52,24 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
   },
   clientDiversity: {
-    q: "If a consensus client developed a critical bug and forked onto an incorrect chain, what would stop your validator from signing along with it?",
+    q: "If a client bug forks onto an incorrect chain, what stops your validator from signing along with it?",
     helper:
-      "Two independent safeguards. (1) Halt-on-disagreement configured in your stack: Charon (DVT) halts when more than its BFT threshold of operators disagree, i.e. when QBFT can't reach a decision; Vero exposes --attestation-consensus-threshold (default majority, set equal to the beacon-node count for unanimity); Vouch uses strategies.attestationdata.style: majority with a tunable majority.threshold (set to N for unanimity). (2) Keep your full client mix under ⅔ of the network. If every client you run is on the supermajority side, they all fork the same way, the halt-on-disagreement safeguard never triggers, and you get slashed alongside the network. See clientdiversity.org for current client shares.",
+      "Two safeguards work together. First, halt on disagreement: run several independent clients and configure your stack (Charon, Vero, or Vouch all support this) to stop attesting when they disagree, so a client bug becomes downtime instead of slashing. Second, watch the supermajority: if every client you run sits inside a ⅔ supermajority that forks together, your clients never disagree and the halt never triggers. Check clientdiversity.org for current client shares.",
     options: [
       {
         color: "green",
-        label: "Refuse-to-attest configured, 3+ independent clients, includes a minority client",
-        sub: "Your combined client share stays under ⅔ of the network — no supermajority-client fork can sweep you up.",
+        label: "Refuse-to-attest configured, 3+ independent clients, combined share under ⅔ of the network",
+        sub: "If a supermajority client forks, at least one of your clients disagrees and your validator halts instead of following.",
       },
       {
         color: "yellow",
-        label: "Refuse-to-attest configured, 3+ independent clients, all on supermajority-share clients",
-        sub: "Safe from a single-client bug, but if every client you run is in the bad supermajority, they fork in unison and the safeguard never fires.",
+        label: "Refuse-to-attest configured, 3+ independent clients, combined share could form a supermajority",
+        sub: "Safe from a single-client bug, but if all your clients fork the same way the halt never triggers and you sign the incorrect chain along with them.",
       },
       {
         color: "red",
         label: "Single client, or no refuse-to-attest safeguard",
-        sub: "A consensus-client bug could drag you into signing the wrong chain — no software safety net to catch it.",
+        sub: "A consensus-client bug could drag you into signing an incorrect chain, with no software safety net to catch it.",
       },
     ],
     risk: "On a recent public test network, a bug in one consensus client caused every validator using it to sign an incorrect chain. Because that client held a supermajority share of the testnet's validators, the result was mass slashing — the same pattern on mainnet would have destroyed billions of dollars of stake. Ethereum's slashing penalty already scales with how many validators are slashed in the same window, so a correlated event costs each affected validator far more than an isolated slashing would. Refuse-to-attest only saves you when your clients disagree; if they all run software in the bad supermajority, they fork in unison and the safeguard never fires.",
@@ -84,21 +84,21 @@ export const QUESTIONS: Record<SliceId, Question> = {
   infraDiversity: {
     q: "Across the nodes that run your validators, what's the largest share on a single hosting provider?",
     helper:
-      "Think active/active: in a multi-operator DVT, or a multiplexer like Vero fronting several beacon nodes, multiple machines cooperate to back the same stake. “Share on a single provider” here is the share of those cooperating machines, not a share of stake — diversifying the machine inventory means a single provider's outage drops only some of them, and the validator keeps signing. Count each cloud (AWS, Hetzner…) and “home / bare-metal” as its own provider.",
+      "This assumes an active/active setup: several machines cooperate to back the same stake, as in a multi-operator DVT or with a multiplexer like Vero fronting several beacon nodes. The share that matters is the share of those cooperating machines, not of stake. If your biggest provider goes down, it should only drop some of your machines while the validator keeps signing. Treat each cloud (AWS, Hetzner…) and home or bare-metal as its own provider.",
     options: [
       {
         color: "green",
-        label: "Less than 33%",
+        label: "Less than ⅓",
         sub: "No single provider's outage can take your validator offline.",
       },
       {
         color: "yellow",
-        label: "33% to 66%",
+        label: "⅓ to ⅔",
         sub: "One provider going down would drop a large share of your nodes.",
       },
       {
         color: "red",
-        label: "More than 66%",
+        label: "More than ⅔",
         sub: "One provider going down takes your validator offline.",
       },
     ],
@@ -113,16 +113,16 @@ export const QUESTIONS: Record<SliceId, Question> = {
   osDiversity: {
     q: "Could a compromise of a single operating system expose all of your signing material?",
     helper:
-      "Distinct Linux/Unix distributions count separately — Ubuntu, Debian, Arch, NixOS, macOS, etc. The concern is compromise (an OS-level RCE, a poisoned package update, a build-pipeline attack) reaching every key at once, not uptime. Mixing distros forces an attacker to break multiple independent supply chains to reach all of your signing material.",
+      "The concern is a compromise reaching every key at once, not uptime: an OS-level vulnerability, a poisoned package update, or a build-pipeline attack. Distinct Linux and Unix distributions count separately, so Ubuntu, Debian, Arch, NixOS, and macOS are each their own OS. Mixing them forces an attacker to break multiple independent supply chains to reach all of your signing material.",
     options: [
       {
         color: "green",
-        label: "No — signing material is split across two or more distinct distros",
+        label: "No: signing material is split across two or more distinct distros",
         sub: "An OS-level compromise can only reach the share of your keys on that distro.",
       },
       {
         color: "red",
-        label: "Yes — all signing material runs on a single OS",
+        label: "Yes: all signing material runs on a single OS",
         sub: "One OS-level vulnerability or poisoned update could reach every key you hold.",
       },
     ],
@@ -136,17 +136,17 @@ export const QUESTIONS: Record<SliceId, Question> = {
   cpuDiversity: {
     q: "Could a compromise of a single CPU architecture expose all of your signing material?",
     helper:
-      "The instruction set the chip speaks — x86-64, ARM64, RISC-V — not the chip model. Side-channel and speculative-execution disclosures (Spectre, Meltdown, and successors) are architecture-bound, so splitting your signing material across two ISAs (typically x86-64 + ARM64) limits the blast radius of any single hardware-class disclosure. RISC-V is barely available today, so two is the practical ceiling for most operators.",
+      "Count by instruction set, not chip model: x86-64, ARM64, and RISC-V are the architectures that matter. Side-channel and speculative-execution flaws like Spectre and Meltdown are bound to one architecture, so splitting your signing material across two limits how far any single flaw can reach. RISC-V is barely available today, so two is the practical ceiling for most operators.",
     options: [
       {
         color: "green",
-        label: "No — signing material is split across two or more architectures",
-        sub: "Typically x86-64 + ARM64 (Apple Silicon, AWS Graviton, Ampere) — an architecture-bound side-channel can only reach the keys on that ISA.",
+        label: "No: signing material is split across two or more architectures",
+        sub: "Typically x86-64 plus ARM64 (Apple Silicon, AWS Graviton, Ampere), so a flaw in one architecture can only reach the keys running on it.",
       },
       {
         color: "red",
-        label: "Yes — all signing material runs on a single architecture",
-        sub: "Typically 100% x86-64 — one CPU-class disclosure could reach every key.",
+        label: "Yes: all signing material runs on a single architecture",
+        sub: "Typically 100% x86-64, where one CPU-level vulnerability could reach every key.",
       },
     ],
     risk: "CPU architectures have repeatedly disclosed speculative-execution and side-channel vulnerabilities — Spectre, Meltdown, and a long tail of successors — that let one process read memory belonging to another process on the same machine, including, in principle, signing keys held by a co-located component. A second architecture across your fleet limits the blast radius of any single hardware-class vulnerability.",
@@ -156,24 +156,24 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
   },
   geoDiversity: {
-    q: "What's the largest share of those nodes in a single country or region?",
+    q: "What's the largest share of your nodes in a single country or region?",
     helper:
-      "Where the cooperating nodes that back your stake physically run — grouped by country or region, not data-centre. In an active/active setup, a country-level outage (grid blackout, weather event, network disruption) only drops the nodes in that region; the rest keep signing.",
+      "Group the cooperating nodes that back your stake by the country or region where they physically run, not by data centre. In an active/active setup, a country-level outage like a grid blackout, weather event, or network disruption only drops the nodes in that region while the rest keep signing.",
     options: [
       {
         color: "green",
-        label: "Less than 33%",
-        sub: "No issue in a single region can put your validator offline.",
+        label: "Less than ⅓",
+        sub: "No single region's outage can take your validator offline.",
       },
       {
         color: "yellow",
-        label: "33% to 66%",
-        sub: "A situation in this country or region could take your validator offline.",
+        label: "⅓ to ⅔",
+        sub: "One region going down would drop a large share of your nodes.",
       },
       {
         color: "red",
-        label: "More than 66%",
-        sub: "An issue in this region could risk your validator's security.",
+        label: "More than ⅔",
+        sub: "One regional outage takes your validator offline.",
       },
     ],
     risk: "Entire countries lose grid power for hours or days — the 2025 Iberian Peninsula blackout cut electricity to tens of millions of people across two countries simultaneously. Natural disasters, accidental cascading failures, and sovereign actions all show up as common-mode risk for validators concentrated in one country or region.",
