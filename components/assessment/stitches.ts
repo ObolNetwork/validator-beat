@@ -277,12 +277,13 @@ export const LadderName = styled(Text, {
 export const LadderKind = styled(Text, {
   fontSize: "9.5px",
   fontWeight: "$bold",
+  lineHeight: 1,
   textTransform: "uppercase",
   letterSpacing: "0.07em",
   color: "$textMiddle",
   border: "1px solid $bg05",
   borderRadius: "$pill",
-  padding: "1px 7px",
+  padding: "3px 7px",
   variants: {
     tone: {
       red: { color: risk.red, borderColor: risk.redB },
@@ -295,9 +296,10 @@ export const LadderKind = styled(Text, {
 export const LadderHere = styled(Text, {
   fontSize: "9.5px",
   fontWeight: "$bold",
+  lineHeight: 1,
   textTransform: "uppercase",
   letterSpacing: "0.06em",
-  padding: "2px 8px",
+  padding: "3px 8px",
   borderRadius: "$pill",
   whiteSpace: "nowrap",
   variants: {
