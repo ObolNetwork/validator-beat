@@ -137,7 +137,7 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
               onChoose={choose}
               index={a.step}
               total={a.total}
-              onBack={a.back}
+              onBack={a.step === 0 ? a.toIntro : a.back}
               onShowResults={
                 allAnswered(a.answers) ? a.showResults : undefined
               }
