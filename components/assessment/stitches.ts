@@ -1,5 +1,6 @@
 import { Box, Text, styled } from "@obolnetwork/obol-ui";
 import type { SliceColor } from "@lib/rubric/types";
+import NextLink from "next/link";
 
 /** Validator Beat risk palette — maps to theme-tokens.css */
 export const risk = {
@@ -46,7 +47,7 @@ export const TopBar = styled(Box, {
   flexShrink: 0,
 });
 
-export const BrandLink = styled("a", {
+export const BrandLink = styled(NextLink, {
   fontSize: "$3",
   fontWeight: "$bold",
   letterSpacing: "-0.01em",
@@ -70,7 +71,7 @@ export const TagPill = styled(Box, {
 
 export const TopSpacer = styled(Box, { marginLeft: "auto" });
 
-export const TopNavLink = styled("a", {
+export const TopNavLink = styled(NextLink, {
   fontSize: "$2",
   fontWeight: "$medium",
   color: "$textMiddle",

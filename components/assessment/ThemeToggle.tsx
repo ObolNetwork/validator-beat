@@ -1,4 +1,5 @@
-import { useTheme } from "@hooks/useTheme";
+import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { ThemeToggleButton } from "./stitches";
 
 const SunIcon = () => (
@@ -28,13 +29,17 @@ const MoonIcon = () => (
  * until mounted so it never mismatches the server-rendered markup.
  */
 export function ThemeToggle() {
-  const { theme, toggle, mounted } = useTheme();
-  const isDark = theme === "dark";
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const isDark = mounted && resolvedTheme === "dark";
 
   return (
     <ThemeToggleButton
       type="button"
-      onClick={toggle}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >

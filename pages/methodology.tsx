@@ -14,11 +14,9 @@ export default function MethodologyPage() {
   return (
     <div className="vb-methodology">
       <TopBar as="header" className="vb-methodology__top">
-        <Link href="/" passHref legacyBehavior>
-          <BrandLink>
-            Validator <BrandAccent>Beat</BrandAccent>
-          </BrandLink>
-        </Link>
+        <BrandLink href="/">
+          Validator <BrandAccent>Beat</BrandAccent>
+        </BrandLink>
         <TagPill>v0.1 · methodology</TagPill>
         <TopSpacer />
         <ThemeToggle />

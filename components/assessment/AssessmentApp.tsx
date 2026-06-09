@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Pizza } from "@components/pizza/Pizza";
 import { useAssessment } from "@hooks/useAssessment";
@@ -113,16 +112,12 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
   return (
     <Shell>
       <TopBar>
-        <Link href="/" passHref legacyBehavior>
-          <BrandLink>
-            Validator <BrandAccent>Beat</BrandAccent>
-          </BrandLink>
-        </Link>
+        <BrandLink href="/">
+          Validator <BrandAccent>Beat</BrandAccent>
+        </BrandLink>
         <TagPill>v0.1 · self-assessment</TagPill>
         <TopSpacer />
-        <Link href="/methodology/" passHref legacyBehavior>
-          <TopNavLink>Methodology</TopNavLink>
-        </Link>
+        <TopNavLink href="/methodology/">Methodology</TopNavLink>
         <ThemeToggle />
       </TopBar>
 

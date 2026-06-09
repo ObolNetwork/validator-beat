@@ -1,4 +1,4 @@
-import { Box, Link, Text } from "@obolnetwork/obol-ui";
+import { Box, Text } from "@obolnetwork/obol-ui";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { SITE_NAME } from "@constants/index";
@@ -25,13 +25,11 @@ export function Navbar() {
         backgroundColor: "$bg01",
       }}
     >
-      <NextLink href="/" passHref legacyBehavior>
-        <Link css={{ textDecoration: "none" }}>
-          <Text variant="h4" css={{ color: "$body", fontWeight: "$semibold" }}>
-            {SITE_NAME}
-          </Text>
-        </Link>
-      </NextLink>
+      <Box as={NextLink} href="/" css={{ textDecoration: "none" }}>
+        <Text variant="h4" css={{ color: "$body", fontWeight: "$semibold" }}>
+          {SITE_NAME}
+        </Text>
+      </Box>
       <Box as="nav" css={{ display: "flex", gap: "$lg" }}>
         {NAV_ITEMS.map(({ href, label }) => {
           const active =
@@ -39,18 +37,19 @@ export function Navbar() {
               ? router.pathname === "/"
               : router.pathname.startsWith(href.replace(/\/$/, ""));
           return (
-            <NextLink key={href} href={href} passHref legacyBehavior>
-              <Link
-                css={{
-                  color: active ? "var(--theme-brand)" : "$body",
-                  fontWeight: active ? "$semibold" : "$normal",
-                  textDecoration: "none",
-                  "&:hover": { color: "var(--theme-brand)" },
-                }}
-              >
-                {label}
-              </Link>
-            </NextLink>
+            <Box
+              as={NextLink}
+              key={href}
+              href={href}
+              css={{
+                color: active ? "var(--theme-brand)" : "$body",
+                fontWeight: active ? "$semibold" : "$normal",
+                textDecoration: "none",
+                "&:hover": { color: "var(--theme-brand)" },
+              }}
+            >
+              {label}
+            </Box>
           );
         })}
       </Box>

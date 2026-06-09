@@ -13,14 +13,8 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="en" suppressHydrationWarning>
       <Head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){try{if(localStorage.getItem('vb-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();",
-          }}
-        />
         <style id="obol" dangerouslySetInnerHTML={{ __html: getCssText() }} />
         <link rel="icon" type="image/svg+xml" href={`${BASE_PATH}/icon.svg`} />
         <link rel="icon" type="image/png" sizes="32x32" href={`${BASE_PATH}/favicon-32.png`} />

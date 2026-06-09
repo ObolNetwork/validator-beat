@@ -197,8 +197,8 @@ export function Pizza({
             )}
             {showLabels && (
               <text
-                x={lx}
-                y={ly}
+                x={+lx.toFixed(2)}
+                y={+ly.toFixed(2)}
                 className="vbpizza__lbl"
                 textAnchor="middle"
                 dominantBaseline="middle"

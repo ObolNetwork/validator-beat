@@ -52,7 +52,7 @@
 
 /* =============================================================================
    DARK THEME — Obol-branded dark palette, mirrors the standalone prototype.
-   Activated by data-theme="dark" on <html> (see hooks/useTheme + _document).
+   Activated by data-theme="dark" on <html> (see next-themes ThemeProvider in _app).
    Overrides the --theme-* source values; the alias layer below recomputes
    automatically. --bg-01..05 are re-pointed past obol-ui's --colors-* tokens.
    ============================================================================= */

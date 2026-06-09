@@ -1,3 +1,4 @@
+import { AppThemeProvider } from "@components/AppThemeProvider";
 import { globalCss, Provider as TooltipProvider } from "@obolnetwork/obol-ui";
 import "@styles/colors_and_type.css";
 import "@styles/obol-bridge.css";
@@ -48,8 +49,14 @@ export default function App({ Component, pageProps }: AppProps) {
       : undefined;
 
   return (
-    <TooltipProvider>
-      <Head>
+    <AppThemeProvider
+      attribute="data-theme"
+      defaultTheme="light"
+      storageKey="vb-theme"
+      enableSystem={false}
+    >
+      <TooltipProvider>
+        <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta property="og:title" content={title} />
@@ -65,8 +72,9 @@ export default function App({ Component, pageProps }: AppProps) {
             <meta name="twitter:image" content={ogImage} />
           </>
         )}
-      </Head>
-      <Component {...pageProps} />
-    </TooltipProvider>
+        </Head>
+        <Component {...pageProps} />
+      </TooltipProvider>
+    </AppThemeProvider>
   );
 }
