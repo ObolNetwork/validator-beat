@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Pizza } from "@components/pizza/Pizza";
 import { useAssessment } from "@hooks/useAssessment";
@@ -18,6 +17,7 @@ import {
 } from "./Blockers";
 import { Intro } from "./Intro";
 import { Question } from "./Question";
+import { ThemeToggle } from "./ThemeToggle";
 import { LevelUp, ResultHero, ShareModal } from "./Results";
 import {
   BrandAccent,
@@ -112,16 +112,13 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
   return (
     <Shell>
       <TopBar>
-        <Link href="/" passHref legacyBehavior>
-          <BrandLink>
-            Validator <BrandAccent>Beat</BrandAccent>
-          </BrandLink>
-        </Link>
+        <BrandLink href="/">
+          Validator <BrandAccent>Beat</BrandAccent>
+        </BrandLink>
         <TagPill>v0.1 · self-assessment</TagPill>
         <TopSpacer />
-        <Link href="/methodology/" passHref legacyBehavior>
-          <TopNavLink>Methodology</TopNavLink>
-        </Link>
+        <TopNavLink href="/methodology/">Methodology</TopNavLink>
+        <ThemeToggle />
       </TopBar>
 
       <MainGrid>
@@ -135,7 +132,7 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
               onChoose={choose}
               index={a.step}
               total={a.total}
-              onBack={a.back}
+              onBack={a.step === 0 ? a.toIntro : a.back}
               onShowResults={
                 allAnswered(a.answers) ? a.showResults : undefined
               }

@@ -4,7 +4,9 @@ import {
   BrandLink,
   TagPill,
   TopBar,
+  TopSpacer,
 } from "@components/assessment/stitches";
+import { ThemeToggle } from "@components/assessment/ThemeToggle";
 import { SLICES } from "@lib/rubric";
 import type { GetStaticProps } from "next";
 
@@ -12,12 +14,12 @@ export default function MethodologyPage() {
   return (
     <div className="vb-methodology">
       <TopBar as="header" className="vb-methodology__top">
-        <Link href="/" passHref legacyBehavior>
-          <BrandLink>
-            Validator <BrandAccent>Beat</BrandAccent>
-          </BrandLink>
-        </Link>
+        <BrandLink href="/">
+          Validator <BrandAccent>Beat</BrandAccent>
+        </BrandLink>
         <TagPill>v0.1 · methodology</TagPill>
+        <TopSpacer />
+        <ThemeToggle />
       </TopBar>
 
       <main className="vb-methodology__main">

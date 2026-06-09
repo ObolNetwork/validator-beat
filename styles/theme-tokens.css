@@ -50,6 +50,58 @@
   --theme-pizza-ink: #000000;
 }
 
+/* =============================================================================
+   DARK THEME — Obol-branded dark palette, mirrors the standalone prototype.
+   Activated by data-theme="dark" on <html> (see next-themes ThemeProvider in _app).
+   Overrides the --theme-* source values; the alias layer below recomputes
+   automatically. --bg-01..05 are re-pointed past obol-ui's --colors-* tokens.
+   ============================================================================= */
+:root[data-theme="dark"] {
+  /* ---- Brand accent (bright mint reads on dark surfaces) ---- */
+  --theme-brand: #2fe4ab;          /* obolGreen */
+  --theme-brand-hover: #0f7c76;
+  --theme-brand-highlight: #b6ea5c; /* lime */
+
+  /* ---- Page surfaces ---- */
+  --theme-surface-page: #091011;
+  --theme-surface-card: #111f22;
+  --theme-surface-panel: #182d32;
+  --theme-surface-hover: #243d42;
+  --theme-border: #2d4d53;
+  --theme-border-strong: #3a5f66;
+
+  /* ---- Text ---- */
+  --theme-text-primary: #e1e9eb;
+  --theme-text-secondary: #97b2b8;
+  --theme-text-muted: #667a80;
+  --theme-text-faint: #475e64;
+  --theme-text-on-brand: #091011;
+
+  /* ---- Pizza / risk slices ---- */
+  --theme-risk-green: #2fe4ab;
+  --theme-risk-yellow: #e8b339;
+  --theme-risk-red: #dd603c;
+  --theme-risk-green-ring: #6ff0c8;
+  --theme-risk-yellow-ring: #f0c95f;
+  --theme-risk-red-ring: #e8856a;
+
+  /* ---- Pizza plate / empty wedge ---- */
+  --theme-pizza-plate: #0a1214;
+  --theme-pizza-empty: #16282d;
+  --theme-pizza-empty-stroke: #2d4d53;
+  --theme-pizza-ink: #e1e9eb;
+
+  /* Re-point surface aliases past obol-ui's scoped --colors-* tokens. */
+  --bg-01: var(--theme-surface-page);
+  --bg-02: var(--theme-surface-card);
+  --bg-03: var(--theme-surface-panel);
+  --bg-04: var(--theme-surface-hover);
+  --bg-05: var(--theme-border);
+
+  /* --ice diverges from brand in the dark palette (muted ice-blue). */
+  --ice: #9cc2c9;
+}
+
 /* ---- App aliases (handoff CSS; mirror obol-ui $bg01 / $obolGreen tokens) ---- */
 :root {
   --bg-01: var(--colors-bg01, var(--theme-surface-page));

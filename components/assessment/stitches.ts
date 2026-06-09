@@ -1,5 +1,6 @@
 import { Box, Text, styled } from "@obolnetwork/obol-ui";
 import type { SliceColor } from "@lib/rubric/types";
+import NextLink from "next/link";
 
 /** Validator Beat risk palette — maps to theme-tokens.css */
 export const risk = {
@@ -46,7 +47,7 @@ export const TopBar = styled(Box, {
   flexShrink: 0,
 });
 
-export const BrandLink = styled("a", {
+export const BrandLink = styled(NextLink, {
   fontSize: "$3",
   fontWeight: "$bold",
   letterSpacing: "-0.01em",
@@ -70,12 +71,27 @@ export const TagPill = styled(Box, {
 
 export const TopSpacer = styled(Box, { marginLeft: "auto" });
 
-export const TopNavLink = styled("a", {
+export const TopNavLink = styled(NextLink, {
   fontSize: "$2",
   fontWeight: "$medium",
   color: "$textMiddle",
   textDecoration: "none",
   "&:hover": { color: "$body" },
+});
+
+export const ThemeToggleButton = styled("button", {
+  all: "unset",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 30,
+  height: 30,
+  borderRadius: "$round",
+  color: "$textMiddle",
+  border: "1px solid $bg05",
+  "&:hover": { color: "$body", backgroundColor: "$bg04" },
+  "&:focus-visible": { outline: "2px solid var(--theme-brand)", outlineOffset: 2 },
 });
 
 export const MainGrid = styled(Box, {
@@ -262,12 +278,13 @@ export const LadderName = styled(Text, {
 export const LadderKind = styled(Text, {
   fontSize: "9.5px",
   fontWeight: "$bold",
+  lineHeight: 1,
   textTransform: "uppercase",
   letterSpacing: "0.07em",
   color: "$textMiddle",
   border: "1px solid $bg05",
   borderRadius: "$pill",
-  padding: "1px 7px",
+  padding: "3px 7px",
   variants: {
     tone: {
       red: { color: risk.red, borderColor: risk.redB },
@@ -280,9 +297,10 @@ export const LadderKind = styled(Text, {
 export const LadderHere = styled(Text, {
   fontSize: "9.5px",
   fontWeight: "$bold",
+  lineHeight: 1,
   textTransform: "uppercase",
   letterSpacing: "0.06em",
-  padding: "2px 8px",
+  padding: "3px 8px",
   borderRadius: "$pill",
   whiteSpace: "nowrap",
   variants: {

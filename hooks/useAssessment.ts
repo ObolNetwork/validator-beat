@@ -44,6 +44,8 @@ export function useAssessment() {
 
   const start = useCallback(() => setStarted(true), []);
   const back = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
+  /** Return to the intro screen, keeping answers and step so progress resumes. */
+  const toIntro = useCallback(() => setStarted(false), []);
   const goto = useCallback((i: number) => {
     setStarted(true);
     setStep(Math.max(0, Math.min(i, total)));
@@ -87,6 +89,7 @@ export function useAssessment() {
     total,
     choose,
     back,
+    toIntro,
     goto,
     showResults,
     takeResultsConfetti,

@@ -1,13 +1,25 @@
 import { SLICES } from "@lib/rubric";
-import type { Answers, SliceId, Stage } from "@lib/rubric/types";
-import {
-  PIZZA_EMPTY,
-  PIZZA_EMPTY_STROKE,
-  PIZZA_FILL,
-  PIZZA_INK,
-  PIZZA_PLATE,
-  PIZZA_RING,
-} from "@lib/theme/tokens";
+import type { Answers, SliceColor, SliceId, Stage } from "@lib/rubric/types";
+
+/**
+ * Theme-reactive colors. The in-app pizza reads CSS variables so it follows
+ * light/dark mode; the static OG share images use the hex constants in
+ * lib/theme/tokens.ts instead (they're pre-rendered at build time).
+ */
+const PIZZA_FILL: Record<SliceColor, string> = {
+  green: "var(--vb-green)",
+  yellow: "var(--vb-yellow)",
+  red: "var(--vb-red)",
+};
+const PIZZA_RING: Record<SliceColor, string> = {
+  green: "var(--theme-risk-green-ring)",
+  yellow: "var(--theme-risk-yellow-ring)",
+  red: "var(--theme-risk-red-ring)",
+};
+const PIZZA_PLATE = "var(--vb-plate)";
+const PIZZA_EMPTY = "var(--vb-empty)";
+const PIZZA_EMPTY_STROKE = "var(--vb-empty-stroke)";
+const PIZZA_INK = "var(--vb-ink)";
 
 const RAD = Math.PI / 180;
 
@@ -185,8 +197,8 @@ export function Pizza({
             )}
             {showLabels && (
               <text
-                x={lx}
-                y={ly}
+                x={+lx.toFixed(2)}
+                y={+ly.toFixed(2)}
                 className="vbpizza__lbl"
                 textAnchor="middle"
                 dominantBaseline="middle"
@@ -235,7 +247,7 @@ export function Pizza({
               className="vbpizza__progress"
               style={{
                 fill: "none",
-                stroke: ringTone || "#9cc2c9",
+                stroke: ringTone || "var(--ice)",
                 strokeWidth: 3.5,
                 strokeLinecap: frac >= 1 ? "butt" : "round",
                 strokeDasharray:
@@ -257,7 +269,7 @@ export function Pizza({
             y={cy - size * 0.028}
             className="vbpizza__stagek"
             textAnchor="middle"
-            style={{ fontSize: size * 0.033 }}
+            style={{ fill: PIZZA_INK, fontSize: size * 0.033 }}
           >
             STAGE
           </text>

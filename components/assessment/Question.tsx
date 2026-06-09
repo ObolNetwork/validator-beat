@@ -103,7 +103,7 @@ export function Question({
           )}
         </QuestionRisk>
       )}
-      {index > 0 && onBack && (
+      {onBack && (
         <BackButton type="button" onClick={onBack}>
           ← Back
         </BackButton>

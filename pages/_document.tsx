@@ -13,7 +13,7 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="en" suppressHydrationWarning>
       <Head>
         <style id="obol" dangerouslySetInnerHTML={{ __html: getCssText() }} />
         <link rel="icon" type="image/svg+xml" href={`${BASE_PATH}/icon.svg`} />
