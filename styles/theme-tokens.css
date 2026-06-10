@@ -1,9 +1,11 @@
 /* =============================================================================
    VALIDATOR BEAT — THEME (edit this file to change colors)
 
-   Light surfaces with semantic success / warning / danger. Brand accents draw
-   from the Obol palette (obol-ui DESIGN.md: obolDarkDark / obolGreen / obolGreenHover)
-   while staying readable on white backgrounds.
+   Light surface is a warm, ecosystem-neutral cream paper with muted sage / earth
+   signal colors (green = good, yellow = partial, red = SPOF). The cream palette
+   reads as a coalition surface rather than an Obol-branded one, and applies across
+   the whole stack — landing, assessment, methodology — via the alias layer below
+   and the obol-ui bridge (styles/obol-bridge.css).
 
    Only change the hex values in the block below. The rest of the app maps
    these automatically (CSS variables + pizza SVG colors in lib/theme/tokens.ts).
@@ -11,43 +13,42 @@
 
 :root {
   /* ---- Brand accent (links, primary buttons, wordmark highlight) ----
-     Obol-palette greens, picked for contrast on white surfaces. */
-  --theme-brand: #16968e;          /* obolDarkDark — readable on white */
-  --theme-brand-hover: #0f7c76;    /* darker neighbour in Obol palette */
-  --theme-brand-highlight: #2fe4ab; /* obolGreen — decorative tints / confetti */
+     Muted deep sage-green, readable on the cream paper. */
+  --theme-brand: #2c7a64;          /* deep sage — primary CTA / links */
+  --theme-brand-hover: #235f4e;    /* pressed / hover sage */
+  --theme-brand-highlight: #2fe4ab; /* mint — decorative tints / confetti */
 
-  /* ---- Page surfaces ---- */
-  --theme-surface-page: #f7f7f7;
-  --theme-surface-card: #ffffff;
-  --theme-surface-panel: #f0f0f0;
-  --theme-surface-hover: #ebebeb;
-  --theme-border: #e6e6e6;
-  --theme-border-strong: #cccccc;
+  /* ---- Page surfaces — warm cream ---- */
+  --theme-surface-page: #f6f4ec;   /* paper */
+  --theme-surface-card: #fffefa;   /* raised paper */
+  --theme-surface-panel: #edf1e7;  /* alternating section band */
+  --theme-surface-hover: #e7e2d3;
+  --theme-border: #e6e1d1;         /* hairline */
+  --theme-border-strong: #d8d2bf;
 
-  /* ---- Text ---- */
-  --theme-text-primary: #000000;
-  --theme-text-secondary: #696969;
-  --theme-text-muted: #999999;
-  --theme-text-faint: #cccccc;
+  /* ---- Text — near-black teal ink ramp ---- */
+  --theme-text-primary: #0e1b1d;
+  --theme-text-secondary: #45565a;
+  --theme-text-muted: #7d8a86;
+  --theme-text-faint: #aab3ad;
   --theme-text-on-brand: #ffffff;
 
   /* ---- Pizza / risk slices (green = good, yellow = partial, red = SPOF) ----
-     Stage-2 green nudged toward the Obol mint family while staying legible as
-     "green" alongside the yellow and red in the traffic-light triad. */
-  --theme-risk-green: #1f9b6b;
-  --theme-risk-yellow: #e7c300;
-  --theme-risk-red: #bb1122;
+     Muted earthy variants tuned to sit calmly on cream. */
+  --theme-risk-green: #3a9e80;
+  --theme-risk-yellow: #cf9a3a;
+  --theme-risk-red: #c46044;
 
-  /* ---- Pizza ring tints (lighter than slice fill, for center progress ring) ---- */
-  --theme-risk-green-ring: #82edcc;  /* obolGreenHover */
-  --theme-risk-yellow-ring: #ffe566;
-  --theme-risk-red-ring: #e85c6f;
+  /* ---- Pizza ring tints (center progress ring; darker than fill on cream) ---- */
+  --theme-risk-green-ring: #1f7a5e;
+  --theme-risk-yellow-ring: #a8761f;
+  --theme-risk-red-ring: #a64428;
 
   /* ---- Pizza plate / empty wedge ---- */
-  --theme-pizza-plate: #ffffff;
-  --theme-pizza-empty: #f0f0f0;
-  --theme-pizza-empty-stroke: #cccccc;
-  --theme-pizza-ink: #000000;
+  --theme-pizza-plate: #fffdf7;
+  --theme-pizza-empty: #e9e5d8;
+  --theme-pizza-empty-stroke: #d2cbb8;
+  --theme-pizza-ink: #0e1b1d;
 }
 
 /* =============================================================================
