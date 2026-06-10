@@ -1,14 +1,14 @@
-import { AssessmentApp } from "@components/assessment/AssessmentApp";
+import { Landing } from "@components/landing/Landing";
 import type { GetStaticProps } from "next";
 
 export default function HomePage() {
-  return <AssessmentApp />;
+  return <Landing />;
 }
 
 export const getStaticProps: GetStaticProps = () => ({
   props: {
-    title: "Self-assessment",
+    title: "The standard for validator resilience",
     description:
-      "Six questions about your Ethereum validator setup. Score your resilience in about a minute — nothing is submitted or stored.",
+      "When you stake, you pick an operator — but you can't see how they run. Validator Beat makes validator resilience visible: two stages, six slices, one pizza.",
   },
 });
