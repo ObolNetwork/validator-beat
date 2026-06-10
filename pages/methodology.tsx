@@ -170,7 +170,7 @@ export default function MethodologyPage() {
         </section>
 
         <p className="vb-methodology__back">
-          <Link href="/" className="vbbtn vbbtn--primary">
+          <Link href="/assess/" className="vbbtn vbbtn--primary">
             Take the assessment →
           </Link>
         </p>

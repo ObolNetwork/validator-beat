@@ -46,6 +46,8 @@ export type PizzaProps = {
   labelScale?: number;
   showCenter?: boolean;
   stage?: Stage | null;
+  /** Wedge glow strength. Softer (e.g. 0.28) reads better on light surfaces. */
+  glowOpacity?: number;
 };
 
 export function Pizza({
@@ -58,6 +60,7 @@ export function Pizza({
   labelScale = 1,
   showCenter = true,
   stage = null,
+  glowOpacity = 0.5,
 }: PizzaProps) {
   const big = size >= 120;
   const pop = big ? size * 0.022 : 0;
@@ -115,7 +118,7 @@ export function Pizza({
                 dy="0"
                 stdDeviation={size * 0.013}
                 floodColor={PIZZA_FILL[c]}
-                floodOpacity="0.5"
+                floodOpacity={glowOpacity}
               />
             </filter>
           ))}
