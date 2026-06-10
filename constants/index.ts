@@ -4,6 +4,11 @@ export const SITE_DESCRIPTION =
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://validatorbeat.com";
 
+/** Canonical internal routes + external links used across the shared site chrome. */
+export const ASSESS_PATH = "/assess/";
+export const METHODOLOGY_PATH = "/methodology/";
+export const VALOS_URL = "https://lidofinance.github.io/valos/valos-spec.html";
+
 export {
   getShareUrl,
   shareNameFromQuery,

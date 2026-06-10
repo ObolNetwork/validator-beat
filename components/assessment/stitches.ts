@@ -155,7 +155,7 @@ export const MainGrid = styled(Box, {
   display: "grid",
   gridTemplateColumns: "1fr 440px",
   gap: 22,
-  padding: "4px 28px 16px",
+  padding: "22px 28px 16px",
   alignItems: "stretch",
   "@media (max-width: 880px)": {
     gridTemplateColumns: "1fr",

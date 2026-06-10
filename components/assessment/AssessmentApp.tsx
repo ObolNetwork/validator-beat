@@ -17,12 +17,10 @@ import {
 } from "./Blockers";
 import { Intro } from "./Intro";
 import { Question } from "./Question";
-import { ThemeToggle } from "./ThemeToggle";
 import { LevelUp, ResultHero, ShareModal } from "./Results";
+import { SiteHeader } from "@components/layout/SiteHeader";
+import { SiteFooter } from "@components/layout/SiteFooter";
 import {
-  BrandAccent,
-  BrandLink,
-  Footnote,
   LeftCard,
   MainGrid,
   PizzaWrap,
@@ -31,10 +29,6 @@ import {
   RightPanel,
   SectionLabel,
   Shell,
-  TagPill,
-  TopBar,
-  TopNavLink,
-  TopSpacer,
 } from "./stitches";
 
 type AssessmentAppProps = {
@@ -111,15 +105,7 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
 
   return (
     <Shell>
-      <TopBar>
-        <BrandLink href="/">
-          Validator <BrandAccent>Beat</BrandAccent>
-        </BrandLink>
-        <TagPill>v0.1 · self-assessment</TagPill>
-        <TopSpacer />
-        <TopNavLink href="/methodology/">Methodology</TopNavLink>
-        <ThemeToggle />
-      </TopBar>
+      <SiteHeader contentWidth={1440} />
 
       <MainGrid>
         <LeftCard>
@@ -175,10 +161,8 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
         </RightCard>
       </MainGrid>
 
-      <Footnote>
-        A neutral, public-good resource · nothing is submitted or stored · runs entirely in your
-        browser
-      </Footnote>
+      <SiteFooter contentWidth={1440} />
+
 
       {share && a.stage != null && (
         <ShareModal

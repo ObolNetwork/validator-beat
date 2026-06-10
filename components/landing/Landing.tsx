@@ -4,17 +4,20 @@ import { Pizza } from "@components/pizza/Pizza";
 import {
   Beat,
   BeatPulse,
-  BrandAccent,
-  BrandLink,
   Card,
   Eyebrow,
   HeroCard,
   RiskDot,
   TopNavLink,
-  TopSpacer,
   risk,
 } from "@components/assessment/stitches";
-import { ThemeToggle } from "@components/assessment/ThemeToggle";
+import { SiteHeader } from "@components/layout/SiteHeader";
+import { SiteFooter } from "@components/layout/SiteFooter";
+import {
+  ASSESS_PATH as ASSESS,
+  METHODOLOGY_PATH as METHODOLOGY,
+  VALOS_URL as VALOS,
+} from "@constants/index";
 import type { Answers, SliceId } from "@lib/rubric/types";
 import type { CSS } from "@stitches/react";
 import {
@@ -24,10 +27,6 @@ import {
   IconLiveness,
   IconSafety,
 } from "./icons";
-
-const ASSESS = "/assess/";
-const METHODOLOGY = "/methodology/";
-const VALOS = "https://lidofinance.github.io/valos/valos-spec.html";
 
 const wrap: CSS = { maxWidth: 1140, margin: "0 auto", padding: "0 28px" };
 const section: CSS = { padding: "88px 0", "@media (max-width: 760px)": { padding: "62px 0" } };
@@ -150,28 +149,6 @@ const scrollLink: CSS = {
   textDecoration: "none",
   "&:hover": { color: "$body" },
 };
-const stickyNav: CSS = {
-  position: "sticky",
-  top: 0,
-  zIndex: 50,
-  borderBottom: "1px solid $bg05",
-  backgroundColor: "$bg01",
-  backdropFilter: "blur(10px)",
-};
-const navInner: CSS = {
-  ...wrap,
-  display: "flex",
-  alignItems: "center",
-  gap: 14,
-  paddingTop: 14,
-  paddingBottom: 14,
-};
-const navLinks: CSS = {
-  display: "flex",
-  alignItems: "center",
-  gap: 22,
-  "@media (max-width: 720px)": { display: "none" },
-};
 const heroGrid: CSS = {
   display: "grid",
   gridTemplateColumns: "1.05fr 0.95fr",
@@ -291,9 +268,6 @@ const s = {
   ghostLink,
   textLink,
   scrollLink,
-  stickyNav,
-  navInner,
-  navLinks,
   heroGrid,
   heroPizzaCol,
   cards2,
@@ -309,27 +283,6 @@ const s = {
   lineagePillActive,
   failIcon,
 };
-
-function Mark() {
-  return (
-    <Box
-      as="svg"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      css={{ width: 22, height: 22, flexShrink: 0 }}
-    >
-      <g transform="translate(12 12)">
-        <path d="M0 0 L0 -11 A11 11 0 0 1 9.5 -5.5 Z" fill="#2fe4ab" />
-        <path d="M0 0 L9.5 -5.5 A11 11 0 0 1 9.5 5.5 Z" fill="#e8b339" />
-        <path d="M0 0 L9.5 5.5 A11 11 0 0 1 0 11 Z" fill="#2fe4ab" />
-        <path d="M0 0 L0 11 A11 11 0 0 1 -9.5 5.5 Z" fill="#dd603c" />
-        <path d="M0 0 L-9.5 5.5 A11 11 0 0 1 -9.5 -5.5 Z" fill="#2fe4ab" />
-        <path d="M0 0 L-9.5 -5.5 A11 11 0 0 1 0 -11 Z" fill="#e8b339" />
-        <circle r="4" fill="var(--theme-pizza-plate)" stroke="var(--theme-pizza-empty-stroke)" strokeWidth="1" />
-      </g>
-    </Box>
-  );
-}
 
 const HERO_SAMPLE: Answers = {
   keyCustody: "green",
@@ -403,32 +356,6 @@ const STAGES = [
     desc: "No single point of failure in the operator's infrastructure can take the validator offline. This is the end game.",
   },
 ];
-
-function LNav() {
-  return (
-    <Box as="nav" css={s.stickyNav}>
-      <Box css={s.navInner}>
-        <BrandLink href="#top" css={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <Mark /> Validator <BrandAccent>Beat</BrandAccent>
-        </BrandLink>
-        <TopSpacer />
-        <Box css={s.navLinks}>
-          <Box as="a" href="#how" css={{ fontSize: "$2", fontWeight: "$medium", color: "$textMiddle", textDecoration: "none", "&:hover": { color: "$body" } }}>
-            How it works
-          </Box>
-          <TopNavLink href={METHODOLOGY}>Methodology</TopNavLink>
-          <Box as="a" href={VALOS} target="_blank" rel="noopener noreferrer" css={{ fontSize: "$2", fontWeight: "$medium", color: "$textMiddle", textDecoration: "none", "&:hover": { color: "$body" } }}>
-            valOS
-          </Box>
-        </Box>
-        <ThemeToggle />
-        <Box as={NextLink} href={ASSESS} css={s.primaryLink}>
-          Assess your validator <IconArrowRight size={16} />
-        </Box>
-      </Box>
-    </Box>
-  );
-}
 
 function LHero() {
   return (
@@ -783,31 +710,10 @@ function LClosing() {
   );
 }
 
-function LFooter() {
-  return (
-    <Box as="footer" css={{ borderTop: "1px solid $bg05", backgroundColor: "$bg02", py: "$lg" }}>
-      <Box css={{ ...s.wrap, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-        <Text css={{ fontSize: "$2", fontWeight: "$bold", color: "$body" }}>
-          Validator <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>Beat</Text>
-        </Text>
-        <Text css={{ fontSize: "$2", color: "$textMiddle" }}>
-          A simple view into validator operations
-        </Text>
-        <TopSpacer />
-        <TopNavLink href={METHODOLOGY}>Methodology</TopNavLink>
-        <Box as="a" href={VALOS} target="_blank" rel="noopener noreferrer" css={{ fontSize: "$2", fontWeight: "$medium", color: "$textMiddle", textDecoration: "none", "&:hover": { color: "$body" } }}>
-          valOS
-        </Box>
-        <TopNavLink href={ASSESS}>Assess</TopNavLink>
-      </Box>
-    </Box>
-  );
-}
-
 export function Landing() {
   return (
     <Box css={{ minHeight: "100vh", backgroundColor: "$bg01", color: "$textMiddle" }}>
-      <LNav />
+      <SiteHeader />
       <LHero />
       <LGap />
       <LFail />
@@ -816,7 +722,7 @@ export function Landing() {
       <LValos />
       <LNeutral />
       <LClosing />
-      <LFooter />
+      <SiteFooter />
     </Box>
   );
 }
