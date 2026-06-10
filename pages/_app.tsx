@@ -4,7 +4,6 @@ import "@styles/colors_and_type.css";
 import "@styles/obol-bridge.css";
 import "@styles/pizza.css";
 import "@styles/methodology.css";
-import "@styles/landing.css";
 import { SITE_DESCRIPTION, SITE_NAME } from "@constants/index";
 import type { AppProps } from "next/app";
 import Head from "next/head";
