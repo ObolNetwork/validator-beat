@@ -82,6 +82,22 @@ Pre-commit (husky) runs `yarn test` + `yarn lint`. Lint-staged additionally runs
 - Copy lives close to the rubric: question text in `lib/assessment/questions.ts`, slice `why` and remediation tips in `lib/rubric/index.ts`. Methodology page reads from `SLICES` so descriptions stay in sync.
 - Styling is a hybrid: `@obolnetwork/obol-ui` Stitches components (see `components/assessment/stitches.ts`) for the assessment shell, plus plain CSS files in `styles/` (CSS custom properties in `theme-tokens.css` are the palette source of truth — if you change pizza slice colors there, also update `lib/theme/tokens.ts`).
 
+### UI and styling (use obol-ui)
+
+**Default:** build UI with `@obolnetwork/obol-ui` primitives — `Box`, `Text`, `Button`, `Link` — and the project’s Stitches tokens (`$bg01`, `$body`, `$textMiddle`, `var(--theme-brand)`, etc.). Bridge tokens live in `styles/theme-tokens.css` and `styles/obol-bridge.css`.
+
+- Prefer the **`css` prop** on `Box` / `Text` (see `components/layout/Navbar.tsx`, `components/landing/Landing.tsx`) or **reuse styled exports** from `components/assessment/stitches.ts` (`Card`, `Eyebrow`, `BrandLink`, `TopNavLink`, `risk`, …) instead of new page-specific CSS files or BEM class strings.
+- Use **`VbButton`** (`components/ui/VbButton.tsx`) for primary actions in the assessment flow.
+- **Do not** add separate per-page CSS files (e.g. a dedicated `landing.css`) unless there is a strong reason; the landing page was migrated off that pattern.
+
+**Exceptions (plain CSS or inline SVG is fine):**
+
+- **Complex animations** (keyframes, multi-step pulses) — e.g. a hero “heartbeat” effect; a small block in an existing global stylesheet or component-level `@keyframes` in `css` is OK if Stitches/obol-ui makes it awkward.
+- **SVG visuals** tied to the product (`Pizza`, brand mark) — not generic UI icons; use `@radix-ui/react-icons` (already in the tree via obol-ui) for arrows, external-link, etc. (`components/landing/icons.tsx`).
+- **Methodology** — still uses `styles/methodology.css` for now; new work should still prefer obol-ui where practical.
+
+**Site chrome (future):** landing and assessment currently use different headers/footers. Planned UX is a shared slim header + compact assess footer — see **Future UX** in [`README.md`](./README.md). Do not implement unless asked.
+
 ## Deferred work (don't build yet unless asked)
 
 `data/operators/`, `content/methodology/`, `components/operators/`, and `lib/schemas/` are placeholder dirs for the **v1.2 operator registry** (YAML profiles + Zod validation + a `/operators` summary table). `scripts/validate-operators.ts` and `scripts/import-survey-csv.ts` are scaffolding for that phase. v0.1 deliberately does not ship any of this — the `/operators` route currently redirects to `/`.

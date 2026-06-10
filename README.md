@@ -36,11 +36,26 @@ Every push to `main` runs CI and, on success, deploys the static `out/` folder t
 
 **Theming:** edit [`styles/theme-tokens.css`](styles/theme-tokens.css) to change colors (Lido forum–aligned by default). If you change pizza slice colors, also update [`lib/theme/tokens.ts`](lib/theme/tokens.ts).
 
+## Future UX: shared chrome across landing and assessment
+
+Today the **landing** (`/`) and **assessment** (`/assess/`) use different shells: the marketing page has a full nav + footer; the assessment uses a slim `TopBar` and a one-line `Footnote` inside a `100vh` focus layout (`AssessmentApp`). That is intentional for the six-question wizard (less distraction, pizza always visible) but can feel like leaving the site when users click “Assess your validator.”
+
+**Recommended direction (not implemented yet):**
+
+1. **One shared slim header** on `/`, `/assess/`, and `/methodology/` — logo (home), Methodology, valOS (external), theme toggle; primary CTA on marketing pages only.
+2. **Compact footer on assess** — keep the trust line (“nothing submitted or stored”) plus links (Methodology · valOS · Home), not the full landing footer.
+3. **Keep focus mode during Q1–Q6** — do not wrap the wizard in the full marketing layout; optional richer links on intro/results only if needed later.
+
+**Avoid:** pasting the full landing nav + footer around the assessment grid — it costs too much vertical space on mobile and fights the locked viewport.
+
+See `components/assessment/AssessmentApp.tsx` (`TopBar`, `Footnote`, `Shell`) and `components/landing/Landing.tsx` (`LNav`, `LFooter`) for the current split.
+
 ## v0.1 routes
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Self-assessment (intro → 6 slices → results) |
+| `/` | Marketing landing page |
+| `/assess/` | Self-assessment (intro → 6 slices → results) |
 | `/GYRYGG` | Open a shared result (729 static pages + OG preview image) |
 | `/GYRYGG?n=Kody%27s%20Cluster` | Same, with optional display name (not in link preview) |
 | `/methodology/` | Framework and stage definitions |
