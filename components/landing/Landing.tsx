@@ -2,6 +2,8 @@ import { Box, Text } from "@obolnetwork/obol-ui";
 import NextLink from "next/link";
 import { Pizza } from "@components/pizza/Pizza";
 import {
+  Beat,
+  BeatPulse,
   BrandAccent,
   BrandLink,
   Card,
@@ -438,7 +440,12 @@ function LHero() {
               A simple view into validator operations
             </Eyebrow>
             <Text as="h1" css={s.h1}>
-              The validator ecosystem is missing its <BrandAccent>beat</BrandAccent>.
+              The validator ecosystem is missing its{" "}
+              <Beat>
+                beat
+                <BeatPulse aria-hidden="true" />
+              </Beat>
+              .
             </Text>
             <Text as="p" css={s.lede}>
               When you stake ETH, you always (sometimes unknowingly) pick an operator. You{" "}
@@ -458,7 +465,7 @@ function LHero() {
           <Box css={s.heroPizzaCol}>
             <Pizza answers={HERO_SAMPLE} size={360} showCenter={false} glowOpacity={0.26} />
             <Text css={{ fontSize: "$2", color: "$textMiddle" }}>
-              <Text as="span" css={{ fontWeight: "$semibold", color: "$body" }}>
+              <Text as="span" css={{ display: "inline", fontWeight: "$semibold", color: "$body" }}>
                 An example operator profile
               </Text>
             </Text>
@@ -507,7 +514,7 @@ function LGap() {
           the rest of the network.
         </Text>
         <Text as="p" css={s.pullQuote}>
-          That invisible risk is <Text as="span" css={{ color: "var(--theme-brand)" }}>unpriced</Text>.
+          That invisible risk is <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>unpriced</Text>.
           {" "}Validator Beat is the public entry point that compares these risks and gives operators a
           reason to compete on it.
         </Text>
@@ -597,9 +604,9 @@ function LRead() {
             <Pizza answers={READ_SAMPLE} size={300} showCenter={false} glowOpacity={0.26} />
             <Text css={{ fontSize: "$2", color: "$textMiddle", textAlign: "center" }}>
               Each slice scored{" "}
-              <Text as="span" css={{ fontWeight: "$bold", color: risk.green }}>green</Text>,{" "}
-              <Text as="span" css={{ fontWeight: "$bold", color: risk.yellow }}>yellow</Text>, or{" "}
-              <Text as="span" css={{ fontWeight: "$bold", color: risk.red }}>red</Text>
+              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.green }}>green</Text>,{" "}
+              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.yellow }}>yellow</Text>, or{" "}
+              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.red }}>red</Text>
             </Text>
           </Box>
           <Box css={s.sliceGrid}>
@@ -700,7 +707,7 @@ function LValos() {
             <Card css={{ padding: "18px 20px" }}>
               <Eyebrow as="p" css={{ margin: 0 }}>Validator Beat</Eyebrow>
               <Text css={{ fontSize: "$3", fontWeight: "$semibold", color: "$body", marginTop: 4 }}>
-                The <Text as="span" css={{ color: "var(--theme-brand)" }}>who</Text> — the public dashboard
+                The <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>who</Text> — the public dashboard
               </Text>
             </Card>
             <Box css={{ display: "flex", justifyContent: "center", color: "$textMiddle" }}>
@@ -709,7 +716,7 @@ function LValos() {
             <Card css={{ padding: "18px 20px" }}>
               <Eyebrow as="p" css={{ margin: 0 }}>valOS</Eyebrow>
               <Text css={{ fontSize: "$3", fontWeight: "$semibold", color: "$body", marginTop: 4 }}>
-                The <Text as="span" css={{ color: "var(--theme-brand)" }}>how</Text> — the operating standard
+                The <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>how</Text> — the operating standard
               </Text>
             </Card>
           </Box>
@@ -781,7 +788,7 @@ function LFooter() {
     <Box as="footer" css={{ borderTop: "1px solid $bg05", backgroundColor: "$bg02", py: "$lg" }}>
       <Box css={{ ...s.wrap, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
         <Text css={{ fontSize: "$2", fontWeight: "$bold", color: "$body" }}>
-          Validator <Text as="span" css={{ color: "var(--theme-brand)" }}>Beat</Text>
+          Validator <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>Beat</Text>
         </Text>
         <Text css={{ fontSize: "$2", color: "$textMiddle" }}>
           A simple view into validator operations

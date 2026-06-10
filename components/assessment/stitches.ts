@@ -1,4 +1,4 @@
-import { Box, Text, styled } from "@obolnetwork/obol-ui";
+import { Box, Text, keyframes, styled } from "@obolnetwork/obol-ui";
 import type { SliceColor } from "@lib/rubric/types";
 import NextLink from "next/link";
 
@@ -57,6 +57,61 @@ export const BrandLink = styled(NextLink, {
 
 export const BrandAccent = styled("span", {
   color: "var(--theme-brand)",
+});
+
+/* "beat" — a heartbeat that cycles the three signal colors (green → yellow → red),
+   with a pulsing halo behind it. Reads from the --vb-* tokens, so it follows the
+   light/dark theme automatically. */
+const beatColor = keyframes({
+  "0%": { color: "var(--vb-green)" },
+  "10%": { color: "var(--vb-green)" },
+  "33%": { color: "var(--vb-yellow)" },
+  "43%": { color: "var(--vb-yellow)" },
+  "66%": { color: "var(--vb-red)" },
+  "76%": { color: "var(--vb-red)" },
+  "100%": { color: "var(--vb-green)" },
+});
+const beatRing = keyframes({
+  "0%": { opacity: 0, transform: "translate(-50%,-50%) scale(0.6)", boxShadow: "0 0 0 0 var(--vb-green)" },
+  "6%": { opacity: 0.5, transform: "translate(-50%,-50%) scale(0.92)", boxShadow: "0 0 22px 5px var(--vb-green)" },
+  "14%": { opacity: 0.18, transform: "translate(-50%,-50%) scale(1.04)" },
+  "20%": { opacity: 0.55, transform: "translate(-50%,-50%) scale(1.0)", boxShadow: "0 0 26px 7px var(--vb-green)" },
+  "30%": { opacity: 0, transform: "translate(-50%,-50%) scale(1.12)", boxShadow: "0 0 0 0 var(--vb-yellow)" },
+  "39%": { opacity: 0.5, transform: "translate(-50%,-50%) scale(0.92)", boxShadow: "0 0 22px 5px var(--vb-yellow)" },
+  "47%": { opacity: 0.18, transform: "translate(-50%,-50%) scale(1.04)" },
+  "53%": { opacity: 0.55, transform: "translate(-50%,-50%) scale(1.0)", boxShadow: "0 0 26px 7px var(--vb-yellow)" },
+  "63%": { opacity: 0, transform: "translate(-50%,-50%) scale(1.12)", boxShadow: "0 0 0 0 var(--vb-red)" },
+  "72%": { opacity: 0.5, transform: "translate(-50%,-50%) scale(0.92)", boxShadow: "0 0 22px 5px var(--vb-red)" },
+  "80%": { opacity: 0.18, transform: "translate(-50%,-50%) scale(1.04)" },
+  "86%": { opacity: 0.55, transform: "translate(-50%,-50%) scale(1.0)", boxShadow: "0 0 26px 7px var(--vb-red)" },
+  "100%": { opacity: 0, transform: "translate(-50%,-50%) scale(1.12)", boxShadow: "0 0 0 0 var(--vb-green)" },
+});
+
+export const Beat = styled("span", {
+  position: "relative",
+  display: "inline-block",
+  fontWeight: 800,
+  isolation: "isolate", // contain the negative-z pulse above the section background
+  animation: `${beatColor} 3s cubic-bezier(.16,1,.3,1) infinite`,
+  "@media (prefers-reduced-motion: reduce)": {
+    animation: "none",
+    color: "var(--theme-brand)",
+  },
+});
+
+export const BeatPulse = styled("span", {
+  position: "absolute",
+  left: "50%",
+  top: "54%",
+  width: "1.55em",
+  height: "1.55em",
+  transform: "translate(-50%, -50%) scale(0.6)",
+  borderRadius: "50%",
+  zIndex: -1,
+  opacity: 0,
+  pointerEvents: "none",
+  animation: `${beatRing} 3s cubic-bezier(.16,1,.3,1) infinite`,
+  "@media (prefers-reduced-motion: reduce)": { animation: "none", display: "none" },
 });
 
 export const TagPill = styled(Box, {
