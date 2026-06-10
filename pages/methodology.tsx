@@ -1,26 +1,13 @@
 import Link from "next/link";
-import {
-  BrandAccent,
-  BrandLink,
-  TagPill,
-  TopBar,
-  TopSpacer,
-} from "@components/assessment/stitches";
-import { ThemeToggle } from "@components/assessment/ThemeToggle";
+import { SiteHeader } from "@components/layout/SiteHeader";
+import { SiteFooter } from "@components/layout/SiteFooter";
 import { SLICES } from "@lib/rubric";
 import type { GetStaticProps } from "next";
 
 export default function MethodologyPage() {
   return (
     <div className="vb-methodology">
-      <TopBar as="header" className="vb-methodology__top">
-        <BrandLink href="/">
-          Validator <BrandAccent>Beat</BrandAccent>
-        </BrandLink>
-        <TagPill>v0.1 · methodology</TagPill>
-        <TopSpacer />
-        <ThemeToggle />
-      </TopBar>
+      <SiteHeader />
 
       <main className="vb-methodology__main">
         <h1>Methodology</h1>
@@ -175,6 +162,8 @@ export default function MethodologyPage() {
           </Link>
         </p>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }
