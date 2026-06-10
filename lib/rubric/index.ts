@@ -21,8 +21,8 @@ export const SLICES: SliceMeta[] = [
   },
   {
     id: "infraDiversity",
-    label: "Infrastructure",
-    short: "Infra",
+    label: "Provider",
+    short: "Provider",
     why: "One hosting provider's outage or compromise can take every validator hosted there with it.",
   },
   {
