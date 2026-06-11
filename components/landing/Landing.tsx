@@ -452,7 +452,7 @@ function LGap() {
 
 function LFail() {
   return (
-    <Box as="section" css={s.section} id="how">
+    <Box as="section" css={s.section}>
       <Box css={s.wrap}>
         <Box css={s.sectionHead}>
           <Eyebrow as="p" css={{ margin: "0 0 16px" }}>Why it matters</Eyebrow>
@@ -501,7 +501,7 @@ function LFail() {
 
 function LRead() {
   return (
-    <Box as="section" css={{ ...s.section, ...s.sectionBand }}>
+    <Box as="section" css={{ ...s.section, ...s.sectionBand }} id="how">
       <Box css={s.wrap}>
         <Box css={s.sectionHead}>
           <Eyebrow as="p" css={{ margin: "0 0 16px" }}>The assessment</Eyebrow>

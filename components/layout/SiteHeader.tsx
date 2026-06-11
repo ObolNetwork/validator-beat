@@ -83,12 +83,11 @@ type SiteHeaderProps = {
 
 /** Shared site header — the landing nav, reused across the landing, assessment,
     and methodology. The "Assess your validator" CTA hides on /assess (you're
-    already there); "How it works" jumps to the landing's section from inner pages. */
+    already there); "How it works" links to the landing's #how section (via
+    next/link so it carries the basePath). */
 export function SiteHeader({ contentWidth = 1140 }: SiteHeaderProps) {
   const router = useRouter();
-  const onLanding = router.pathname === "/";
   const onAssess = router.pathname === "/assess";
-  const howHref = onLanding ? "#how" : "/#how";
 
   return (
     <Box as="nav" css={bar}>
@@ -107,7 +106,7 @@ export function SiteHeader({ contentWidth = 1140 }: SiteHeaderProps) {
         </BrandLink>
         <TopSpacer />
         <Box css={links}>
-          <Box as="a" href={howHref} css={navLink}>
+          <Box as={NextLink} href="/#how" css={navLink}>
             How it works
           </Box>
           <TopNavLink href={METHODOLOGY_PATH}>Methodology</TopNavLink>
