@@ -12,6 +12,5 @@ export const VALOS_URL = "https://lidofinance.github.io/valos/valos-spec.html";
 export {
   getShareUrl,
   shareNameFromQuery,
-  sharePreviewPath,
   SHARE_NAME_MAX,
 } from "@lib/share/share-url";

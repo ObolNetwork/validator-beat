@@ -21,7 +21,3 @@ export function getShareUrl(code: string, name?: string): string {
   if (!trimmed) return path;
   return `${path}?n=${encodeURIComponent(trimmed)}`;
 }
-
-export function sharePreviewPath(code: string): string {
-  return getShareUrl(code).replace(/^https?:\/\//, "");
-}

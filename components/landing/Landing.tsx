@@ -18,7 +18,8 @@ import {
   METHODOLOGY_PATH as METHODOLOGY,
   VALOS_URL as VALOS,
 } from "@constants/index";
-import type { Answers, SliceId } from "@lib/rubric/types";
+import { SLICES, STAGE_META } from "@lib/rubric";
+import type { Answers, SliceId, Stage } from "@lib/rubric/types";
 import type { CSS } from "@stitches/react";
 import {
   IconArrowDown,
@@ -302,6 +303,7 @@ const READ_SAMPLE: Answers = {
   geoDiversity: "yellow",
 };
 
+/** Landing-voice one-liners per slice; canonical labels come from SLICES. */
 const SLICE_DESC: Record<SliceId, string> = {
   keyCustody:
     "How signing keys are held, and how many independent parties must cooperate to sign.",
@@ -312,50 +314,14 @@ const SLICE_DESC: Record<SliceId, string> = {
   geoDiversity: "Concentration in one region and exposure to power failure or natural disaster.",
 };
 
-const READ_LABEL: Record<SliceId, string> = {
-  keyCustody: "Key Custody",
-  clientDiversity: "Client Diversity",
-  infraDiversity: "Provider Diversity",
-  osDiversity: "OS Diversity",
-  cpuDiversity: "CPU Architecture",
-  geoDiversity: "Geographic Diversity",
+/** Landing-voice detail per stage; naming comes from STAGE_META. */
+const STAGE_DESC: Record<Stage, string> = {
+  0: "At least one single point of failure remains. Most operators start here — the baseline.",
+  1: "No single compromise of one machine, one team member, or one signer can produce a slashable message.",
+  2: "No single point of failure in the operator's infrastructure can take the validator offline. This is the end game.",
 };
 
-const ORDER: SliceId[] = [
-  "keyCustody",
-  "clientDiversity",
-  "infraDiversity",
-  "geoDiversity",
-  "osDiversity",
-  "cpuDiversity",
-];
-
-const STAGES = [
-  {
-    stage: "0" as const,
-    tone: "red" as const,
-    num: "0",
-    name: "Stage 0 — Exposed",
-    kind: "Starting point",
-    desc: "At least one single point of failure remains. Most operators start here — the baseline.",
-  },
-  {
-    stage: "1" as const,
-    tone: "yellow" as const,
-    num: "1",
-    name: "Stage 1 — Slashing-averse",
-    kind: "Safety",
-    desc: "No single compromise of one machine, one team member, or one signer can produce a slashable message.",
-  },
-  {
-    stage: "2" as const,
-    tone: "green" as const,
-    num: "2",
-    name: "Stage 2 — Downtime-averse",
-    kind: "Liveness",
-    desc: "No single point of failure in the operator's infrastructure can take the validator offline. This is the end game.",
-  },
-];
+const STAGE_ORDER: Stage[] = [0, 1, 2];
 
 function LHero() {
   return (
@@ -375,7 +341,7 @@ function LHero() {
               .
             </Text>
             <Text as="p" css={s.lede}>
-              When you stake ETH, you always (sometimes unknowingly) pick an operator. You{" "}
+              When you stake ETH, you pick an operator — sometimes without knowing it. You{" "}
               <strong>cannot</strong> see how they hold their keys, which clients they run, or how
               correlated their setup is with everyone else securing the network. Validator Beat makes
               that visible.
@@ -391,10 +357,8 @@ function LHero() {
           </Box>
           <Box css={s.heroPizzaCol}>
             <Pizza answers={HERO_SAMPLE} size={360} showCenter={false} glowOpacity={0.26} />
-            <Text css={{ fontSize: "$2", color: "$textMiddle" }}>
-              <Text as="span" css={{ display: "inline", fontWeight: "$semibold", color: "$body" }}>
-                An example operator profile
-              </Text>
+            <Text css={{ fontSize: "$2", fontWeight: "$semibold", color: "$body" }}>
+              An example operator profile
             </Text>
           </Box>
         </Box>
@@ -507,24 +471,34 @@ function LRead() {
           <Eyebrow as="p" css={{ margin: "0 0 16px" }}>The assessment</Eyebrow>
           <Text as="h2" css={s.h2}>How Validator Beat assesses an operator</Text>
           <Text as="p" css={s.lede}>
-            Most operators start exposed with two stages to climb and a six-slice risk profile.
+            Six questions build a six-slice risk profile, and the slices roll up into a Stage.
+            Most operators start at Stage 0, with two stages to climb.
           </Text>
         </Box>
         <Box css={s.stagesGrid}>
-          {STAGES.map(({ tone, num, name, kind, desc }) => (
-            <HeroCard key={num} tone={tone} css={{ marginBottom: 0 }}>
-              <Box css={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <Box css={{ width: 40, height: 40, borderRadius: "$3", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800, color: "#fff", backgroundColor: risk[tone] }}>
-                  {num}
+          {STAGE_ORDER.map((n) => {
+            const { name, kind, tone } = STAGE_META[n];
+            return (
+              <HeroCard key={n} tone={tone} css={{ marginBottom: 0 }}>
+                <Box css={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                  <Box css={{ width: 40, height: 40, borderRadius: "$3", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, fontWeight: 800, color: "#fff", backgroundColor: risk[tone] }}>
+                    {n}
+                  </Box>
+                  <Box>
+                    <Text css={{ fontSize: "$4", fontWeight: "$bold", color: "$body" }}>
+                      {name} — {kind}
+                    </Text>
+                    <Text css={{ fontSize: "$2", fontWeight: "$bold", color: risk[tone] }}>
+                      {STAGE_META[n].tagline}
+                    </Text>
+                  </Box>
                 </Box>
-                <Box>
-                  <Text css={{ fontSize: "$4", fontWeight: "$bold", color: "$body" }}>{name}</Text>
-                  <Text css={{ fontSize: "$2", fontWeight: "$bold", color: risk[tone] }}>{kind}</Text>
-                </Box>
-              </Box>
-              <Text css={{ fontSize: "$3", lineHeight: 1.55, color: "$textMiddle" }}>{desc}</Text>
-            </HeroCard>
-          ))}
+                <Text css={{ fontSize: "$3", lineHeight: 1.55, color: "$textMiddle" }}>
+                  {STAGE_DESC[n]}
+                </Text>
+              </HeroCard>
+            );
+          })}
         </Box>
         <Box css={s.readGrid}>
           <Box css={s.readPizzaCol}>
@@ -537,11 +511,11 @@ function LRead() {
             </Text>
           </Box>
           <Box css={s.sliceGrid}>
-            {ORDER.map((id) => (
+            {SLICES.map(({ id, label }) => (
               <Box key={id}>
                 <Box css={{ display: "flex", alignItems: "center", gap: 8, fontWeight: "$bold", fontSize: "$3", color: "$body" }}>
                   <RiskDot color={READ_SAMPLE[id]} size="md" css={{ marginTop: 0 }} />
-                  {READ_LABEL[id]}
+                  {label}
                 </Box>
                 <Text css={{ fontSize: "$2", lineHeight: 1.5, color: "$textMiddle", marginTop: 4 }}>
                   {SLICE_DESC[id]}
@@ -582,7 +556,7 @@ function LSides() {
               Read any operator&apos;s profile in five seconds.
             </Text>
             <Text css={{ fontSize: "$3", lineHeight: 1.6, color: "$textMiddle" }}>
-              Before you stake, not after an incident. Two stages and six colors give you insight into
+              Before you stake, not after an incident. A Stage and six colors give you insight into
               validator operations that the marketing page never will.
             </Text>
           </Card>
@@ -615,14 +589,15 @@ function LValos() {
             <Eyebrow as="p" css={{ margin: "0 0 16px" }}>The standard behind the score</Eyebrow>
             <Text as="h2" css={s.h2}>Validator Beat and valOS</Text>
             <Text as="p" css={s.prose}>
-              Validator Beat is the public-facing <strong>who</strong> is running validators. valOS,
-              the Validator Operating Standard, is the technical <strong>how</strong>: a deep catalog
-              of the controls and mitigations behind professional validator operations.
+              Validator Beat is the public-facing <strong>who</strong>: which operators run
+              validators, and how resilient their setups are. valOS, the Validator Operating
+              Standard, is the technical <strong>how</strong>: a deep catalog of the controls and
+              mitigations behind professional validator operations.
             </Text>
             <Text as="p" css={s.prose}>
-              A staker can quickly read an operator&apos;s stages and profile here. An operator doing
+              A staker can quickly read an operator&apos;s stage and profile here. An operator doing
               the hard work and implementing the mitigations should dig into valOS. Follow valOS, and
-              you&apos;ll end up at stage 2.
+              you&apos;ll end up at Stage 2.
             </Text>
             <Box css={s.ctaRow}>
               <Box as="a" href={VALOS} target="_blank" rel="noopener noreferrer" css={s.ghostLink}>

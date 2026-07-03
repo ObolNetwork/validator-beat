@@ -1,9 +1,9 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { Pizza } from "@components/pizza/Pizza";
 import { VbButton } from "@components/ui/VbButton";
-import { SHARE_NAME_MAX, sharePreviewPath } from "@constants/index";
+import { SHARE_NAME_MAX } from "@constants/index";
 import { downloadElementAsPng } from "@lib/share/download-image";
-import { SLICES, getTip, shareCode } from "@lib/rubric";
+import { SLICES, STAGE_META, getTip, shareCode } from "@lib/rubric";
 import type { Answers, SliceColor, SliceId, Stage } from "@lib/rubric/types";
 import type { SliceMeta } from "@lib/rubric/types";
 import {
@@ -60,53 +60,39 @@ import {
   risk,
 } from "./stitches";
 
-const STAGE = {
-  0: {
-    name: "Stage 0",
-    kind: "Getting started",
-    tone: "red" as const,
-    line: "Every operator starts here. Clear the items in red below to reach Stage 1 — where no single failure can expose you to slashing.",
-  },
-  1: {
-    name: "Stage 1",
-    kind: "Safety",
-    tone: "yellow" as const,
-    line: "No single failure can expose you to slashing. One more climb to Stage 2 — where no single point of failure can take you offline or censor you either.",
-  },
-  2: {
-    name: "Stage 2",
-    kind: "Liveness",
-    tone: "green" as const,
-    line: "No single point of failure — your validator can't be slashed, stopped, or censored. You're upholding Ethereum's core values: decentralization, credible neutrality, and censorship resistance.",
-  },
-} as const;
+/** Longer result-hero copy per stage; naming comes from STAGE_META. */
+const STAGE_LINE: Record<Stage, string> = {
+  0: "Every operator starts here. Clear the items in red below to reach Stage 1 — where no single failure can expose you to slashing.",
+  1: "No single failure can expose you to slashing. One more climb to Stage 2 — where no single point of failure can take you offline either.",
+  2: "No single point of failure — no single compromise can slash you, and no single outage can stop you. You're upholding Ethereum's core values: decentralization, credible neutrality, and censorship resistance.",
+};
 
 const WHY_MAXED: Record<SliceId, string> = {
   keyCustody: "No single compromise can sign with your stake.",
   clientDiversity: "No supermajority-client fork can drag you in.",
   infraDiversity: "No single provider can take your validator offline.",
-  osDiversity: "No single OS bug can stop your validator.",
-  cpuDiversity: "No single CPU-architecture supply-chain risk.",
-  geoDiversity: "No single jurisdiction can stop or censor you.",
+  osDiversity: "No single OS compromise can reach all of your keys.",
+  cpuDiversity: "No single CPU-level flaw can reach all of your keys.",
+  geoDiversity: "No single region's outage can take your validator offline.",
 };
 
 const SHARE_LINE: Record<Stage, string> = {
   0: "Has a single point of failure — for now.",
   1: "Safe from slashing — no single failure can get it slashed.",
-  2: "Maximum resilience — can't be slashed, stopped, or censored.",
+  2: "Maximum resilience — no single failure can slash it or stop it.",
 };
 
 type ResultHeroProps = { stage: Stage; answers: Answers; ownerName?: string };
 
 export function ResultHero({ stage, answers, ownerName }: ResultHeroProps) {
-  const m = STAGE[stage];
+  const m = STAGE_META[stage];
   const tone = risk[m.tone];
   const greens = SLICES.filter((s) => answers[s.id] === "green").length;
   const outOfRed = SLICES.filter((s) => answers[s.id] && answers[s.id] !== "red").length;
   const progress =
     stage === 2
-      ? "All six dimensions maxed out"
-      : `${outOfRed} of 6 dimensions secured · ${greens} maxed`;
+      ? "All six slices maxed out"
+      : `${outOfRed} of 6 slices secured · ${greens} maxed`;
 
   return (
     <HeroCard tone={m.tone}>
@@ -118,7 +104,7 @@ export function ResultHero({ stage, answers, ownerName }: ResultHeroProps) {
         <HeroStageKind css={{ color: tone, borderColor: tone }}>{m.kind}</HeroStageKind>
       </HeroStageLine>
       <HeroProgress>{progress}</HeroProgress>
-      <HeroLine>{m.line}</HeroLine>
+      <HeroLine>{STAGE_LINE[stage]}</HeroLine>
     </HeroCard>
   );
 }
@@ -202,7 +188,7 @@ type ShareCardProps = {
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
   function ShareCard({ answers, stage, shareUrl }, ref) {
-    const m = STAGE[stage];
+    const m = STAGE_META[stage];
     const tone = risk[m.tone];
     return (
       <ShareCardRoot ref={ref}>
@@ -256,7 +242,6 @@ export function ShareModal({
   const [nameError, setNameError] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const code = shareCode(answers);
-  const previewPath = sharePreviewPath(code);
 
   const handleNameChange = (value: string) => {
     if (value.length > SHARE_NAME_MAX) {
@@ -284,11 +269,11 @@ export function ShareModal({
   const postToX = () => {
     const who = ownerName.trim();
     const line = who
-      ? `${who}'s validator setup is ${STAGE[stage].name} on Validator Beat. How resilient is yours?`
-      : `My validator setup is ${STAGE[stage].name} on Validator Beat. How resilient is yours?`;
+      ? `${who}'s validator setup is ${STAGE_META[stage].name} on Validator Beat. How resilient is yours?`
+      : `My validator setup is ${STAGE_META[stage].name} on Validator Beat. How resilient is yours?`;
     const text = encodeURIComponent(line);
     window.open(
-      `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`,
+      `https://x.com/intent/post?text=${text}&url=${encodeURIComponent(shareUrl)}`,
       "_blank",
       "noopener,noreferrer",
     );
@@ -355,8 +340,8 @@ export function ShareModal({
           </VbButton>
         </ModalActions>
         <ModalNote>
-          A preview image is generated per result at <b>{previewPath}</b> — anyone who
-          opens it sees your pizza, no data stored.
+          The link encodes your six colors (<b>{code}</b>) — anyone who opens it sees
+          this exact result. Nothing is stored.
         </ModalNote>
       </ModalInner>
     </ModalOverlay>

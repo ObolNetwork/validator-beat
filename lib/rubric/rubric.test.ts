@@ -1,6 +1,7 @@
 import {
   COLORS,
   SLICES,
+  STAGE_META,
   blockers,
   computeStage,
   decodeShareCode,
@@ -55,5 +56,14 @@ describe("rubric v0.1", () => {
   it("decodeShareCode round-trips", () => {
     const code = shareCode(allGreen());
     expect(decodeShareCode(code)).toEqual(allGreen());
+  });
+
+  it("STAGE_META names and tones line up with stage numbers", () => {
+    ([0, 1, 2] as const).forEach((n) => {
+      expect(STAGE_META[n].name).toBe(`Stage ${n}`);
+    });
+    expect(STAGE_META[0].tone).toBe(COLORS.red);
+    expect(STAGE_META[1].tone).toBe(COLORS.yellow);
+    expect(STAGE_META[2].tone).toBe(COLORS.green);
   });
 });

@@ -24,3 +24,14 @@ export type SliceMeta = {
   short: string;
   why: string;
 };
+
+export type StageMeta = {
+  /** Canonical display name, e.g. "Stage 1". */
+  name: string;
+  /** One-word epithet shown as a chip next to the name. */
+  kind: string;
+  /** One-line meaning of the stage. */
+  tagline: string;
+  /** Risk color the stage maps to across the UI. */
+  tone: SliceColor;
+};
