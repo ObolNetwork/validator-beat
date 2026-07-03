@@ -1,8 +1,8 @@
-import type { Answers, SliceColor, SliceId, SliceMeta, Stage } from "./types";
+import type { Answers, SliceColor, SliceId, SliceMeta, Stage, StageMeta } from "./types";
 import { COLORS } from "./types";
 
 export { COLORS } from "./types";
-export type { Answers, SliceColor, SliceId, SliceMeta, Stage } from "./types";
+export type { Answers, SliceColor, SliceId, SliceMeta, Stage, StageMeta } from "./types";
 
 export const RUBRIC_VERSION = "0.1";
 
@@ -11,17 +11,17 @@ export const SLICES: SliceMeta[] = [
     id: "keyCustody",
     label: "Key Custody",
     short: "Keys",
-    why: "Concentrated private keys are a single point of failure — one compromise and an attacker can sign to slash your stake.",
+    why: "Concentrated private keys are a single point of failure — one compromise lets an attacker sign slashable messages with your entire stake.",
   },
   {
     id: "clientDiversity",
     label: "Client Diversity",
     short: "Clients",
-    why: "A supermajority-client bug can cause you to lose 100% of funds; refusing to attest during a chain split turns that into mere downtime.",
+    why: "If a supermajority client forks onto a wrong chain, validators that follow it face mass correlated slashing; refusing to attest on disagreement turns that into mere downtime.",
   },
   {
     id: "infraDiversity",
-    label: "Provider",
+    label: "Provider Diversity",
     short: "Provider",
     why: "One hosting provider's outage or compromise can take every validator hosted there with it.",
   },
@@ -29,27 +29,56 @@ export const SLICES: SliceMeta[] = [
     id: "osDiversity",
     label: "OS Diversity",
     short: "OS",
-    why: "An OS monoculture is a supply-chain risk: one backdoor or zero-day could jeopardise a huge amount of validators.",
+    why: "An OS monoculture is a supply-chain risk: one poisoned update or zero-day could reach every node — and every key — at once.",
   },
   {
     id: "cpuDiversity",
     label: "CPU Architecture",
     short: "CPU",
-    why: "A CPU-architecture monoculture is a hardware-level supply-chain and side-channel risk.",
+    why: "A CPU-architecture monoculture is a hardware-level supply-chain and side-channel risk — one flaw can reach keys on every machine you run.",
   },
   {
     id: "geoDiversity",
-    label: "Geographic",
+    label: "Geographic Diversity",
     short: "Geo",
-    why: "A validator fully in one country or region can be impacted by a natural or man-made disaster.",
+    why: "Nodes concentrated in one country or region share exposure to grid failures, natural disasters, and local policy shifts.",
   },
 ];
 
+/**
+ * Canonical stage naming and taglines. Every surface that names a stage
+ * (results, ladder, landing, share cards, OG images) should read from here
+ * so the Stage 0/1/2 vocabulary stays identical everywhere.
+ */
+export const STAGE_META: Record<Stage, StageMeta> = {
+  0: {
+    name: "Stage 0",
+    kind: "Getting started",
+    tagline: "Has a single point of failure",
+    shareLine: "Has a single point of failure — for now.",
+    tone: COLORS.red,
+  },
+  1: {
+    name: "Stage 1",
+    kind: "Safety",
+    tagline: "No single failure can get you slashed",
+    shareLine: "Safe from slashing — no single failure can get it slashed.",
+    tone: COLORS.yellow,
+  },
+  2: {
+    name: "Stage 2",
+    kind: "Liveness",
+    tagline: "No single failure can take you offline",
+    shareLine: "Maximum resilience — no single failure can slash it or stop it.",
+    tone: COLORS.green,
+  },
+};
+
 export const TIPS: Record<SliceId, { red: string; yellow: string }> = {
   keyCustody: {
-    red: "Split the private keys so no single entity custodies it in full — use distributed key generation or split your backup mnemonic across 2+ parties, and run the validator private keys across multi-node setups (Dirk, Web3Signer, Distributed Validators).",
+    red: "Split your keys so no single party ever holds them in full — use distributed key generation, split backup mnemonics across 2+ parties, and sign through a multi-node setup (Dirk, Web3Signer, or a distributed validator).",
     yellow:
-      "Distribute signing across 3+ independent parties (multi-operator DVT or distributed remote-signers), backups included, so no one party controls more than ⅓, and a failure of one won't introduce a liveness risk.",
+      "Distribute signing across 3+ independent parties (multi-operator DVT or distributed remote signers), backups included, so no single party controls more than ⅓ and losing any one of them doesn't threaten liveness.",
   },
   clientDiversity: {
     red: "Run 3+ independent clients with a refuse-to-attest-on-disagreement setup (multi-operator DVT or a Vero/Vouch-style multiplexer).",
@@ -57,23 +86,24 @@ export const TIPS: Record<SliceId, { red: string; yellow: string }> = {
       "Add at least one minority client so your combined client share stays under ⅔ of the network.",
   },
   infraDiversity: {
-    red: "Move enough validators off your largest provider to get its share under ⅔.",
+    red: "Move enough nodes off your largest provider to bring its share under ⅔.",
     yellow:
-      "Spread hosting so no provider holds more than ⅓ of your active/active setup(add providers or self-host a portion).",
+      "Spread hosting so no provider backs more than ⅓ of your active/active nodes — add providers or self-host a portion.",
   },
   osDiversity: {
-    red: "Run a second operating system distro across your multi-node validator (e.g. add Debian or NixOS next to Ubuntu) to ensure a compromised distro won't expose your private keys.",
+    red: "Run a second, unrelated distro across your nodes (e.g. Debian or NixOS alongside Ubuntu) so one compromised OS supply chain can't reach all of your signing material.",
     yellow:
-      "Run a third distinct distro so one distro's supply-chain compromise can't cause a liveness failure if enough partial keys have leaked to break your validator's consensus.",
+      "Add a third distinct distro so a single OS compromise can't threaten your validator's liveness either.",
   },
   cpuDiversity: {
-    red: "Run your validator across ARM64 hardware (Apple Silicon, AWS Graviton, Ampere) and x86-64 machines.",
+    red: "Split your nodes across x86-64 and ARM64 hardware (Apple Silicon, AWS Graviton, Ampere) so one architecture-level flaw can't reach every key.",
     yellow:
       "Add a third ISA (RISC-V) once viable — aspirational for nearly all setups today.",
   },
   geoDiversity: {
-    red: "Run your validator across a second country/region to reduce your risk exposure.",
-    yellow: "Run your validator across several regions so no single country/region runs more than ⅓ of machines and can cause a liveness outage.",
+    red: "Add nodes in a second country or region so one local disaster or outage can't take your validator offline.",
+    yellow:
+      "Spread nodes across several regions so no single country or region backs more than ⅓ of your setup.",
   },
 };
 

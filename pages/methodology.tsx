@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
-import { SLICES } from "@lib/rubric";
+import { ASSESS_PATH } from "@constants/index";
+import { SLICES, STAGE_META } from "@lib/rubric";
 import type { GetStaticProps } from "next";
 
 export default function MethodologyPage() {
@@ -22,16 +23,24 @@ export default function MethodologyPage() {
           <h2>Stages</h2>
           <ul>
             <li>
-              <strong>Stage 0 — Getting started:</strong> At least one slice is red (a single
-              point of failure remains).
+              <strong>
+                {STAGE_META[0].name} — {STAGE_META[0].kind}:
+              </strong>{" "}
+              At least one slice is red (a single point of failure remains).
             </li>
             <li>
-              <strong>Stage 1 — Safety:</strong> No red slices, but not all green — no single
-              failure should be able to expose you to slashing.
+              <strong>
+                {STAGE_META[1].name} — {STAGE_META[1].kind}:
+              </strong>{" "}
+              No red slices, but not all green — no single failure should be able to expose you
+              to slashing.
             </li>
             <li>
-              <strong>Stage 2 — Liveness:</strong> All six slices green — no single point of
-              failure should be able to slash you, stop you, or censor you.
+              <strong>
+                {STAGE_META[2].name} — {STAGE_META[2].kind}:
+              </strong>{" "}
+              All six slices green — no single point of failure should be able to slash you or
+              take you offline.
             </li>
           </ul>
         </section>
@@ -69,10 +78,10 @@ export default function MethodologyPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                VALOS — Validator Operator Standards
+                valOS — the Validator Operating Standard
               </a>
-              {" "}— the canonical risk-and-mitigation catalogue for validator operators. Nearly
-              every risk surfaced in this assessment has a corresponding mitigation in VALOS.
+              {" "}— the canonical risk-and-mitigation catalog for validator operators. Nearly
+              every risk surfaced in this assessment has a corresponding mitigation in valOS.
             </li>
             <li>
               <a
@@ -157,7 +166,7 @@ export default function MethodologyPage() {
         </section>
 
         <p className="vb-methodology__back">
-          <Link href="/assess/" className="vbbtn vbbtn--primary">
+          <Link href={ASSESS_PATH} className="vbbtn vbbtn--primary">
             Take the assessment →
           </Link>
         </p>

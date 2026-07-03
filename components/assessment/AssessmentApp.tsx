@@ -163,7 +163,6 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
 
       <SiteFooter contentWidth={1440} />
 
-
       {share && a.stage != null && (
         <ShareModal
           answers={a.answers}

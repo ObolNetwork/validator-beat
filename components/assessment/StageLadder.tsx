@@ -1,4 +1,5 @@
 import React from "react";
+import { STAGE_META } from "@lib/rubric";
 import type { Stage } from "@lib/rubric/types";
 import {
   Ladder,
@@ -12,29 +13,7 @@ import {
   LadderTag,
 } from "./stitches";
 
-const LADDER = [
-  {
-    n: 0 as const,
-    name: "Stage 0",
-    kind: "Getting started",
-    tag: "Has a single point of failure",
-    tone: "red" as const,
-  },
-  {
-    n: 1 as const,
-    name: "Stage 1",
-    kind: "Safety",
-    tag: "No single failure can get you slashed",
-    tone: "yellow" as const,
-  },
-  {
-    n: 2 as const,
-    name: "Stage 2",
-    kind: "Liveness",
-    tag: "No single failure can stop or censor you",
-    tone: "green" as const,
-  },
-];
+const STAGE_ORDER: Stage[] = [0, 1, 2];
 
 type StageLadderProps = {
   stage: Stage | null;
@@ -44,29 +23,34 @@ type StageLadderProps = {
 export function StageLadder({ stage, vertical = false }: StageLadderProps) {
   return (
     <Ladder vertical={vertical}>
-      {LADDER.map((s, i) => (
-        <React.Fragment key={s.n}>
-          <LadderCell
-            tone={s.tone}
-            current={stage === s.n}
-            passed={stage != null && stage > s.n}
-            vertical={vertical}
-          >
-            <LadderRow>
-              <LadderName tone={s.tone}>{s.name}</LadderName>
-              <LadderKind tone={s.tone}>{s.kind}</LadderKind>
-              {stage === s.n && <LadderHere tone={s.tone}>you&apos;re here</LadderHere>}
-              {stage != null && stage > s.n && (
-                <LadderCheck tone={s.tone}>✓</LadderCheck>
-              )}
-            </LadderRow>
-            <LadderTag>{s.tag}</LadderTag>
-          </LadderCell>
-          {i < 2 && (
-            <LadderArrow vertical={vertical}>{vertical ? "↓" : "→"}</LadderArrow>
-          )}
-        </React.Fragment>
-      ))}
+      {STAGE_ORDER.map((n, i) => {
+        const meta = STAGE_META[n];
+        return (
+          <React.Fragment key={n}>
+            <LadderCell
+              tone={meta.tone}
+              current={stage === n}
+              passed={stage != null && stage > n}
+              vertical={vertical}
+            >
+              <LadderRow>
+                <LadderName tone={meta.tone}>{meta.name}</LadderName>
+                <LadderKind tone={meta.tone}>{meta.kind}</LadderKind>
+                {stage === n && (
+                  <LadderHere tone={meta.tone}>you&apos;re here</LadderHere>
+                )}
+                {stage != null && stage > n && (
+                  <LadderCheck tone={meta.tone}>✓</LadderCheck>
+                )}
+              </LadderRow>
+              <LadderTag>{meta.tagline}</LadderTag>
+            </LadderCell>
+            {i < STAGE_ORDER.length - 1 && (
+              <LadderArrow vertical={vertical}>{vertical ? "↓" : "→"}</LadderArrow>
+            )}
+          </React.Fragment>
+        );
+      })}
     </Ladder>
   );
 }

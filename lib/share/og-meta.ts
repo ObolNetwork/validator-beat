@@ -1,13 +1,5 @@
-import { SLICES, computeStage } from "@lib/rubric";
-import type { Answers, Stage } from "@lib/rubric/types";
-
-const STAGE_KIND: Record<Stage, string> = {
-  0: "Getting started",
-  1: "Safety",
-  2: "Liveness",
-};
-
-const COLOR_WORD = { green: "green", yellow: "yellow", red: "red" } as const;
+import { SLICES, STAGE_META, computeStage } from "@lib/rubric";
+import type { Answers } from "@lib/rubric/types";
 
 export function shareOgMeta(answers: Answers) {
   const stage = computeStage(answers);
@@ -20,11 +12,11 @@ export function shareOgMeta(answers: Answers) {
 
   const sliceLine = SLICES.map((s) => {
     const c = answers[s.id];
-    return c ? `${s.short}: ${COLOR_WORD[c]}` : `${s.short}: —`;
+    return c ? `${s.short}: ${c}` : `${s.short}: —`;
   }).join(" · ");
 
   return {
-    title: `Stage ${stage} · ${STAGE_KIND[stage]}`,
+    title: `${STAGE_META[stage].name} · ${STAGE_META[stage].kind}`,
     description: `${sliceLine}. Self-assessed validator security on ValidatorBeat.com`,
   };
 }

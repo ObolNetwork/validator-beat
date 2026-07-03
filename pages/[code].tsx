@@ -38,7 +38,8 @@ export const getStaticProps: GetStaticProps<SharePageProps> = ({ params }) => {
       title: meta.title,
       description: meta.description,
       ogImage: `${base}/og/${code}.png`,
-      canonicalUrl: `${base}/${code}`,
+      // trailingSlash: true — the exported page lives at /<code>/
+      canonicalUrl: `${base}/${code}/`,
     },
   };
 };
