@@ -61,6 +61,7 @@ describe("rubric v0.1", () => {
   it("STAGE_META names and tones line up with stage numbers", () => {
     ([0, 1, 2] as const).forEach((n) => {
       expect(STAGE_META[n].name).toBe(`Stage ${n}`);
+      expect(STAGE_META[n].shareLine.length).toBeGreaterThan(0);
     });
     expect(STAGE_META[0].tone).toBe(COLORS.red);
     expect(STAGE_META[1].tone).toBe(COLORS.yellow);

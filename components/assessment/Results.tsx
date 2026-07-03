@@ -76,12 +76,6 @@ const WHY_MAXED: Record<SliceId, string> = {
   geoDiversity: "No single region's outage can take your validator offline.",
 };
 
-const SHARE_LINE: Record<Stage, string> = {
-  0: "Has a single point of failure — for now.",
-  1: "Safe from slashing — no single failure can get it slashed.",
-  2: "Maximum resilience — no single failure can slash it or stop it.",
-};
-
 type ResultHeroProps = { stage: Stage; answers: Answers; ownerName?: string };
 
 export function ResultHero({ stage, answers, ownerName }: ResultHeroProps) {
@@ -211,7 +205,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
             <ShareResk>My validator setup is</ShareResk>
             <ShareStage css={{ color: tone }}>{m.name}</ShareStage>
             <ShareKind css={{ color: tone, borderColor: tone }}>{m.kind}</ShareKind>
-            <ShareLine>{SHARE_LINE[stage]}</ShareLine>
+            <ShareLine>{m.shareLine}</ShareLine>
           </ShareMeta>
         </ShareBody>
         <ShareFoot>How resilient is your validator? Find out →</ShareFoot>

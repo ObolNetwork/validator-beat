@@ -47,26 +47,29 @@ export const SLICES: SliceMeta[] = [
 
 /**
  * Canonical stage naming and taglines. Every surface that names a stage
- * (results, ladder, landing, OG images) should read from here so the
- * Stage 0/1/2 vocabulary stays identical everywhere.
+ * (results, ladder, landing, share cards, OG images) should read from here
+ * so the Stage 0/1/2 vocabulary stays identical everywhere.
  */
 export const STAGE_META: Record<Stage, StageMeta> = {
   0: {
     name: "Stage 0",
     kind: "Getting started",
     tagline: "Has a single point of failure",
+    shareLine: "Has a single point of failure — for now.",
     tone: COLORS.red,
   },
   1: {
     name: "Stage 1",
     kind: "Safety",
     tagline: "No single failure can get you slashed",
+    shareLine: "Safe from slashing — no single failure can get it slashed.",
     tone: COLORS.yellow,
   },
   2: {
     name: "Stage 2",
     kind: "Liveness",
     tagline: "No single failure can take you offline",
+    shareLine: "Maximum resilience — no single failure can slash it or stop it.",
     tone: COLORS.green,
   },
 };

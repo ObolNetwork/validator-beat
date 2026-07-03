@@ -32,6 +32,8 @@ export type StageMeta = {
   kind: string;
   /** One-line meaning of the stage. */
   tagline: string;
+  /** Punchy one-liner for share cards and OG preview images. */
+  shareLine: string;
   /** Risk color the stage maps to across the UI. */
   tone: SliceColor;
 };

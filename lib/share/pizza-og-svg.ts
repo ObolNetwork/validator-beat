@@ -24,12 +24,6 @@ function wedgePath(cx: number, cy: number, r: number, a0: number, a1: number) {
   return `M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 ${large} 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z`;
 }
 
-const STAGE_LINE: Record<Stage, string> = {
-  0: "Has a single point of failure — for now.",
-  1: "No single failure risks slashing.",
-  2: "Can't be slashed or stopped by a single failure.",
-};
-
 const STAGE_COLOR: Record<Stage, string> = {
   0: PIZZA_FILL.red,
   1: PIZZA_FILL.yellow,
@@ -74,7 +68,7 @@ export function pizzaOgSvg(
       <text x="620" y="248" font-family="DM Sans, system-ui, sans-serif" font-size="18" font-weight="600" fill="#999999" letter-spacing="0.08em">MY VALIDATOR SETUP IS</text>
       <text x="620" y="310" font-family="DM Sans, system-ui, sans-serif" font-size="56" font-weight="700" fill="${STAGE_COLOR[stage]}">Stage ${stage}</text>
       <text x="620" y="352" font-family="DM Sans, system-ui, sans-serif" font-size="16" font-weight="700" fill="${STAGE_COLOR[stage]}" letter-spacing="0.06em">${STAGE_META[stage].kind.toUpperCase()}</text>
-      <text x="620" y="400" font-family="DM Sans, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000">${escapeXml(STAGE_LINE[stage])}</text>
+      <text x="620" y="400" font-family="DM Sans, system-ui, sans-serif" font-size="22" font-weight="400" fill="#000000">${escapeXml(STAGE_META[stage].shareLine)}</text>
       <text x="620" y="460" font-family="DM Sans, system-ui, sans-serif" font-size="17" fill="#696969">${SLICES.map((s) => {
         const col = answers[s.id];
         const dot = col ? PIZZA_FILL[col] : PIZZA_EMPTY_STROKE;
