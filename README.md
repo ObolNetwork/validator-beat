@@ -6,6 +6,8 @@ Neutral, public-good **self-assessment** for Ethereum validator operators — si
 
 ## Development
 
+Requires **Node.js 24+** (see `.nvmrc`).
+
 ```bash
 yarn install
 yarn dev
