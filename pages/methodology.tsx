@@ -145,6 +145,72 @@ export default function MethodologyPage() {
             <strong>Client diversity</strong> uses a simplified banded model; live network client
             share thresholds are deferred to a future operator registry (v1.2 spec).
           </p>
+          <p>
+            If no answer fits your setup, pick yellow — the{" "}
+            <a href="#nuances">nuances and limits</a> section lists the known cases.
+          </p>
+        </section>
+
+        <section id="nuances">
+          <h2>Nuances and limits</h2>
+          <p>
+            This section lists the nuances the assessment leaves out, so you can weigh them
+            yourself.
+          </p>
+
+          <h3>Why three colors</h3>
+          <p>
+            Real setups don&apos;t fall into neat green, yellow, and red buckets. We use three
+            colors anyway because they keep a result easy to read at a glance. If your setup falls
+            between two answers, pick yellow. If the gray area hides a single point of failure,
+            pick red.
+          </p>
+          <p>Known cases the questions don&apos;t spell out:</p>
+          <ul>
+            <li>
+              <strong>Shared owner.</strong> Two key custodians inside one company fail together.
+              Score Key Custody yellow.
+            </li>
+            <li>
+              <strong>Derived distros.</strong> Ubuntu and Debian share upstream packaging. If your
+              distros share a supply chain, score OS Diversity yellow.
+            </li>
+            <li>
+              <strong>One physical host.</strong> Two OSes in VMs on one machine share that
+              machine. Score OS Diversity yellow.
+            </li>
+            <li>
+              <strong>Resold infrastructure.</strong> Two providers reselling the same cloud or
+              data centre fail together. Score Infrastructure yellow.
+            </li>
+            <li>
+              <strong>Active/passive failover.</strong> A warm standby still goes offline during
+              failover. The four infrastructure slices assume active/active; score them no higher
+              than yellow.
+            </li>
+          </ul>
+          <p>If you hit an ambiguity we haven&apos;t listed, pick yellow.</p>
+
+          <h3>The remote signer stack</h3>
+          <p>
+            Every current signing stack keeps a single point of failure somewhere, whether you run
+            Web3Signer, Dirk, Vero, Vouch, or Charon. Validator Beat doesn&apos;t score it:
+            penalizing something no setup can avoid would push everyone toward one architecture.
+          </p>
+
+          <h3>Hosting provider type</h3>
+          <p>
+            Validator Beat doesn&apos;t rank residential, bare metal, or cloud hosting. The
+            Infrastructure slice already scores provider concentration, which catches the real
+            trap: five regions all on AWS still fall to one provider incident.
+          </p>
+
+          <h3>CPU generation</h3>
+          <p>
+            Validator Beat counts instruction sets and ignores chip generations. Hardware bugs
+            sometimes hit one generation and sometimes a vendor&apos;s entire line, so mixing
+            generations guarantees nothing.
+          </p>
         </section>
 
         <section>

@@ -32,6 +32,13 @@
   color: var(--vb-green);
 }
 
+.vb-methodology__main h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 20px 0 8px;
+  color: var(--fg-1);
+}
+
 .vb-methodology__lede {
   font-size: 15px;
   line-height: 1.6;
