@@ -1,0 +1,10 @@
+# Validator Beat — everything is public. Share pages (/GYRYGG etc.) are
+# intentionally crawlable so link unfurls work everywhere.
+User-agent: *
+Allow: /
+
+Sitemap: https://validatorbeat.com/sitemap.xml
+
+# LLM/agent-facing docs
+# https://validatorbeat.com/llms.txt
+# https://validatorbeat.com/skill.md

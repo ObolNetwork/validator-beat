@@ -689,14 +689,16 @@ export function Landing() {
   return (
     <Box css={{ minHeight: "100vh", backgroundColor: "$bg01", color: "$textMiddle" }}>
       <SiteHeader />
-      <LHero />
-      <LGap />
-      <LFail />
-      <LRead />
-      <LSides />
-      <LValos />
-      <LNeutral />
-      <LClosing />
+      <Box as="main" id="main-content">
+        <LHero />
+        <LGap />
+        <LFail />
+        <LRead />
+        <LSides />
+        <LValos />
+        <LNeutral />
+        <LClosing />
+      </Box>
       <SiteFooter />
     </Box>
   );

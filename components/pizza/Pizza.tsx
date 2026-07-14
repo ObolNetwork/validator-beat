@@ -93,6 +93,14 @@ export function Pizza({
   const circ = 2 * Math.PI * ringR;
   const frac = answered / SLICES.length;
 
+  const sliceDesc = SLICES.map(
+    (s) => `${s.short} ${answers[s.id] ?? "unanswered"}`,
+  ).join(", ");
+  const ariaLabel =
+    stage != null
+      ? `Validator resilience pizza — Stage ${stage}. ${sliceDesc}.`
+      : `Validator resilience pizza — ${answered} of ${SLICES.length} slices answered. ${sliceDesc}.`;
+
   return (
     <svg
       width={size}
@@ -100,7 +108,7 @@ export function Pizza({
       viewBox={`0 0 ${size} ${size}`}
       className="vbpizza"
       role="img"
-      aria-label="Decentralization pizza — six slices"
+      aria-label={ariaLabel}
     >
       {big && (
         <defs>

@@ -8,6 +8,7 @@ import { SLICES, allAnswered, computeStage, decodeShareCode, shareCode } from "@
 import type { SliceColor, SliceId } from "@lib/rubric/types";
 import { VbButton } from "@components/ui/VbButton";
 import { getShareUrl, shareNameFromQuery } from "@constants/index";
+import { Box } from "@obolnetwork/obol-ui";
 import { CONFETTI_BRAND } from "@lib/theme/tokens";
 import {
   Blockers,
@@ -107,7 +108,23 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
     <Shell>
       <SiteHeader contentWidth={1440} />
 
-      <MainGrid>
+      <MainGrid as="main" id="main-content">
+        <Box
+          as="h1"
+          css={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: "hidden",
+            clip: "rect(0 0 0 0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+        >
+          Validator self-assessment
+        </Box>
         <LeftCard>
           {a.atIntro ? (
             <Intro onStart={a.start} />

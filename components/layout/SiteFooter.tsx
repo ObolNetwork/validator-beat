@@ -1,7 +1,12 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import type { CSS } from "@stitches/react";
 import { TopNavLink, TopSpacer } from "@components/assessment/stitches";
-import { ASSESS_PATH, METHODOLOGY_PATH, VALOS_URL } from "@constants/index";
+import {
+  ASSESS_PATH,
+  GITHUB_URL,
+  METHODOLOGY_PATH,
+  VALOS_URL,
+} from "@constants/index";
 
 const navLink: CSS = {
   fontSize: "$2",
@@ -53,6 +58,15 @@ export function SiteFooter({ contentWidth = 1140 }: SiteFooterProps) {
           css={navLink}
         >
           valOS
+        </Box>
+        <Box
+          as="a"
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={navLink}
+        >
+          GitHub
         </Box>
         <TopNavLink href={ASSESS_PATH}>Assess</TopNavLink>
       </Box>

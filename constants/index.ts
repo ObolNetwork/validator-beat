@@ -8,6 +8,7 @@ export const SITE_URL =
 export const ASSESS_PATH = "/assess/";
 export const METHODOLOGY_PATH = "/methodology/";
 export const VALOS_URL = "https://lidofinance.github.io/valos/valos-spec.html";
+export const GITHUB_URL = "https://github.com/ObolNetwork/validator-beat";
 
 export {
   getShareUrl,

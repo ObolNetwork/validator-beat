@@ -16,8 +16,8 @@ export function shareOgMeta(answers: Answers) {
   }).join(" · ");
 
   return {
-    title: `${STAGE_META[stage].name} · ${STAGE_META[stage].kind}`,
-    description: `${sliceLine}. Self-assessed validator security on ValidatorBeat.com`,
+    title: `My validator is ${STAGE_META[stage].name} · ${STAGE_META[stage].kind}`,
+    description: `${sliceLine}. What stage is yours? Rate any validator in 60 seconds on ValidatorBeat.com — free, nothing stored.`,
   };
 }
 
