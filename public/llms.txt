@@ -1,0 +1,33 @@
+# Validator Beat
+
+> A free, client-side self-assessment that scores Ethereum validator setups **Stage 0, 1, or 2** across six single points of failure. Nothing is stored or sent to a server; results are shareable via six-letter codes. Built by Obol as a public good.
+
+Staking earns roughly 2% APR; slashing can take far more, and correlated failures are penalized super-linearly. Validator Beat makes a validator's resilience legible: six banded questions, each mapping to a green/yellow/red "pizza slice", rolling up to one Stage.
+
+## Stages
+
+**Stage 0 — Getting started**: at least one slice is red. Has a single point of failure.
+**Stage 1 — Safety**: no red slices, but not all green. No single failure can get you slashed.
+**Stage 2 — Liveness**: all six slices green. No single failure can take you offline.
+
+## The six slices (in canonical order)
+
+1. **Key Custody** — Concentrated private keys are a single point of failure — one compromise lets an attacker sign slashable messages with your entire stake.
+2. **Client Diversity** — If a supermajority client forks onto a wrong chain, validators that follow it face mass correlated slashing; refusing to attest on disagreement turns that into mere downtime.
+3. **Provider Diversity** — One hosting provider's outage or compromise can take every validator hosted there with it.
+4. **OS Diversity** — An OS monoculture is a supply-chain risk: one poisoned update or zero-day could reach every node — and every key — at once.
+5. **CPU Architecture** — A CPU-architecture monoculture is a hardware-level supply-chain and side-channel risk — one flaw can reach keys on every machine you run.
+6. **Geographic Diversity** — Nodes concentrated in one country or region share exposure to grid failures, natural disasters, and local policy shifts.
+
+The four infrastructure slices (provider, OS, CPU, geography) assume the validator runs active/active — several cooperating nodes backing the same stake — so diversity translates into uptime, not just redundancy.
+
+## Share codes
+
+A result is encoded as six letters, one per slice in the order above, `G` (green), `Y` (yellow), or `R` (red). Example: `https://validatorbeat.com/GYRYGG` — a stable URL with an Open Graph preview card. All 729 combinations exist as static pages.
+
+## Docs
+
+- [Methodology](https://validatorbeat.com/methodology/): scoring rules, the active/active assumption, nuances and limits
+- [Take the assessment](https://validatorbeat.com/assess/): six questions, ~60 seconds, runs in the browser
+- [Agent skill](https://validatorbeat.com/skill.md): how an AI agent can run this assessment conversationally
+- [Source code](https://github.com/ObolNetwork/validator-beat): Apache-2.0; the scoring rubric lives in `lib/rubric`

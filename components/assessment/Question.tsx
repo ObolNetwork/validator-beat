@@ -67,6 +67,7 @@ export function Question({
               type="button"
               selected={sel}
               color={o.color}
+              aria-pressed={sel}
               onClick={() => onChoose(sliceId, o.color)}
             >
               <RiskDot color={o.color} size="lg" />
@@ -74,7 +75,9 @@ export function Question({
                 <OptionLabel>{o.label}</OptionLabel>
                 {o.sub && <OptionSub>{o.sub}</OptionSub>}
               </OptionBody>
-              <OptionCheck selected={sel}>{sel ? "✓" : ""}</OptionCheck>
+              <OptionCheck selected={sel} aria-hidden="true">
+                {sel ? "✓" : ""}
+              </OptionCheck>
             </OptionButton>
           );
         })}

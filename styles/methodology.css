@@ -66,3 +66,63 @@
 .vb-methodology__back {
   margin-top: 36px;
 }
+
+/* Section anchors — hover-revealed "#" that copies the section URL. */
+.vb-anchor__link {
+  margin-left: 8px;
+  color: var(--fg-2);
+  opacity: 0.35;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+.vb-anchor:hover .vb-anchor__link,
+.vb-anchor__link:focus-visible {
+  opacity: 1;
+  color: var(--vb-green);
+}
+
+.vb-anchor__copied {
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vb-green);
+}
+
+.vb-methodology__main [id] {
+  scroll-margin-top: 24px;
+}
+
+/* Stage rows — mini pizza + plain-language definition. */
+.vb-stage-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0;
+}
+
+.vb-stage-row svg {
+  flex-shrink: 0;
+}
+
+.vb-stage-row p {
+  margin: 0;
+}
+
+.vb-stage-row__mechanic {
+  color: var(--fg-3);
+}
+
+/* Highlighted rule-of-thumb callout. */
+.vb-callout {
+  border-left: 3px solid var(--vb-green);
+  background: var(--bg-02);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin: 14px 0;
+}
+
+.vb-callout p {
+  margin: 0;
+}

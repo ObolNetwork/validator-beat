@@ -90,7 +90,24 @@ export function SiteHeader({ contentWidth = 1140 }: SiteHeaderProps) {
   const onAssess = router.pathname === "/assess";
 
   return (
-    <Box as="nav" css={bar}>
+    <Box as="nav" aria-label="Main" css={bar}>
+      <Box
+        as="a"
+        href="#main-content"
+        css={{
+          position: "absolute",
+          left: -9999,
+          zIndex: 10,
+          padding: "8px 14px",
+          backgroundColor: "$bg01",
+          color: "$body",
+          fontSize: "$2",
+          fontWeight: "$semibold",
+          "&:focus-visible": { left: 8, top: 8 },
+        }}
+      >
+        Skip to content
+      </Box>
       <Box
         css={{
           display: "flex",

@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { decodeShareCode } from "../lib/rubric/index";
+import { landingOgSvg } from "../lib/share/landing-og-svg";
 import { pizzaOgSvg } from "../lib/share/pizza-og-svg";
 import { allShareCodes } from "../lib/theme/share-codes";
 
@@ -30,7 +31,12 @@ async function main() {
     }
   }
 
-  console.log(`Generated ${done} OG images in public/og/`);
+  // Default landing-page card (shared when the root domain is posted).
+  await sharp(Buffer.from(landingOgSvg(DISPLAY_HOST)))
+    .png()
+    .toFile(path.join(OUT_DIR, "landing.png"));
+
+  console.log(`Generated ${done} share images + landing.png in public/og/`);
 }
 
 main().catch((err) => {
