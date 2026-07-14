@@ -28,9 +28,9 @@ jobs:
       - run: yarn test
       - run: yarn build
         env:
-          # Project Pages URL — switch to https://validatorbeat.com + empty BASE_PATH when custom domain is live
-          NEXT_PUBLIC_SITE_URL: https://obolnetwork.github.io/validator-beat
-          NEXT_PUBLIC_BASE_PATH: /validator-beat
+          # Custom domain (validatorbeat.com) — root deploy, so BASE_PATH is empty.
+          NEXT_PUBLIC_SITE_URL: https://validatorbeat.com
+          NEXT_PUBLIC_BASE_PATH: ""
       - name: Upload Pages artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v4
