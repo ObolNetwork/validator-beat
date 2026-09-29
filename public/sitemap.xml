@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Core pages only. The 729 share pages (/GYRYGG etc.) are deliberately
+<!-- Core pages only. The share pages (/GYYGGY etc.) are deliberately
      omitted: they're crawlable for unfurls but are result permutations,
      not content we want competing in search. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

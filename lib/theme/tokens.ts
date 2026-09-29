@@ -10,12 +10,14 @@ export const PIZZA_FILL: Record<SliceColor, string> = {
   green: "#3a9e80",
   yellow: "#cf9a3a",
   red: "#c46044",
+  unknown: "#7c8595",
 };
 
 export const PIZZA_RING: Record<SliceColor, string> = {
   green: "#1f7a5e",
   yellow: "#a8761f",
   red: "#a64428",
+  unknown: "#5c6474",
 };
 
 export const PIZZA_PLATE = "#fffdf7";

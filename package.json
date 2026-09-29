@@ -10,6 +10,7 @@
     "dev": "next dev",
     "build:og": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/generate-og-images.ts",
     "build:icons": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/generate-icons.ts",
+    "build:banner": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/generate-readme-banner.ts",
     "build:agents": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' scripts/generate-agent-files.ts",
     "build": "yarn build:og && yarn build:agents && next build",
     "start": "next start",

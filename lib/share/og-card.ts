@@ -1,7 +1,7 @@
 /**
  * Shared building blocks for the dark OG-card system (1200×630).
  *
- * Both the landing card (lib/share/landing-og-svg.ts) and the 729 share
+ * Both the landing card (lib/share/landing-og-svg.ts) and the per-code share
  * cards (lib/share/pizza-og-svg.ts) compose these pieces so layout, palette,
  * and the pizza rendering stay pixel-identical across the whole OG surface.
  * Cards are rendered to PNG at build time by scripts/generate-og-images.ts.
@@ -106,6 +106,7 @@ export function ogPizza(o: OgPizzaOpts): string {
       : ` stroke-dasharray="5 4" stroke="${OG_EMPTY_STROKE}" stroke-width="1.5"`;
     return `
       <path d="${wedgePath(cx, cy, r, a0, a1)}" fill="${fill}" stroke="${OG_BG}" stroke-width="3"${dash}/>
+      ${col === "unknown" ? (() => { const [qx, qy] = polar(cx, cy, r * 0.64, mid); return `<text x="${qx.toFixed(1)}" y="${qy.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-family="${FONT}" font-size="40" font-weight="700" fill="${OG_BG}">?</text>`; })() : ""}
       <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-family="${FONT}" font-size="21" font-weight="600" fill="${OG_LABEL}">${escapeXml(s.short)}</text>`;
   }).join("");
 

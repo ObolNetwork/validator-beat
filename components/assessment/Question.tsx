@@ -1,5 +1,6 @@
 import { VbButton } from "@components/ui/VbButton";
 import { QUESTIONS } from "@lib/assessment/questions";
+import type { QuestionOption } from "@lib/assessment/questions";
 import { SLICES } from "@lib/rubric";
 import type { SliceColor, SliceId } from "@lib/rubric/types";
 import {
@@ -24,6 +25,13 @@ import {
   ResultsActions,
   RiskDot,
 } from "./stitches";
+
+/** Offered on every question: an unverified gap has to be assumed open. */
+const NOT_SURE: QuestionOption = {
+  color: "unknown",
+  label: "Not sure",
+  sub: "Treated as a gap until you can check — your results will say how to find out.",
+};
 
 type QuestionProps = {
   sliceId: SliceId;
@@ -59,7 +67,7 @@ export function Question({
       <QuestionTitle>{data.q}</QuestionTitle>
       {data.helper && <QuestionHelper>{data.helper}</QuestionHelper>}
       <OptionList>
-        {data.options.map((o) => {
+        {[...data.options, NOT_SURE].map((o) => {
           const sel = value === o.color;
           return (
             <OptionButton
@@ -69,6 +77,7 @@ export function Question({
               color={o.color}
               aria-pressed={sel}
               onClick={() => onChoose(sliceId, o.color)}
+              css={o.color === "unknown" ? { marginTop: 4, borderStyle: "dashed" } : undefined}
             >
               <RiskDot color={o.color} size="lg" />
               <OptionBody>

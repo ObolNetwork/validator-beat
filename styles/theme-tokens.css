@@ -33,16 +33,19 @@
   --theme-text-faint: #aab3ad;
   --theme-text-on-brand: #ffffff;
 
-  /* ---- Pizza / risk slices (green = good, yellow = partial, red = SPOF) ----
+  /* ---- Pizza / risk slices (green = good, yellow = partial, red = SPOF, unknown = not sure) ----
      Muted earthy variants tuned to sit calmly on cream. */
   --theme-risk-green: #3a9e80;
   --theme-risk-yellow: #cf9a3a;
   --theme-risk-red: #c46044;
+  /* "Not sure" — a cool slate, clearly answered (unlike the empty wedge) but outside the traffic light. */
+  --theme-risk-unknown: #7c8595;
 
   /* ---- Pizza ring tints (center progress ring; darker than fill on cream) ---- */
   --theme-risk-green-ring: #1f7a5e;
   --theme-risk-yellow-ring: #a8761f;
   --theme-risk-red-ring: #a64428;
+  --theme-risk-unknown-ring: #5c6474;
 
   /* ---- Pizza plate / empty wedge ---- */
   --theme-pizza-plate: #fffdf7;
@@ -60,7 +63,7 @@
 :root[data-theme="dark"] {
   /* ---- Brand accent (bright mint reads on dark surfaces) ---- */
   --theme-brand: #2fe4ab;          /* obolGreen */
-  --theme-brand-hover: #0f7c76;
+  --theme-brand-hover: #7ff0cc;   /* lighter mint — keeps dark on-brand text readable on hover */
   --theme-brand-highlight: #b6ea5c; /* lime */
 
   /* ---- Page surfaces ---- */
@@ -82,9 +85,11 @@
   --theme-risk-green: #2fe4ab;
   --theme-risk-yellow: #e8b339;
   --theme-risk-red: #dd603c;
+  --theme-risk-unknown: #8f9bb0;
   --theme-risk-green-ring: #6ff0c8;
   --theme-risk-yellow-ring: #f0c95f;
   --theme-risk-red-ring: #e8856a;
+  --theme-risk-unknown-ring: #b4bfd0;
 
   /* ---- Pizza plate / empty wedge ---- */
   --theme-pizza-plate: #0a1214;
@@ -132,12 +137,15 @@
   --vb-green: var(--theme-risk-green);
   --vb-yellow: var(--theme-risk-yellow);
   --vb-red: var(--theme-risk-red);
+  --vb-unknown: var(--theme-risk-unknown);
   --vb-green-t: color-mix(in srgb, var(--theme-risk-green) 14%, transparent);
   --vb-yellow-t: color-mix(in srgb, var(--theme-risk-yellow) 14%, transparent);
   --vb-red-t: color-mix(in srgb, var(--theme-risk-red) 14%, transparent);
+  --vb-unknown-t: color-mix(in srgb, var(--theme-risk-unknown) 14%, transparent);
   --vb-green-b: color-mix(in srgb, var(--theme-risk-green) 50%, transparent);
   --vb-yellow-b: color-mix(in srgb, var(--theme-risk-yellow) 50%, transparent);
   --vb-red-b: color-mix(in srgb, var(--theme-risk-red) 50%, transparent);
+  --vb-unknown-b: color-mix(in srgb, var(--theme-risk-unknown) 50%, transparent);
 
   --vb-plate: var(--theme-pizza-plate);
   --vb-empty: var(--theme-pizza-empty);

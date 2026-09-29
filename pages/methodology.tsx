@@ -2,15 +2,15 @@ import Link from "next/link";
 import { AnchorHeading } from "@components/methodology/AnchorHeading";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
-import { ASSESS_PATH, GITHUB_URL } from "@constants/index";
-import { SLICES, STAGE_META } from "@lib/rubric";
+import { ASSESS_PATH, DOWNTIME_CALCULATOR_URL, GITHUB_URL } from "@constants/index";
+import { SLICES, STAGE_META, slicesOfKind } from "@lib/rubric";
 import type { SliceColor, Stage } from "@lib/rubric/types";
 import type { GetStaticProps } from "next";
 
 /** Illustrative slice patterns for each stage row — not real results. */
 const STAGE_EXAMPLES: Record<Stage, SliceColor[]> = {
-  0: ["green", "green", "red", "green", "yellow", "green"],
-  1: ["green", "yellow", "green", "green", "yellow", "green"],
+  0: ["green", "green", "green", "red", "green", "yellow"],
+  1: ["green", "yellow", "yellow", "green", "green", "yellow"],
   2: ["green", "green", "green", "green", "green", "green"],
 };
 
@@ -42,8 +42,9 @@ export default function MethodologyPage() {
       <main className="vb-methodology__main" id="main-content">
         <h1>Methodology</h1>
         <p className="vb-methodology__lede">
-          Validator Beat v0.1 is a <strong>self-assessment</strong> tool. You answer six banded
-          questions; each answer maps directly to a slice color (green, yellow, or red). Your
+          Validator Beat is a <strong>self-assessment</strong> tool. You answer six banded
+          questions; each answer maps directly to a slice color (green, yellow, or red — or grey
+          for &ldquo;not sure&rdquo;). Your
           overall <strong>Stage</strong> rolls up from those six colors. It&apos;s written for
           operators assessing their own setup — and for stakers deciding whether an operator has
           earned their stake. Nothing is sent to a server — scoring runs entirely in your browser,
@@ -64,7 +65,7 @@ export default function MethodologyPage() {
               </strong>{" "}
               one failure can slash you.{" "}
               <span className="vb-stage-row__mechanic">
-                (At least one slice is red — a single point of failure remains.)
+                (A safety slice is red or not sure.)
               </span>
             </p>
           </div>
@@ -76,7 +77,7 @@ export default function MethodologyPage() {
               </strong>{" "}
               one failure won&apos;t slash you.{" "}
               <span className="vb-stage-row__mechanic">
-                (No red slices, but not all green yet.)
+                (Every safety slice is green or yellow; not all six are green yet.)
               </span>
             </p>
           </div>
@@ -90,6 +91,20 @@ export default function MethodologyPage() {
               <span className="vb-stage-row__mechanic">(All six slices green.)</span>
             </p>
           </div>
+
+          <AnchorHeading id="safety-liveness" as="h3">
+            Safety slices and liveness slices
+          </AnchorHeading>
+          <p>
+            Each stage answers one question, so each slice gates the stage whose failure mode it
+            guards against. <strong>Safety</strong> slices —{" "}
+            {slicesOfKind("safety").map((s) => s.label).join(", ")} — decide whether one failure
+            can get you slashed or leak your keys, so a red or not-sure there holds you at Stage 0.{" "}
+            <strong>Liveness</strong> slices —{" "}
+            {slicesOfKind("liveness").map((s) => s.label).join(" and ")} — decide whether one
+            failure can take you offline, so they only stand between you and Stage 2. If one
+            provider could also reach your keys, that shows up under Key Custody, not here.
+          </p>
         </section>
 
         <section>
@@ -123,17 +138,38 @@ export default function MethodologyPage() {
         <section>
           <AnchorHeading id="scoring">How answers map to colors</AnchorHeading>
           <p>
-            Each question offers three banded choices (best → worst). Your selection <em>is</em>{" "}
-            the slice color — there is no separate backend calculation in v0.1.
+            Colors mean the same thing on every slice: <strong>red</strong> means one failure
+            could get you slashed, <strong>yellow</strong> means one failure could take you offline
+            (or a safety gap is only partly closed), and <strong>green</strong> means no single
+            failure can do either. So Key Custody and Client Diversity use all three bands; OS and
+            CPU are green or red, because the only question is whether one OS or architecture holds
+            enough key shares to sign; and Provider and Geography are green or yellow, because the
+            worst they can do is take you offline. Your selection <em>is</em> the slice color —
+            there is no separate backend calculation.
           </p>
           <p>
-            <strong>Client diversity</strong> uses a simplified banded model; live network client
-            share thresholds are deferred to a future operator registry (v1.2 spec).
+            Every question also offers <strong>Not sure</strong>. It&apos;s treated as an open gap:
+            a gap you can&apos;t verify is closed has to be assumed open, so it holds a safety slice
+            at Stage 0 and a liveness slice short of Stage 2. Your results then tell you
+            how to find out, rather than how to fix it.
+          </p>
+          <p>
+            Bands follow the consensus math. Distributed validators typically need ⅔ of key shares
+            to sign, so any single party, OS, or architecture holding ⅔ or more is red. Holding ⅓
+            or less means losing it still leaves a signing threshold online, which is green. For
+            Provider and Geography, anything over ⅓ on one provider or region can already drop you
+            below that threshold, so there&apos;s a single cut-off.
+          </p>
+          <p>
+            <strong>Client diversity</strong> counts execution and consensus clients alike and uses
+            a simplified banded model; live network client share thresholds are deferred to a
+            future operator registry.
           </p>
           <div className="vb-callout">
             <p>
               <strong>Rule of thumb:</strong> if your setup falls between two answers, pick
-              yellow. If the gray area hides a single point of failure, pick red. The{" "}
+              the worse one. If you can&apos;t tell, pick <em>Not sure</em> — your results will
+              say how to find out. The{" "}
               <a href="#nuances">nuances and limits</a> section lists the known cases.
             </p>
           </div>
@@ -161,6 +197,16 @@ export default function MethodologyPage() {
             defensive — it shrinks the cost of any single bad day: today for slashing, and under
             EIP-7716, tomorrow for downtime.
           </p>
+          <p>
+            The scale is what makes Stage 2 worth chasing. The{" "}
+            <a href={DOWNTIME_CALCULATOR_URL} target="_blank" rel="noopener noreferrer">
+              EIP-7716 downtime calculator
+            </a>{" "}
+            shows penalties for an outage shared by 10% of validators rising to roughly 78× their
+            current rate, capped at 256× when a third of stake is offline. Validators that fail
+            alone would pay what they pay today — so the Provider and Geography slices, which
+            decide whether you fail alone or with a crowd, carry real money.
+          </p>
         </section>
 
         <section>
@@ -182,24 +228,24 @@ export default function MethodologyPage() {
           <ul>
             <li>
               <strong>Shared owner.</strong> Two key custodians inside one company fail together.
-              Score Key Custody yellow.
+              Count them as one party when scoring Key Custody.
             </li>
             <li>
               <strong>Derived distros.</strong> Ubuntu and Debian share upstream packaging. If your
-              distros share a supply chain, score OS Diversity yellow.
+              distros share a supply chain, count them as one OS.
             </li>
             <li>
-              <strong>One physical host.</strong> Two OSes in VMs on one machine share that
-              machine. Score OS Diversity yellow.
+              <strong>One physical host.</strong> Two OSes in VMs on one machine are both reachable
+              through the host. Count the host&apos;s OS, not the guests&apos;.
             </li>
             <li>
               <strong>Resold infrastructure.</strong> Two providers reselling the same cloud or
-              data centre fail together. Score Infrastructure yellow.
+              data centre fail together. Count them as one provider.
             </li>
             <li>
               <strong>Active/passive failover.</strong> A warm standby still goes offline during
-              failover. The four infrastructure slices assume active/active; score them no higher
-              than yellow.
+              failover. The Provider and Geography slices assume active/active; score them
+              yellow.
             </li>
           </ul>
           <AnchorHeading id="remote-signers" as="h3">
@@ -233,9 +279,10 @@ export default function MethodologyPage() {
         <section>
           <AnchorHeading id="share-codes">Share codes</AnchorHeading>
           <p>
-            Your six-letter share code (e.g. <code>GYRYGG</code>) encodes green (G), yellow (Y), or
-            red (R) per slice, in the slice order listed above. It lets you share a result link
-            without storing personal data.
+            Your six-letter share code (e.g. <code>GYYGGY</code>) encodes green (G), yellow (Y),
+            red (R), or not sure (U) per slice, in the slice order listed above. It lets you share
+            a result link without storing personal data. Add <code>?vs=</code> with another code
+            to share a head-to-head.
           </p>
         </section>
 
@@ -257,10 +304,10 @@ export default function MethodologyPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                valOS — the Validator Operating Standard
+                ValOS — the Validator Operations Standard
               </a>
               {" "}— the canonical risk-and-mitigation catalog for validator operators. Nearly
-              every risk surfaced in this assessment has a corresponding mitigation in valOS.
+              every risk surfaced in this assessment has a corresponding mitigation in ValOS.
             </li>
             <li>
               <a

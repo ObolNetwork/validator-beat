@@ -44,10 +44,13 @@ export function Legend() {
         <RiskDot color="green" size="sm" /> Green · no single point of failure
       </LegendItem>
       <LegendItem>
-        <RiskDot color="yellow" size="sm" /> Yellow · partially mitigated
+        <RiskDot color="yellow" size="sm" /> Yellow · could take you offline, or partly mitigated
       </LegendItem>
       <LegendItem>
-        <RiskDot color="red" size="sm" /> Red · single point of failure
+        <RiskDot color="red" size="sm" /> Red · one failure could slash you
+      </LegendItem>
+      <LegendItem>
+        <RiskDot color="unknown" size="sm" /> Not sure · treated as a gap
       </LegendItem>
     </LegendRow>
   );

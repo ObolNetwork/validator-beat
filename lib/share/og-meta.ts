@@ -12,7 +12,7 @@ export function shareOgMeta(answers: Answers) {
 
   const sliceLine = SLICES.map((s) => {
     const c = answers[s.id];
-    return c ? `${s.short}: ${c}` : `${s.short}: —`;
+    return c ? `${s.short}: ${c === "unknown" ? "not sure" : c}` : `${s.short}: —`;
   }).join(" · ");
 
   return {

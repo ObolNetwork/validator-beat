@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
 import { Pizza } from "@components/pizza/Pizza";
 import { useAssessment } from "@hooks/useAssessment";
 import { vbConfetti } from "@lib/confetti";
-import { SLICES, allAnswered, computeStage, decodeShareCode, shareCode } from "@lib/rubric";
+import { SLICES, STAGE_META, allAnswered, computeStage, decodeShareCode, shareCode } from "@lib/rubric";
 import type { SliceColor, SliceId } from "@lib/rubric/types";
 import { VbButton } from "@components/ui/VbButton";
-import { getShareUrl, shareNameFromQuery } from "@constants/index";
+import { SITE_NAME } from "@constants/index";
+import {
+  type CompareTarget,
+  compareAssessPath,
+  getShareUrl,
+  parseShareQuery,
+} from "@lib/share/share-url";
 import { Box } from "@obolnetwork/obol-ui";
 import { CONFETTI_BRAND } from "@lib/theme/tokens";
 import {
@@ -16,6 +23,7 @@ import {
   Legend,
   pizzaOrigin,
 } from "./Blockers";
+import { CompareCard } from "./Compare";
 import { Intro } from "./Intro";
 import { Question } from "./Question";
 import { LevelUp, ResultHero, ShareModal } from "./Results";
@@ -38,8 +46,12 @@ type AssessmentAppProps = {
 
 export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
   const a = useAssessment();
+  const router = useRouter();
   const [share, setShare] = useState(false);
   const [shareName, setShareName] = useState("");
+  /** Opened from someone's share link and not yet edited — the result isn't the viewer's own. */
+  const [guest, setGuest] = useState(Boolean(initialShareCode));
+  const [compare, setCompare] = useState<CompareTarget | null>(null);
   const active = a.atIntro || a.atResults ? null : a.current.id;
 
   useEffect(() => {
@@ -52,7 +64,9 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
       }
     }
 
-    setShareName(shareNameFromQuery(window.location.search));
+    const q = parseShareQuery(window.location.search);
+    if (initialShareCode) setShareName(q.name);
+    setCompare(q.compare);
 
     return () => {
       document.body.style.overflow = "";
@@ -61,6 +75,7 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
   }, [initialShareCode]);
 
   const choose = (id: SliceId, color: SliceColor) => {
+    setGuest(false);
     if (color === "green") {
       const idx = SLICES.findIndex((s) => s.id === id);
       const o = pizzaOrigin(idx);
@@ -101,8 +116,30 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
     return () => cancelAnimationFrame(frame);
   }, [atResults, stage, answers, takeResultsConfetti]);
 
-  const shareUrl =
-    a.stage != null ? getShareUrl(shareCode(a.answers), shareName) : "";
+  const code = a.stage != null ? shareCode(a.answers) : "";
+  const shareUrl = code ? getShareUrl(code, shareName, compare) : "";
+
+  const compareAnswers = useMemo(
+    () => (compare ? decodeShareCode(compare.code) : null),
+    [compare],
+  );
+  const compareStage = compareAnswers ? computeStage(compareAnswers) : null;
+  const theirLabel = compare?.name || "Their setup";
+  const myLabel = guest ? shareName || "This setup" : "You";
+  const compareLine =
+    compare && a.stage != null && compareStage != null
+      ? `${guest ? myLabel : shareName || "My validator"} is ${STAGE_META[a.stage].name}; ${theirLabel} is ${STAGE_META[compareStage].name} — compared on Validator Beat.`
+      : undefined;
+
+  // Static pages can't know ?n=, so name the tab client-side once we can.
+  useEffect(() => {
+    if (!guest || !shareName || a.stage == null) return;
+    document.title = `${shareName} is ${STAGE_META[a.stage].name} | ${SITE_NAME}`;
+  }, [guest, shareName, a.stage]);
+
+  const takeItYourself = () => {
+    router.push(compareAssessPath({ code, name: shareName }));
+  };
 
   return (
     <Shell>
@@ -127,7 +164,14 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
         </Box>
         <LeftCard>
           {a.atIntro ? (
-            <Intro onStart={a.start} />
+            <Intro
+              onStart={a.start}
+              compare={
+                compare && compareStage != null
+                  ? { name: theirLabel, stage: compareStage }
+                  : undefined
+              }
+            />
           ) : !a.atResults ? (
             <Question
               sliceId={a.current.id}
@@ -142,22 +186,51 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
             />
           ) : a.stage != null ? (
             <>
-              <ResultHero stage={a.stage} answers={a.answers} ownerName={shareName} />
+              <ResultHero
+                stage={a.stage}
+                answers={a.answers}
+                ownerName={shareName}
+                guest={guest}
+              />
+              {guest && (
+                <ResultsActions css={{ marginTop: 0, marginBottom: 20 }}>
+                  <VbButton onClick={takeItYourself}>
+                    {compareAnswers ? "Take it yourself →" : "Take it yourself & compare →"}
+                  </VbButton>
+                  <VbButton variant="secondary" onClick={() => setShare(true)}>
+                    Share this result
+                  </VbButton>
+                </ResultsActions>
+              )}
+              {compareAnswers && (
+                <CompareCard
+                  left={{ label: myLabel, answers: a.answers }}
+                  right={{ label: theirLabel, answers: compareAnswers }}
+                />
+              )}
               <SectionLabel>
-                {a.stage === 2 ? "Your perfect score" : "Your progress"}
+                {a.stage === 2 ? "Perfect score" : guest ? "Progress" : "Your progress"}
               </SectionLabel>
-              <LevelUp answers={a.answers} stage={a.stage} />
-              <ResultsActions>
-                <VbButton onClick={() => setShare(true)}>Share my pizza →</VbButton>
-                <VbButton variant="secondary" onClick={a.reset}>
-                  Start over
-                </VbButton>
-              </ResultsActions>
+              <LevelUp answers={a.answers} stage={a.stage} guest={guest} />
+              {!guest && (
+                <ResultsActions>
+                  <VbButton onClick={() => setShare(true)}>
+                    {compareAnswers ? "Share the head-to-head →" : "Share my pizza →"}
+                  </VbButton>
+                  <VbButton variant="secondary" onClick={a.reset}>
+                    Start over
+                  </VbButton>
+                </ResultsActions>
+              )}
             </>
           ) : null}
         </LeftCard>
 
-        <RightCard data-pizza-panel>
+        {/* On phones the pizza leads, except on a shared link, where the name and stage should. */}
+        <RightCard
+          data-pizza-panel
+          css={guest ? { "@media (max-width: 880px)": { order: 0 } } : undefined}
+        >
           <PizzaWrap>
             <Pizza
               answers={a.answers}
@@ -187,6 +260,7 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
           shareUrl={shareUrl}
           ownerName={shareName}
           onOwnerNameChange={setShareName}
+          compareLine={compareLine}
           onClose={() => setShare(false)}
         />
       )}

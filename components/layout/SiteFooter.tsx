@@ -57,7 +57,7 @@ export function SiteFooter({ contentWidth = 1140 }: SiteFooterProps) {
           rel="noopener noreferrer"
           css={navLink}
         >
-          valOS
+          ValOS
         </Box>
         <Box
           as="a"

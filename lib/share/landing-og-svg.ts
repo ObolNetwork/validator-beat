@@ -25,9 +25,9 @@ export function landingOgSvg(
   const colors: SliceColor[] = [
     "green",
     "yellow",
-    "red",
-    "green",
     "yellow",
+    "green",
+    "red",
     "green",
   ];
 

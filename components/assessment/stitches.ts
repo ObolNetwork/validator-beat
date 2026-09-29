@@ -7,12 +7,15 @@ export const risk = {
   green: "var(--vb-green)",
   yellow: "var(--vb-yellow)",
   red: "var(--vb-red)",
+  unknown: "var(--vb-unknown)",
   greenT: "var(--vb-green-t)",
   yellowT: "var(--vb-yellow-t)",
   redT: "var(--vb-red-t)",
+  unknownT: "var(--vb-unknown-t)",
   greenB: "var(--vb-green-b)",
   yellowB: "var(--vb-yellow-b)",
   redB: "var(--vb-red-b)",
+  unknownB: "var(--vb-unknown-b)",
   empty: "var(--vb-empty)",
   emptyStroke: "var(--vb-empty-stroke)",
 } as const;
@@ -246,6 +249,7 @@ export const RiskDot = styled(Box, {
       green: { backgroundColor: risk.green },
       yellow: { backgroundColor: risk.yellow },
       red: { backgroundColor: risk.red },
+      unknown: { backgroundColor: risk.unknown },
       empty: {
         backgroundColor: risk.empty,
         border: `1px solid ${risk.emptyStroke}`,
@@ -514,9 +518,18 @@ export const OptionButton = styled("button", {
       green: {},
       yellow: {},
       red: {},
+      unknown: {},
     },
   },
   compoundVariants: [
+    {
+      selected: true,
+      color: "unknown",
+      css: {
+        borderColor: risk.unknownB,
+        boxShadow: `0 0 0 1px ${risk.unknownB}`,
+      },
+    },
     {
       selected: true,
       color: "green",
@@ -684,6 +697,16 @@ export const HeroEyebrow = styled(Text, {
   color: "$textMiddle",
 });
 
+export const HeroOwner = styled(Text, {
+  fontSize: 26,
+  fontWeight: "$bold",
+  letterSpacing: "-0.02em",
+  lineHeight: 1.15,
+  color: "$body",
+  marginTop: 6,
+  overflowWrap: "anywhere",
+});
+
 export const HeroStageLine = styled(Box, {
   display: "flex",
   alignItems: "center",
@@ -828,6 +851,7 @@ export const UpCard = styled(Box, {
     color: {
       red: { borderLeft: `3px solid ${risk.red}` },
       yellow: { borderLeft: `3px solid ${risk.yellow}` },
+      unknown: { borderLeft: `3px solid ${risk.unknown}` },
     },
   },
 });
@@ -863,6 +887,7 @@ export const UpFlag = styled(Text, {
     color: {
       red: { color: risk.red },
       yellow: { color: risk.yellow },
+      unknown: { color: risk.unknown },
     },
   },
 });
@@ -930,6 +955,16 @@ export const ShareResk = styled(Text, {
   letterSpacing: "0.04em",
   textTransform: "uppercase",
   color: "$textMiddle",
+});
+
+export const ShareOwner = styled(Text, {
+  fontSize: 22,
+  fontWeight: "$bold",
+  letterSpacing: "-0.01em",
+  lineHeight: 1.15,
+  color: "$body",
+  marginBottom: 4,
+  overflowWrap: "anywhere",
 });
 
 export const ShareStage = styled(Text, {
@@ -1083,4 +1118,51 @@ export const ModalNote = styled(Text, {
     fontFamily: "$mono",
     fontWeight: "$semibold",
   },
+});
+
+/* ---- Share modal extras -------------------------------------------------- */
+
+export const ShareMore = styled(Box, {
+  display: "flex",
+  alignItems: "center",
+  flexWrap: "wrap",
+  gap: 14,
+  marginTop: 12,
+  fontSize: "$2",
+  color: "$textMiddle",
+});
+
+export const ShareMoreLink = styled(Box, {
+  all: "unset",
+  cursor: "pointer",
+  fontWeight: "$semibold",
+  color: "$body",
+  textDecoration: "underline",
+  textUnderlineOffset: 3,
+  "&:hover": { color: "var(--theme-brand)" },
+  "&:focus-visible": { outline: "2px solid var(--theme-brand)", outlineOffset: 2 },
+});
+
+export const EmbedBox = styled(Box, {
+  marginTop: 16,
+  padding: "12px 14px",
+  border: "1px dashed $bg05",
+  borderRadius: "$3",
+});
+
+export const EmbedHead = styled(Box, {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
+  flexWrap: "wrap",
+  "& svg": { display: "block" },
+});
+
+export const EmbedActions = styled(Box, {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  marginTop: 10,
+  "& button": { width: "auto" },
 });

@@ -46,6 +46,7 @@ const cta: CSS = {
   backgroundColor: "var(--theme-brand)",
   color: "var(--theme-text-on-brand)",
   "&:hover": { backgroundColor: "var(--theme-brand-hover)" },
+  "@media (max-width: 480px)": { padding: "9px 14px", fontSize: "$2", gap: 6 },
 };
 
 /** Validator Beat pizza mark. Reads the --vb-* tokens so it follows the theme
@@ -116,6 +117,7 @@ export function SiteHeader({ contentWidth = 1140 }: SiteHeaderProps) {
           maxWidth: contentWidth,
           margin: "0 auto",
           padding: "14px 28px",
+          "@media (max-width: 480px)": { padding: "12px 16px", gap: 10 },
         }}
       >
         <BrandLink href="/" css={{ display: "flex", alignItems: "center", gap: 9 }}>
@@ -134,7 +136,7 @@ export function SiteHeader({ contentWidth = 1140 }: SiteHeaderProps) {
             rel="noopener noreferrer"
             css={navLink}
           >
-            valOS
+            ValOS
           </Box>
         </Box>
         <ThemeToggle />
