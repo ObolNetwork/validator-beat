@@ -309,14 +309,14 @@ const SLICE_DESC: Record<SliceId, string> = {
     "How signing keys are held, and how many independent parties must cooperate to sign.",
   clientDiversity: "Exposure to a bug in any single consensus or execution client.",
   infraDiversity: "Concentration on a single cloud or hosting provider.",
-  osDiversity: "Correlated risk from running a single operating system across the fleet.",
-  cpuDiversity: "Correlated risk from running a single chipset across the fleet.",
+  osDiversity: "Whether one operating system's supply chain could reach enough key shares to sign.",
+  cpuDiversity: "Whether one CPU architecture's flaws could reach enough key shares to sign.",
   geoDiversity: "Concentration in one region and exposure to power failure or natural disaster.",
 };
 
 /** Landing-voice detail per stage; naming comes from STAGE_META. */
 const STAGE_DESC: Record<Stage, string> = {
-  0: "At least one single point of failure remains. Most operators start here — the baseline.",
+  0: "One failure — a leaked key, a client bug, a poisoned OS update — could still get you slashed. Most operators start here.",
   1: "No single compromise of one machine, one team member, or one signer can produce a slashable message.",
   2: "No single point of failure in the operator's infrastructure can take the validator offline. This is the end game.",
 };
@@ -556,16 +556,17 @@ function LSides() {
               Read any operator&apos;s profile in five seconds.
             </Text>
             <Text css={{ fontSize: "$3", lineHeight: 1.6, color: "$textMiddle" }}>
-              Before you stake, not after an incident. A Stage and six colors give you insight into
-              validator operations that the marketing page never will.
+              Before you stake, not after an incident: ask for their Validator Beat link or badge. A
+              Stage and six colors give you insight into validator operations that the marketing
+              page never will.
             </Text>
           </Card>
           <Card css={{ ...s.cardPad, display: "flex", flexDirection: "column" }}>
             <Eyebrow as="p" css={{ margin: "0 0 12px" }}>If you&apos;re an operatooor</Eyebrow>
             <Text as="h3" css={{ ...s.h3, fontSize: 22, marginBottom: 12 }}>Proof of work.</Text>
             <Text css={{ fontSize: "$3", lineHeight: 1.6, color: "$textMiddle" }}>
-              Run the assessment, earn your stages, and show off your pizza wherever you list your
-              product. Operators who have removed their single points of failure now have a way to show
+              Run the assessment, earn your stages, and show off your pizza — or embed the badge —
+              wherever you list your product. Operators who have removed their single points of failure now have a way to show
               it.
             </Text>
             <Box css={{ marginTop: 22 }}>
@@ -587,21 +588,21 @@ function LValos() {
         <Box css={s.valosGrid}>
           <Box>
             <Eyebrow as="p" css={{ margin: "0 0 16px" }}>The standard behind the score</Eyebrow>
-            <Text as="h2" css={s.h2}>Validator Beat and valOS</Text>
+            <Text as="h2" css={s.h2}>Validator Beat and ValOS</Text>
             <Text as="p" css={s.prose}>
-              Validator Beat is the public-facing <strong>who</strong>: which operators run
-              validators, and how resilient their setups are. valOS, the Validator Operating
-              Standard, is the technical <strong>how</strong>: a deep catalog of the controls and
-              mitigations behind professional validator operations.
+              Validator Beat is the public-facing <strong>what</strong>: a quick, shareable read of
+              how resilient a validator setup is. ValOS, the Validator Operations Standard, is the
+              technical <strong>how</strong>: a deep catalog of the controls and mitigations behind
+              professional validator operations.
             </Text>
             <Text as="p" css={s.prose}>
-              A staker can quickly read an operator&apos;s stage and profile here. An operator doing
-              the hard work and implementing the mitigations should dig into valOS. Follow valOS, and
+              A staker can read an operator&apos;s stage from a shared link or badge. An operator doing
+              the hard work and implementing the mitigations should dig into ValOS. Follow ValOS, and
               you&apos;ll end up at Stage 2.
             </Text>
             <Box css={s.ctaRow}>
               <Box as="a" href={VALOS} target="_blank" rel="noopener noreferrer" css={s.ghostLink}>
-                Learn more about valOS <IconExternalLink size={16} />
+                Learn more about ValOS <IconExternalLink size={16} />
               </Box>
             </Box>
           </Box>
@@ -609,16 +610,16 @@ function LValos() {
             <Card css={{ padding: "18px 20px" }}>
               <Eyebrow as="p" css={{ margin: 0 }}>Validator Beat</Eyebrow>
               <Text css={{ fontSize: "$3", fontWeight: "$semibold", color: "$body", marginTop: 4 }}>
-                The <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>who</Text> — the public dashboard
+                The <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>what</Text> — a stage anyone can read
               </Text>
             </Card>
             <Box css={{ display: "flex", justifyContent: "center", color: "$textMiddle" }}>
               <IconArrowDown size={20} />
             </Box>
             <Card css={{ padding: "18px 20px" }}>
-              <Eyebrow as="p" css={{ margin: 0 }}>valOS</Eyebrow>
+              <Eyebrow as="p" css={{ margin: 0 }}>ValOS</Eyebrow>
               <Text css={{ fontSize: "$3", fontWeight: "$semibold", color: "$body", marginTop: 4 }}>
-                The <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>how</Text> — the operating standard
+                The <Text as="span" css={{ display: "inline", color: "var(--theme-brand)" }}>how</Text> — the operations standard
               </Text>
             </Card>
           </Box>
@@ -634,10 +635,10 @@ function LNeutral() {
       <Box css={s.wrap}>
         <Box css={s.sectionHead}>
           <Eyebrow as="p" css={{ margin: "0 0 16px" }}>Credibility</Eyebrow>
-          <Text as="h2" css={s.h2}>A neutral dashboard, built in the open</Text>
+          <Text as="h2" css={s.h2}>A neutral yardstick, built in the open</Text>
           <Text as="p" css={s.prose}>
-            Validator Beat is co-authored by Obol and Lido. It is deliberately neutral and no single
-            team owns the rubric. The methodology is public and is meant to be adopted, challenged,
+            Validator Beat is built by Obol, in partnership with Lido, the stewards of ValOS. It is
+            deliberately neutral and no single team owns the rubric. The methodology is public and is meant to be adopted, challenged,
             and improved by the whole ecosystem.
           </Text>
           <Text as="p" css={s.prose}>
@@ -677,7 +678,7 @@ function LClosing() {
           <TopNavLink href={METHODOLOGY}>Read the methodology</TopNavLink>
           <Text css={{ color: "$textMiddle" }}>·</Text>
           <Box as="a" href={VALOS} target="_blank" rel="noopener noreferrer" css={{ fontSize: "$2", fontWeight: "$medium", color: "$textMiddle", textDecoration: "none", "&:hover": { color: "$body" } }}>
-            Explore valOS
+            Explore ValOS
           </Box>
         </Box>
       </Box>

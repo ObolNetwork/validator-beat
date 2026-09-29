@@ -1,8 +1,7 @@
 import { AssessmentApp } from "@components/assessment/AssessmentApp";
 import { SITE_URL } from "@constants/index";
-import { computeStage, decodeShareCode } from "@lib/rubric";
+import { allShareCodes, computeStage, decodeShareCode } from "@lib/rubric";
 import { shareOgMeta } from "@lib/share/og-meta";
-import { allShareCodes } from "@lib/theme/share-codes";
 import type { GetStaticPaths, GetStaticProps } from "next";
 
 type SharePageProps = {

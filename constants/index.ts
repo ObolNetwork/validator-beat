@@ -9,9 +9,6 @@ export const ASSESS_PATH = "/assess/";
 export const METHODOLOGY_PATH = "/methodology/";
 export const VALOS_URL = "https://lidofinance.github.io/valos/valos-spec.html";
 export const GITHUB_URL = "https://github.com/ObolNetwork/validator-beat";
+/** Interactive EIP-7716 calculator — how correlated downtime penalties would scale. */
+export const DOWNTIME_CALCULATOR_URL = "https://validatordowntime.obol.org";
 
-export {
-  getShareUrl,
-  shareNameFromQuery,
-  SHARE_NAME_MAX,
-} from "@lib/share/share-url";

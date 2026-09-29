@@ -10,11 +10,13 @@ const PIZZA_FILL: Record<SliceColor, string> = {
   green: "var(--vb-green)",
   yellow: "var(--vb-yellow)",
   red: "var(--vb-red)",
+  unknown: "var(--vb-unknown)",
 };
 const PIZZA_RING: Record<SliceColor, string> = {
   green: "var(--theme-risk-green-ring)",
   yellow: "var(--theme-risk-yellow-ring)",
   red: "var(--theme-risk-red-ring)",
+  unknown: "var(--theme-risk-unknown-ring)",
 };
 const PIZZA_PLATE = "var(--vb-plate)";
 const PIZZA_EMPTY = "var(--vb-empty)";
@@ -94,7 +96,7 @@ export function Pizza({
   const frac = answered / SLICES.length;
 
   const sliceDesc = SLICES.map(
-    (s) => `${s.short} ${answers[s.id] ?? "unanswered"}`,
+    (s) => `${s.short} ${answers[s.id] === "unknown" ? "not sure" : (answers[s.id] ?? "unanswered")}`,
   ).join(", ");
   const ariaLabel =
     stage != null
@@ -112,7 +114,7 @@ export function Pizza({
     >
       {big && (
         <defs>
-          {(["green", "yellow", "red"] as const).map((c) => (
+          {(["green", "yellow", "red", "unknown"] as const).map((c) => (
             <filter
               key={c}
               id={`vbglow-${c}-${size}`}
@@ -153,13 +155,15 @@ export function Pizza({
         const a1 = -90 + (i + 1) * 60 - gap;
         const mid = (a0 + a1) / 2;
         const col = answers[s.id];
-        const clickable = Boolean(onSlice && col);
+        // Any wedge jumps to its question — including unanswered ones.
+        const clickable = Boolean(onSlice);
         const isActive = active === s.id;
         const dx = isActive ? Math.cos(mid * RAD) * pop : 0;
         const dy = isActive ? Math.sin(mid * RAD) * pop : 0;
         const shift = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
         const labelOutset = size * (tightLabels ? 0.05 : 0.082);
         const [lx, ly] = polar(cx, cy, r + labelOutset, mid);
+        const [qx, qy] = polar(cx, cy, r * 0.66, mid);
 
         return (
           <g
@@ -167,6 +171,19 @@ export function Pizza({
             className="vbwedge"
             data-clickable={clickable ? "true" : undefined}
             onClick={clickable ? () => onSlice!(s.id) : undefined}
+            role={clickable ? "button" : undefined}
+            tabIndex={clickable ? 0 : undefined}
+            aria-label={clickable ? `Go to ${s.label}` : undefined}
+            onKeyDown={
+              clickable
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSlice!(s.id);
+                    }
+                  }
+                : undefined
+            }
           >
             <path
               className="vbwedge__fill"
@@ -192,6 +209,24 @@ export function Pizza({
                   pointerEvents: "none",
                 }}
               />
+            )}
+            {col === "unknown" && (
+              <text
+                x={+qx.toFixed(2)}
+                y={+qy.toFixed(2)}
+                textAnchor="middle"
+                dominantBaseline="central"
+                aria-hidden="true"
+                style={{
+                  transform: shift,
+                  pointerEvents: "none",
+                  fill: PIZZA_PLATE,
+                  fontSize: Math.max(8, size * 0.07),
+                  fontWeight: 700,
+                }}
+              >
+                ?
+              </text>
             )}
             {isActive && (
               <path

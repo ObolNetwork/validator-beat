@@ -1,7 +1,12 @@
 import { VbButton } from "@components/ui/VbButton";
+import { STAGE_META } from "@lib/rubric";
+import type { Stage } from "@lib/rubric/types";
 import { StageLadder } from "./StageLadder";
 import {
   Eyebrow,
+  HeroCard,
+  HeroEyebrow,
+  HeroLine,
   IntroGoal,
   IntroGoalText,
   IntroLede,
@@ -13,11 +18,25 @@ import {
 
 type IntroProps = {
   onStart: () => void;
+  /** Taking the assessment against someone's shared result. */
+  compare?: { name: string; stage: Stage };
 };
 
-export function Intro({ onStart }: IntroProps) {
+export function Intro({ onStart, compare }: IntroProps) {
   return (
     <IntroRoot>
+      {compare && (
+        <HeroCard tone={STAGE_META[compare.stage].tone} css={{ marginBottom: 16 }}>
+          <HeroEyebrow>Head to head</HeroEyebrow>
+          <HeroLine css={{ marginTop: 4 }}>
+            <b>{compare.name}</b> is{" "}
+            <b style={{ color: risk[STAGE_META[compare.stage].tone] }}>
+              {STAGE_META[compare.stage].name}
+            </b>
+            . Answer for your own setup and see how you compare, slice by slice.
+          </HeroLine>
+        </HeroCard>
+      )}
       <Eyebrow>A neutral resource for validator fault tolerance</Eyebrow>
       <IntroTitle>How resilient is your validator setup?</IntroTitle>
       <IntroLede>
