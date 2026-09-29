@@ -40,8 +40,14 @@ export const OG_STAGE_COLOR: Record<Stage, string> = {
   2: PIZZA_FILL.green,
 };
 
+/** Escape text for SVG/XML element content and quoted attribute values. */
 export function escapeXml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 const RAD = Math.PI / 180;
