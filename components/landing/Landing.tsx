@@ -692,7 +692,7 @@ function LAgent() {
   return (
     <Box as="section" css={s.section}>
       <Box css={s.wrap}>
-        <AskAnAgent prompt={assessPrompt()} title="Prefer to ask your AI?" css={{ maxWidth: 760 }} />
+        <AskAnAgent prompt={assessPrompt()} title="Prefer to ask your AI?" css={{ maxWidth: 760, margin: "0 auto" }} />
       </Box>
     </Box>
   );
