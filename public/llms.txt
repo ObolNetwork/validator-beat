@@ -29,7 +29,12 @@ A result is encoded as six letters, one per slice in the order above: `G` (green
 
 ## Docs
 
+- [Full reference](https://validatorbeat.com/llms-full.txt): every question, answer band, stage rule, and methodology nuance in one file
 - [Methodology](https://validatorbeat.com/methodology/): scoring rules, the active/active assumption, nuances and limits
 - [Take the assessment](https://validatorbeat.com/assess/): six questions, ~60 seconds, runs in the browser
 - [Agent skill](https://validatorbeat.com/skill.md): how an AI agent can run this assessment conversationally
 - [Source code](https://github.com/ObolNetwork/validator-beat): Apache-2.0; the scoring rubric lives in `lib/rubric`
+
+## Related
+
+- [Validator Downtime](https://validatordowntime.obol.org/) ([llms.txt](https://validatordowntime.obol.org/llms.txt)): what correlated downtime would cost under EIP-7716

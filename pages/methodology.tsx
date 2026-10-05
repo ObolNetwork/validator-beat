@@ -1,11 +1,26 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { AnchorHeading } from "@components/methodology/AnchorHeading";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
-import { ASSESS_PATH, DOWNTIME_CALCULATOR_URL, GITHUB_URL } from "@constants/index";
+import { ASSESS_PATH, DOWNTIME_CALCULATOR_URL, GITHUB_URL, SITE_NAME, SITE_URL } from "@constants/index";
+import { AskAnAgent } from "@components/agents/AskAnAgent";
+import { Inline } from "@components/methodology/Inline";
+import { assessPrompt } from "@lib/agents/prompts";
+import {
+  ACTIVE_ACTIVE,
+  BAND_MATH,
+  CLIENT_DIVERSITY_NOTE,
+  NOT_SURE,
+  NUANCE_CASES,
+  RULE_OF_THUMB,
+  THREE_COLORS,
+  UNSCORED,
+} from "@lib/methodology/content";
 import { SLICES, STAGE_META, slicesOfKind } from "@lib/rubric";
 import type { SliceColor, Stage } from "@lib/rubric/types";
 import type { GetStaticProps } from "next";
+import Head from "next/head";
 
 /** Illustrative slice patterns for each stage row — not real results. */
 const STAGE_EXAMPLES: Record<Stage, SliceColor[]> = {
@@ -34,9 +49,29 @@ function MiniPizza({ colors }: { colors: SliceColor[] }) {
   );
 }
 
+const BASE = SITE_URL.replace(/\/$/, "");
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: `${SITE_NAME} methodology`,
+  description:
+    "How Validator Beat scores six single points of failure in an Ethereum validator setup into Stage 0, 1, or 2.",
+  url: `${BASE}/methodology/`,
+  isPartOf: { "@type": "WebSite", name: SITE_NAME, url: `${BASE}/` },
+  publisher: { "@type": "Organization", name: "Obol", url: "https://obol.org" },
+  sameAs: [GITHUB_URL],
+};
+
 export default function MethodologyPage() {
   return (
     <div className="vb-methodology">
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
+      </Head>
       <SiteHeader />
 
       <main className="vb-methodology__main" id="main-content">
@@ -121,17 +156,7 @@ export default function MethodologyPage() {
             The active/active assumption
           </AnchorHeading>
           <p>
-            For infrastructure, OS, CPU, and geography, diversity only translates into resilience
-            when your validator runs <strong>active/active</strong>: several cooperating nodes back
-            the same stake, with signing continuing as long as enough of them stay up. The stake
-            isn&apos;t partitioned across machines — it&apos;s one aggregate validator whose
-            cooperating machines you&apos;ve diversified. Several setups achieve this —
-            multi-operator <strong>distributed validators (DVT)</strong> coordinated by Charon, or
-            validator clients like <strong>Vouch</strong> paired with multiplexers like{" "}
-            <strong>Vero</strong> and remote signers like <strong>Dirk</strong> or{" "}
-            <strong>Web3Signer</strong>. The common requirement: no single party holds enough key
-            material to sign alone — at least two independent parties involved, backups kept
-            separate, so compromising one doesn&apos;t leak the full private key.
+            <Inline text={ACTIVE_ACTIVE} />
           </p>
         </section>
 
@@ -148,28 +173,17 @@ export default function MethodologyPage() {
             there is no separate backend calculation.
           </p>
           <p>
-            Every question also offers <strong>Not sure</strong>. It&apos;s treated as an open gap:
-            a gap you can&apos;t verify is closed has to be assumed open, so it holds a safety slice
-            at Stage 0 and a liveness slice short of Stage 2. Your results then tell you
-            how to find out, rather than how to fix it.
+            <Inline text={NOT_SURE} />
           </p>
           <p>
-            Bands follow the consensus math. Distributed validators typically need ⅔ of key shares
-            to sign, so any single party, OS, or architecture holding ⅔ or more is red. Holding ⅓
-            or less means losing it still leaves a signing threshold online, which is green. For
-            Provider and Geography, anything over ⅓ on one provider or region can already drop you
-            below that threshold, so there&apos;s a single cut-off.
+            <Inline text={BAND_MATH} />
           </p>
           <p>
-            <strong>Client diversity</strong> counts execution and consensus clients alike and uses
-            a simplified banded model; live network client share thresholds are deferred to a
-            future operator registry.
+            <Inline text={CLIENT_DIVERSITY_NOTE} />
           </p>
           <div className="vb-callout">
             <p>
-              <strong>Rule of thumb:</strong> if your setup falls between two answers, pick
-              the worse one. If you can&apos;t tell, pick <em>Not sure</em> — your results will
-              say how to find out. The{" "}
+              <strong>Rule of thumb:</strong> <Inline text={RULE_OF_THUMB} /> The{" "}
               <a href="#nuances">nuances and limits</a> section lists the known cases.
             </p>
           </div>
@@ -220,60 +234,24 @@ export default function MethodologyPage() {
             Why three colors
           </AnchorHeading>
           <p>
-            Real setups don&apos;t fall into neat green, yellow, and red buckets. We use three
-            colors anyway because they keep a result easy to read at a glance — the{" "}
-            <a href="#scoring">rule of thumb</a> above covers the space between them.
+            <Inline text={THREE_COLORS} />
           </p>
           <p>Known cases the questions don&apos;t spell out:</p>
           <ul>
-            <li>
-              <strong>Shared owner.</strong> Two key custodians inside one company fail together.
-              Count them as one party when scoring Key Custody.
-            </li>
-            <li>
-              <strong>Derived distros.</strong> Ubuntu and Debian share upstream packaging. If your
-              distros share a supply chain, count them as one OS.
-            </li>
-            <li>
-              <strong>One physical host.</strong> Two OSes in VMs on one machine are both reachable
-              through the host. Count the host&apos;s OS, not the guests&apos;.
-            </li>
-            <li>
-              <strong>Resold infrastructure.</strong> Two providers reselling the same cloud or
-              data centre fail together. Count them as one provider.
-            </li>
-            <li>
-              <strong>Active/passive failover.</strong> A warm standby still goes offline during
-              failover. The Provider and Geography slices assume active/active; score them
-              yellow.
-            </li>
+            {NUANCE_CASES.map((n) => (
+              <li key={n.title}>
+                <strong>{n.title}.</strong> {n.body}
+              </li>
+            ))}
           </ul>
-          <AnchorHeading id="remote-signers" as="h3">
-            The remote signer stack
-          </AnchorHeading>
-          <p>
-            Every current signing stack keeps a single point of failure somewhere, whether you run
-            Web3Signer, Dirk, Vero, Vouch, or Charon. Validator Beat doesn&apos;t score it:
-            penalizing something no setup can avoid would push everyone toward one architecture.
-          </p>
-
-          <AnchorHeading id="hosting-type" as="h3">
-            Hosting provider type
-          </AnchorHeading>
-          <p>
-            Validator Beat doesn&apos;t rank residential, bare metal, or cloud hosting. The
-            Infrastructure slice already scores provider concentration, which catches the real
-            trap: five regions all on AWS still fall to one provider incident.
-          </p>
-
-          <AnchorHeading id="cpu-generation" as="h3">
-            CPU generation
-          </AnchorHeading>
-          <p>
-            Validator Beat counts instruction sets and ignores chip generations. Hardware bugs
-            sometimes hit one generation and sometimes a vendor&apos;s entire line, so mixing
-            generations guarantees nothing.
-          </p>
+          {UNSCORED.map((u) => (
+            <Fragment key={u.id}>
+              <AnchorHeading id={u.id} as="h3">
+                {u.title}
+              </AnchorHeading>
+              <p>{u.body}</p>
+            </Fragment>
+          ))}
         </section>
 
         <section>
@@ -345,6 +323,8 @@ export default function MethodologyPage() {
             </li>
           </ul>
         </section>
+
+        <AskAnAgent prompt={assessPrompt()} css={{ marginTop: 40 }} />
 
         <p className="vb-methodology__back">
           <Link href={ASSESS_PATH} className="vbbtn vbbtn--primary">

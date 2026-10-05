@@ -27,6 +27,8 @@ import { CompareCard } from "./Compare";
 import { Intro } from "./Intro";
 import { Question } from "./Question";
 import { LevelUp, ResultHero, ShareModal } from "./Results";
+import { AskAnAgent } from "@components/agents/AskAnAgent";
+import { assessPrompt, resultPrompt } from "@lib/agents/prompts";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
 import {
@@ -137,6 +139,23 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
     document.title = `${shareName} is ${STAGE_META[a.stage].name} | ${SITE_NAME}`;
   }, [guest, shareName, a.stage]);
 
+  // The intro is also the server-rendered state, so a share page's static HTML
+  // carries its own result prompt for agents reading the DOM.
+  const promptCode = a.atResults ? code : a.atIntro ? initialShareCode?.toUpperCase() : undefined;
+  const askAgent = (a.atIntro || a.atResults) && (
+    <AskAnAgent
+      headingAs="h3"
+      css={{ marginTop: 28 }}
+      prompt={promptCode ? resultPrompt(promptCode) : assessPrompt()}
+      title={promptCode ? "Ask your AI about this result" : "Or let your AI walk you through it"}
+      lede={
+        promptCode
+          ? "Paste this into ChatGPT, Claude, or any assistant that can read a URL. Fill in the brackets first."
+          : "Paste this into ChatGPT, Claude, or any assistant that can read a URL. It asks the same six questions and hands back your share link."
+      }
+    />
+  );
+
   const takeItYourself = () => {
     router.push(compareAssessPath({ code, name: shareName }));
   };
@@ -224,6 +243,7 @@ export function AssessmentApp({ initialShareCode }: AssessmentAppProps) {
               )}
             </>
           ) : null}
+          {askAgent}
         </LeftCard>
 
         {/* On phones the pizza leads, except on a shared link, where the name and stage should. */}
