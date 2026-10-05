@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/google-font-display */
 import "@components/assessment/stitches";
 import { getCssText, styled } from "@obolnetwork/obol-ui";
+import { AGENT_FILES } from "@lib/agents/prompts";
 import { Head, Html, Main, NextScript } from "next/document";
 
 const Body = styled("body", {
@@ -22,6 +23,17 @@ export default function Document() {
         <link rel="apple-touch-icon" sizes="180x180" href={`${BASE_PATH}/apple-touch-icon.png`} />
         <link rel="manifest" href={`${BASE_PATH}/site.webmanifest`} />
         <meta name="theme-color" content="#16968E" />
+        <link rel="sitemap" type="application/xml" href={`${BASE_PATH}/sitemap.xml`} />
+        {/* Machine-readable versions for LLMs and agents (llmstxt.org). */}
+        {AGENT_FILES.map((f) => (
+          <link
+            key={f.path}
+            rel="alternate"
+            type="text/markdown"
+            href={`${BASE_PATH}${f.path}`}
+            title={f.title}
+          />
+        ))}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

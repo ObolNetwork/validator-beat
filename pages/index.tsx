@@ -1,5 +1,5 @@
 import { Landing } from "@components/landing/Landing";
-import { SITE_URL } from "@constants/index";
+import { GITHUB_URL, SITE_URL } from "@constants/index";
 import type { GetStaticProps } from "next";
 import Head from "next/head";
 
@@ -15,6 +15,8 @@ export default function HomePage() {
     applicationCategory: "FinanceApplication",
     operatingSystem: "Web",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    isAccessibleForFree: true,
+    sameAs: [GITHUB_URL],
     publisher: {
       "@type": "Organization",
       name: "Obol",

@@ -11,6 +11,8 @@ import {
   TopNavLink,
   risk,
 } from "@components/assessment/stitches";
+import { AskAnAgent } from "@components/agents/AskAnAgent";
+import { assessPrompt } from "@lib/agents/prompts";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
 import {
@@ -686,6 +688,16 @@ function LClosing() {
   );
 }
 
+function LAgent() {
+  return (
+    <Box as="section" css={s.section}>
+      <Box css={s.wrap}>
+        <AskAnAgent prompt={assessPrompt()} title="Prefer to ask your AI?" css={{ maxWidth: 760 }} />
+      </Box>
+    </Box>
+  );
+}
+
 export function Landing() {
   return (
     <Box css={{ minHeight: "100vh", backgroundColor: "$bg01", color: "$textMiddle" }}>
@@ -699,6 +711,7 @@ export function Landing() {
         <LValos />
         <LNeutral />
         <LClosing />
+        <LAgent />
       </Box>
       <SiteFooter />
     </Box>

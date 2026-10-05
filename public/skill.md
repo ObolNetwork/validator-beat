@@ -5,7 +5,7 @@ description: Assess the resilience of an Ethereum validator setup by asking six 
 
 # Validator Beat assessment
 
-You can score any Ethereum validator setup the same way https://validatorbeat.com does. Ask the six questions below, map each answer to a color, compute the Stage, and construct a share URL. The scoring is fully deterministic — no API needed.
+You can score any Ethereum validator setup the same way https://validatorbeat.com does. Ask the six questions below, map each answer to a color, compute the Stage, and construct a share URL. The scoring is fully deterministic — no API needed. For each slice's rationale, remediation tips, and the methodology's nuances, read https://validatorbeat.com/llms-full.txt.
 
 ## The six questions (canonical order — this order defines the share code)
 
@@ -67,4 +67,4 @@ Every code resolves to a static page with an Open Graph preview card, so the lin
 
 - This is a self-assessment: it reflects the operator's answers, not verified facts.
 - The infrastructure slices (provider, OS, CPU, geography) assume an active/active setup — several cooperating nodes backing the same stake. Active/passive failover makes Provider and Geography yellow.
-- Full nuances: https://validatorbeat.com/methodology/#nuances
+- Full nuances: https://validatorbeat.com/methodology/#nuances, or all of it in one file: https://validatorbeat.com/llms-full.txt

@@ -1,0 +1,243 @@
+# Validator Beat — full reference
+
+> A free, client-side self-assessment that scores Ethereum validator setups **Stage 0, 1, or 2** across six single points of failure. Six banded questions, each mapping to a green/yellow/red (or "not sure") slice, roll up to one Stage. Nothing is stored or sent to a server. Built by Obol as a public good, in partnership with Lido (the stewards of ValOS).
+
+This file is the whole site in one document, generated from the scoring code at build time. Site: https://validatorbeat.com/ · Short summary: https://validatorbeat.com/llms.txt · Agent skill for running the assessment conversationally: https://validatorbeat.com/skill.md · Source: https://github.com/ObolNetwork/validator-beat (Apache-2.0; scoring lives in `lib/rubric`).
+
+## Stages
+
+**Stage 0 — Getting started**: a safety slice (Key Custody, Client Diversity, OS Diversity, CPU Architecture) is red or not sure. One failure could get you slashed.
+**Stage 1 — Safety**: every safety slice is green or yellow, but not all six are green. No single failure can get you slashed.
+**Stage 2 — Liveness**: all six slices green. No single failure can take you offline.
+
+Colors mean the same thing on every slice: red = one failure could get you slashed, yellow = one failure could take you offline (or a partial safety gap). Provider Diversity and Geographic Diversity are liveness slices (green or yellow only) and block Stage 2 but not Stage 1. "Not sure" is treated as an open gap.
+
+### Exact scoring rules
+
+The stage is computed in `computeStage` (`lib/rubric/index.ts`), in this order:
+
+1. If any of the six slices is unanswered, there is no stage.
+2. If any **safety** slice (Key Custody, Client Diversity, OS Diversity, CPU Architecture) is red or not sure, the result is **Stage 0**.
+3. Otherwise, if all six slices are green, the result is **Stage 2**.
+4. Otherwise the result is **Stage 1**.
+
+So yellow on a safety slice still allows Stage 1, and any yellow or not-sure on a **liveness** slice (Provider Diversity and Geographic Diversity) only blocks Stage 2. The answer the operator picks *is* the slice color; there is no separate calculation.
+
+Band exceptions: Key Custody and Client Diversity offer green, yellow and red. OS Diversity and CPU Architecture offer only green or red (no yellow), because the only question is whether one OS or architecture holds enough key shares to sign. Provider Diversity and Geographic Diversity offer only green or yellow (no red), because the worst they can do is take the validator offline. Every slice also offers "not sure".
+
+Every question also offers **Not sure**. It's treated as an open gap: a gap you can't verify is closed has to be assumed open, so it holds a safety slice at Stage 0 and a liveness slice short of Stage 2. Your results then tell you how to find out, rather than how to fix it.
+
+Bands follow the consensus math. Distributed validators typically need ⅔ of key shares to sign, so any single party, OS, or architecture holding ⅔ or more is red. Holding ⅓ or less means losing it still leaves a signing threshold online, which is green. For Provider and Geography, anything over ⅓ on one provider or region can already drop you below that threshold, so there's a single cut-off.
+
+**Client diversity** counts execution and consensus clients alike and uses a simplified banded model; live network client share thresholds are deferred to a future operator registry.
+
+**Rule of thumb:** If your setup falls between two answers, pick the worse one. If you can't tell, pick **Not sure** — your results will say how to find out.
+
+## The six slices
+
+Ordered worst-failure-first. This order is also the share-code order.
+
+### 1. Key Custody (`keyCustody`, share-code position 1)
+
+Safety slice: red or not sure holds the result at Stage 0. Bands offered: green, yellow, red, plus not sure.
+
+**Why it matters:** Concentrated private keys are a single point of failure — one compromise lets an attacker sign slashable messages with your entire stake.
+
+**Question:** What's the largest share of your signing power that any single point of failure could compromise, including both runtime keys and backups?
+
+**Guidance:** A “point of failure” is anywhere your signing power can converge: a person, a team, a machine, a custodian, or even one piece of software (an RCE bug in your validator client could leak whatever key material it holds). With threshold signing (typically ⅔ of shares), no single compromise can sign unless it reaches that threshold.
+
+**Answers:**
+
+- **Green (`G`)** — ⅓ or less. Producing a valid signature would take at least two separate compromises. No gap on this slice.
+- **Yellow (`Y`)** — More than ⅓, but less than ⅔. One failure holds a meaningful share, but still can't sign on its own. Holds the result below Stage 2. How to fix: Distribute signing across 3+ independent parties (multi-operator DVT or distributed remote signers), backups included, so no single party holds more than ⅓ and losing any one of them doesn't threaten liveness.
+- **Red (`R`)** — ⅔ or more. A single failure holds enough to sign, or to leak your private keys. Holds the result below Stage 1. How to fix: Split your keys so no single party ever holds a signing threshold — use distributed key generation, split backup mnemonics across 2+ parties, and sign through a multi-node setup (Dirk, Web3Signer, or a distributed validator).
+- **Not sure (`U`)** — The operator can't say. Treated as an open gap. Holds the result below Stage 1. How to find out: Map every place key material lives — each signer, remote signer, backup, mnemonic, and custodian — and who can reach it. Until you can, assume one of them holds everything.
+
+**Real-world risk:** A single key-management compromise once forced one large operator to preemptively exit roughly 10% of all Ethereum validators — billions of dollars of stake withdrawn, tens of millions of dollars in opportunity cost, as a precaution because no one could rule out that whole signing keys had been exposed. With threshold signing split across independent parties — for example a multi-operator distributed validator, or HA remote signers like Dirk or Web3Signer fronted by Vouch or Vero — no single compromise can reconstruct a usable key.
+
+**References:**
+
+- [ValOS: Key Custody Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-keys)
+- [ValOS: Key Management](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-key-management)
+- [ValOS: Signature Management](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-signature-management)
+- [Obol docs — distributed validators](https://docs.obol.org/)
+
+### 2. Client Diversity (`clientDiversity`, share-code position 2)
+
+Safety slice: red or not sure holds the result at Stage 0. Bands offered: green, yellow, red, plus not sure.
+
+**Why it matters:** If a supermajority client forks onto a wrong chain, validators that follow it face mass correlated slashing; refusing to attest on disagreement turns that into mere downtime.
+
+**Question:** If an execution or consensus client bug forks onto an incorrect chain, what stops your validator from signing along with it?
+
+**Guidance:** Two safeguards work together. First, halt on disagreement: run several independent clients and configure your stack (Charon, Vero, or Vouch all support this) to stop attesting when they disagree, so a client bug becomes downtime instead of slashing. Second, watch the supermajority: if every client you run sits inside a ⅔ supermajority that forks together, your clients never disagree and the halt never triggers. Count execution and consensus clients alike — execution-client supermajorities are the bigger risk on mainnet today. Check clientdiversity.org for current shares.
+
+**Answers:**
+
+- **Green (`G`)** — Refuse-to-attest configured, 3+ independent clients, combined share under ⅔ of the network. If a supermajority client forks, at least one of your clients disagrees and your validator halts instead of following. No gap on this slice.
+- **Yellow (`Y`)** — Refuse-to-attest configured, 3+ independent clients, combined share could form a supermajority. Safe from a single-client bug, but if all your clients fork the same way the halt never triggers and you sign the incorrect chain along with them. Holds the result below Stage 2. How to fix: Add at least one minority execution or consensus client so your combined client share stays under ⅔ of the network.
+- **Red (`R`)** — Single client, or no refuse-to-attest safeguard. A single client bug could drag you into signing an incorrect chain, with no software safety net to catch it. Holds the result below Stage 1. How to fix: Run 3+ independent clients with a refuse-to-attest-on-disagreement setup (multi-operator DVT or a Vero/Vouch-style multiplexer).
+- **Not sure (`U`)** — The operator can't say. Treated as an open gap. Holds the result below Stage 1. How to find out: Check which execution and consensus clients each node runs, and whether your stack halts when they disagree. Then compare against clientdiversity.org.
+
+**Real-world risk:** On a recent public test network, a bug in one consensus client caused every validator using it to sign an incorrect chain. Because that client held a supermajority share of the testnet's validators, the result was mass slashing — the same pattern on mainnet would have destroyed billions of dollars of stake. Ethereum's slashing penalty already scales with how many validators are slashed in the same window, so a correlated event costs each affected validator far more than an isolated slashing would. Refuse-to-attest only saves you when your clients disagree; if they all run software in the bad supermajority, they fork in unison and the safeguard never fires.
+
+**References:**
+
+- [ValOS: Slashing Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-slashing)
+- [ValOS: Client Diversity](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-client-diversity)
+- [ValOS: Anti-Slashing DB](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-antislash-db)
+- [clientdiversity.org](https://clientdiversity.org/)
+- [Obol docs — chain_split_halt](https://docs.obol.org/)
+
+### 3. Provider Diversity (`infraDiversity`, share-code position 3)
+
+Liveness slice: it only stands between the result and Stage 2. Bands offered: green, yellow, plus not sure.
+
+**Why it matters:** One hosting provider's outage or compromise can take every validator hosted there with it.
+
+**Question:** Across the nodes that run your validators, what's the largest share on a single hosting provider?
+
+**Guidance:** This assumes an active/active setup: several machines cooperate to back the same stake, as in a multi-operator DVT or with a multiplexer like Vero fronting several beacon nodes. The share that matters is the share of those cooperating machines, not of stake. If your biggest provider goes down, it should only drop some of your machines while the validator keeps signing. Treat each cloud (AWS, Hetzner…) and home or bare-metal as its own provider.
+
+**Answers:**
+
+- **Green (`G`)** — ⅓ or less. No single provider's outage can take your validator offline. No gap on this slice.
+- **Yellow (`Y`)** — More than ⅓. One provider going down could drop you below your signing threshold and take your validator offline. Holds the result below Stage 2. How to fix: Spread hosting so no provider backs more than ⅓ of your active/active nodes — add providers or self-host a portion.
+- **Not sure (`U`)** — The operator can't say. Treated as an open gap. Holds the result below Stage 2. How to find out: List the provider behind every node that backs your stake (home and bare metal count as their own) and work out the largest share.
+
+**Real-world risk:** A major hosting provider once suffered a security incident in which stored disk images may have been exposed. Any validator whose keystore and its decryption material lived on that provider's disks would have been at risk of complete key exfiltration in one stroke. Beyond breaches, single-provider outages routinely take large fractions of the network offline simultaneously — concentrating your nodes turns a vendor incident into your incident.
+
+**References:**
+
+- [ValOS: Infrastructure Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-infra)
+- [ValOS: Physically Distributed Infrastructure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware)
+- [ValOS: Utility Failure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-utilities)
+- [EIP-7716: Anti-correlation penalties](https://eips.ethereum.org/EIPS/eip-7716)
+- [EIP-7716 downtime calculator](https://validatordowntime.obol.org)
+
+### 4. OS Diversity (`osDiversity`, share-code position 4)
+
+Safety slice: red or not sure holds the result at Stage 0. Bands offered: green, red, plus not sure.
+
+**Why it matters:** An OS monoculture is a supply-chain risk: one poisoned update or zero-day could reach every node — and every key — at once.
+
+**Question:** Could a compromise of a single operating system reach enough of your signing material to sign?
+
+**Guidance:** The concern is a compromise reaching every key at once, not uptime: an OS-level vulnerability, a poisoned package update, or a build-pipeline attack. Distinct Linux and Unix distributions count separately, so Ubuntu, Debian, Arch, NixOS, and macOS are each their own OS. What matters is how many key shares each OS holds: a 3-to-1 split across two distros in a four-node cluster still leaves one distro holding a signing threshold.
+
+**Answers:**
+
+- **Green (`G`)** — No: no single distro holds enough key shares to sign. An OS-level compromise can only reach the shares on that distro, which isn't enough to produce a signature. No gap on this slice.
+- **Red (`R`)** — Yes: one distro holds a signing threshold (or everything). One OS-level vulnerability or poisoned update could reach enough key material to sign. Holds the result below Stage 1. How to fix: Run a second, unrelated distro (e.g. Fedora or NixOS alongside Ubuntu) and spread key shares so no single OS holds enough of them to sign.
+- **Not sure (`U`)** — The operator can't say. Treated as an open gap. Holds the result below Stage 1. How to find out: Inventory the distro on every machine that holds key shares or signs, and count how many shares each distro holds.
+
+**Real-world risk:** Operating systems regularly ship critical remote-code-execution disclosures, and their package managers and build pipelines have repeatedly been targeted by supply-chain attacks. A single poisoned update to a popular distro could backdoor every validator running it — mixing distros forces an attacker to compromise multiple independent supply chains to reach you.
+
+**References:**
+
+- [ValOS: Hacking Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-hacking)
+- [ValOS: Supply-chain Malware](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-against-malware)
+- [ValOS: Third-party Software Updates](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-update-software)
+
+### 5. CPU Architecture (`cpuDiversity`, share-code position 5)
+
+Safety slice: red or not sure holds the result at Stage 0. Bands offered: green, red, plus not sure.
+
+**Why it matters:** A CPU-architecture monoculture is a hardware-level supply-chain and side-channel risk — one flaw can reach keys on every machine you run.
+
+**Question:** Could a compromise of a single CPU architecture reach enough of your signing material to sign?
+
+**Guidance:** Count by instruction set, not chip model: x86-64, ARM64, and RISC-V are the architectures that matter. Side-channel and speculative-execution flaws like Spectre and Meltdown are bound to one architecture, so splitting key shares across two — with neither holding a signing threshold — limits how far any single flaw can reach. RISC-V is barely available today, so two is the practical ceiling for most operators.
+
+**Answers:**
+
+- **Green (`G`)** — No: no single architecture holds enough key shares to sign. Typically x86-64 plus ARM64 (Apple Silicon, AWS Graviton, Ampere), split so a flaw in one architecture can't reach a signing threshold. No gap on this slice.
+- **Red (`R`)** — Yes: one architecture holds a signing threshold (or everything). Typically 100% x86-64, where one CPU-level vulnerability could reach enough key material to sign. Holds the result below Stage 1. How to fix: Split your nodes across x86-64 and ARM64 hardware (Apple Silicon, AWS Graviton, Ampere) so no single architecture holds enough key shares to sign.
+- **Not sure (`U`)** — The operator can't say. Treated as an open gap. Holds the result below Stage 1. How to find out: Run `uname -m` on every machine that holds key shares or signs, and count how many shares each architecture holds.
+
+**Real-world risk:** CPU architectures have repeatedly disclosed speculative-execution and side-channel vulnerabilities — Spectre, Meltdown, and a long tail of successors — that let one process read memory belonging to another process on the same machine, including, in principle, signing keys held by a co-located component. A second architecture across your fleet limits the blast radius of any single hardware-class vulnerability.
+
+**References:**
+
+- [ValOS: Hacking Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-hacking)
+- [ValOS: Physically Distributed Infrastructure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware)
+
+### 6. Geographic Diversity (`geoDiversity`, share-code position 6)
+
+Liveness slice: it only stands between the result and Stage 2. Bands offered: green, yellow, plus not sure.
+
+**Why it matters:** Nodes concentrated in one country or region share exposure to grid failures, natural disasters, and local policy shifts.
+
+**Question:** What's the largest share of your nodes in a single country or region?
+
+**Guidance:** Group the cooperating nodes that back your stake by the country or region where they physically run, not by data centre. In an active/active setup, a country-level outage like a grid blackout, weather event, or network disruption only drops the nodes in that region while the rest keep signing.
+
+**Answers:**
+
+- **Green (`G`)** — ⅓ or less. No single region's outage can take your validator offline. No gap on this slice.
+- **Yellow (`Y`)** — More than ⅓. One regional outage could drop you below your signing threshold and take your validator offline. Holds the result below Stage 2. How to fix: Spread nodes across three or more countries or regions so none backs more than ⅓ of your setup, and one local disaster or outage can't take your validator offline.
+- **Not sure (`U`)** — The operator can't say. Treated as an open gap. Holds the result below Stage 2. How to find out: List the country each node physically runs in — your cloud console shows the region — and work out the largest share.
+
+**Real-world risk:** Entire countries lose grid power for hours or days — the 2025 Iberian Peninsula blackout cut electricity to tens of millions of people across two countries simultaneously. Natural disasters, accidental cascading failures, and sovereign actions all show up as common-mode risk for validators concentrated in one country or region.
+
+**References:**
+
+- [ValOS: Downtime Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-downtime)
+- [ValOS: Physically Distributed Infrastructure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware)
+- [ValOS: Environmental Threat Protection](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-from-environment)
+- [ValOS: Environmental Controls](https://lidofinance.github.io/valos/valos-spec.html#sec-controls-environment)
+- [EIP-7716: Anti-correlation penalties](https://eips.ethereum.org/EIPS/eip-7716)
+- [EIP-7716 downtime calculator](https://validatordowntime.obol.org)
+
+## The active/active assumption
+
+For infrastructure, OS, CPU, and geography, diversity only translates into resilience when your validator runs **active/active**: several cooperating nodes back the same stake, with signing continuing as long as enough of them stay up. The stake isn't partitioned across machines — it's one aggregate validator whose cooperating machines you've diversified. Several setups achieve this — multi-operator **distributed validators (DVT)** coordinated by Charon, or validator clients like **Vouch** paired with multiplexers like **Vero** and remote signers like **Dirk** or **Web3Signer**. The common requirement: no single party holds enough key material to sign alone — at least two independent parties involved, backups kept separate, so compromising one doesn't leak the full private key.
+
+## Nuances and limits
+
+Real setups don't fall into neat green, yellow, and red buckets. We use three colors anyway because they keep a result easy to read at a glance — the rule of thumb covers the space between them.
+
+Known cases the questions don't spell out:
+
+- **Shared owner.** Two key custodians inside one company fail together. Count them as one party when scoring Key Custody.
+- **Derived distros.** Ubuntu and Debian share upstream packaging. If your distros share a supply chain, count them as one OS.
+- **One physical host.** Two OSes in VMs on one machine are both reachable through the host. Count the host's OS, not the guests'.
+- **Resold infrastructure.** Two providers reselling the same cloud or data centre fail together. Count them as one provider.
+- **Active/passive failover.** A warm standby still goes offline during failover. The Provider and Geography slices assume active/active; score them yellow.
+
+What the assessment deliberately doesn't score:
+
+- **The remote signer stack.** Every current signing stack keeps a single point of failure somewhere, whether you run Web3Signer, Dirk, Vero, Vouch, or Charon. Validator Beat doesn't score it: penalizing something no setup can avoid would push everyone toward one architecture.
+- **Hosting provider type.** Validator Beat doesn't rank residential, bare metal, or cloud hosting. The Provider slice already scores provider concentration, which catches the real trap: five regions all on AWS still fall to one provider incident.
+- **CPU generation.** Validator Beat counts instruction sets and ignores chip generations. Hardware bugs sometimes hit one generation and sometimes a vendor's entire line, so mixing generations guarantees nothing.
+
+This is a self-assessment: a result reflects the operator's own answers, not verified facts.
+
+## Why correlation matters
+
+Ethereum already penalizes correlated slashing super-linearly: on top of the initial penalty, each slashed validator loses a share of its balance proportional to three times the fraction of total stake slashed around the same time, capped at the whole balance (`PROPORTIONAL_SLASHING_MULTIPLIER_BELLATRIX = 3` in the consensus specs: https://github.com/ethereum/consensus-specs/blob/master/specs/bellatrix/beacon-chain.md). Correlated downtime isn't penalized that way today. EIP-7716 ("Anti-correlation attestation penalties", https://eips.ethereum.org/EIPS/eip-7716) is a Draft, proposed for inclusion in the Hegotá upgrade (https://forkcast.org/eips/7716), that would scale missed-attestation penalties with how many validators miss together: validators that fail alone would pay what they pay today, and correlated failures would pay more. The Provider and Geography slices decide whether a validator fails alone or with a crowd. The EIP-7716 downtime calculator (https://validatordowntime.obol.org/) shows the numbers.
+
+## Share codes
+
+A result is encoded as six letters, one per slice in canonical order: `G` (green), `Y` (yellow), `R` (red), `U` (not sure). Each position only accepts the bands its slice offers:
+
+1. Key Custody: G, Y, R, U
+2. Client Diversity: G, Y, R, U
+3. Provider Diversity: G, Y, U
+4. OS Diversity: G, R, U
+5. CPU Architecture: G, R, U
+6. Geographic Diversity: G, Y, U
+
+That gives 1296 valid codes, and every one exists as a static page at `https://validatorbeat.com/<CODE>/` with an Open Graph preview card at `https://validatorbeat.com/og/<CODE>.png` and a README badge at `https://validatorbeat.com/badge/<CODE>.svg`. Codes that use a band a slice doesn't offer (e.g. `Y` for OS) are invalid.
+
+Example: `GYYGGY` = Key Custody green, Client Diversity yellow, Provider Diversity yellow, OS Diversity green, CPU Architecture green, Geographic Diversity yellow → Stage 1. Link: https://validatorbeat.com/GYYGGY/ · Badge: `[![Validator Beat](https://validatorbeat.com/badge/GYYGGY.svg)](https://validatorbeat.com/GYYGGY/)`
+
+Optional query parameters: `?n=<name>` names the result (max 40 characters, URL-encoded); `&vs=<CODE>&vn=<name>` shows it head-to-head against another result.
+
+## Related
+
+- [Validator Downtime](https://validatordowntime.obol.org/) ([llms.txt](https://validatordowntime.obol.org/llms.txt)): what correlated downtime would cost under EIP-7716. Client Diversity is the safety side of the same story: a supermajority-client bug is either mass slashing or, with refuse-to-attest, correlated downtime.
+- [ValOS — the Validator Operations Standard](https://lidofinance.github.io/valos/valos-spec.html): the risk-and-mitigation catalog each question links into.
+- [clientdiversity.org](https://clientdiversity.org/): live network share for each execution and consensus client.
+- [Obol docs](https://docs.obol.org/): distributed validators, Charon, and chain-split safety settings.
