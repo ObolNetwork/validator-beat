@@ -3,6 +3,7 @@ import path from "path";
 import sharp from "sharp";
 import { allShareCodes, decodeShareCode } from "../lib/rubric/index";
 import { landingOgSvg } from "../lib/share/landing-og-svg";
+import { costOgSvg } from "../lib/share/cost-og-svg";
 import { badgeSvg } from "../lib/share/badge-svg";
 import { pizzaOgSvg } from "../lib/share/pizza-og-svg";
 
@@ -44,7 +45,12 @@ async function main() {
     .png()
     .toFile(path.join(OUT_DIR, "landing.png"));
 
-  console.log(`Generated ${done} share images + landing.png in public/og/, ${done} badges in public/badge/`);
+  // /cost-of-failure card, numbers from the page's default model run.
+  await sharp(Buffer.from(costOgSvg(DISPLAY_HOST)))
+    .png()
+    .toFile(path.join(OUT_DIR, "cost-of-failure.png"));
+
+  console.log(`Generated ${done} share images + landing.png + cost-of-failure.png in public/og/, ${done} badges in public/badge/`);
 }
 
 main().catch((err) => {

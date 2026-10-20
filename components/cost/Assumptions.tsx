@@ -91,7 +91,7 @@ function Group({ id, title, summary, keys, params, open, onToggle, reset, childr
                 css={{
                   fontSize: 11,
                   fontWeight: "$bold",
-                  color: "var(--theme-brand)",
+                  color: s.LINK,
                   border: "1px solid var(--theme-brand)",
                   borderRadius: 999,
                   padding: "1px 8px",
@@ -123,7 +123,7 @@ const linkButton = {
   cursor: "pointer",
   fontSize: "$1",
   fontWeight: "$semibold",
-  color: "var(--theme-brand)",
+  color: s.LINK,
   "&:hover": { textDecoration: "underline" },
   "&:focus-visible": { outline: "2px solid var(--theme-brand)", outlineOffset: 2, borderRadius: 3 },
 } as const;
@@ -214,7 +214,7 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
   return (
     <Box as="section" css={s.section} aria-labelledby="assumptions">
       <Box css={s.wrap}>
-        <Eyebrow as="p" css={{ margin: "0 0 14px" }}>
+        <Eyebrow as="p" css={{ margin: "0 0 14px", color: s.LINK }}>
           Adjust assumptions
         </Eyebrow>
         <Box css={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
@@ -478,7 +478,12 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
               hint={
                 <>
                   Draft, proposed for Hegotá. Makes correlated outages cost more. The{" "}
-                  <a href="https://validatordowntime.obol.org" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href="https://validatordowntime.obol.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "var(--theme-cost-link)", textDecoration: "underline", fontWeight: 600 }}
+                  >
                     downtime calculator
                   </a>{" "}
                   goes deeper.

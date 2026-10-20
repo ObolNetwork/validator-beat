@@ -89,6 +89,7 @@ A result is encoded as six letters, one per slice in the order above: \`G\` (gre
 - [Full reference](${BASE}/llms-full.txt): every question, answer band, stage rule, and methodology nuance in one file
 - [Methodology](${BASE}/methodology/): scoring rules, the active/active assumption, nuances and limits
 - [Take the assessment](${BASE}/assess/): six questions, ~60 seconds, runs in the browser
+- [Cost of failure](${BASE}/cost-of-failure/): what a key compromise, slashing or outage costs at Stage 0 vs Stage 1, from the consensus spec and current queues; parameters live in the URL
 - [Agent skill](${BASE}/skill.md): how an AI agent can run this assessment conversationally
 - [Source code](${GITHUB_URL}): Apache-2.0; the scoring rubric lives in \`lib/rubric\`
 
@@ -283,6 +284,7 @@ export function sitemapXml(): string {
     ["/", "weekly", "1.0"],
     ["/assess/", "weekly", "0.9"],
     ["/methodology/", "monthly", "0.8"],
+    ["/cost-of-failure/", "monthly", "0.8"],
     ["/llms.txt", "monthly", "0.5"],
     ["/llms-full.txt", "monthly", "0.5"],
     ["/skill.md", "monthly", "0.5"],

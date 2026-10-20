@@ -35,7 +35,7 @@ export function Anchor({ id, as = "h2", css, children }: AnchorProps) {
       css={{
         ...css,
         "& .cost-anchor": { opacity: 0.3 },
-        "&:hover .cost-anchor, & .cost-anchor:focus-visible": { opacity: 1, color: "var(--theme-brand)" },
+        "&:hover .cost-anchor, & .cost-anchor:focus-visible": { opacity: 1, color: "var(--theme-cost-link)" },
         "@media (hover: none)": { "& .cost-anchor": { opacity: 0.5 } },
       }}
     >
@@ -58,7 +58,7 @@ export function Anchor({ id, as = "h2", css, children }: AnchorProps) {
         #
       </Box>
       {copied && (
-        <Box as="span" role="status" css={{ marginLeft: 10, fontSize: 12, fontWeight: "$medium", color: "var(--theme-brand)", letterSpacing: 0 }}>
+        <Box as="span" role="status" css={{ marginLeft: 10, fontSize: 12, fontWeight: "$medium", color: "var(--theme-cost-link)", letterSpacing: 0 }}>
           Link copied
         </Box>
       )}

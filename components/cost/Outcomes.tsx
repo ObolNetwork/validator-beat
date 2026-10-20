@@ -6,6 +6,7 @@ import type { Economics, OutcomeCase } from "@lib/cost/model";
 import type { CostParams, FocusEvent } from "@lib/cost/params";
 import { TableView } from "./controls";
 import { Anchor } from "./Anchor";
+import { Lockout } from "./Lockout";
 import * as s from "./styles";
 
 export const COMPONENTS: { key: keyof LossBreakdown; label: string }[] = [
@@ -28,7 +29,7 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
   return (
     <Box as="section" css={{ ...s.section, ...s.band }} aria-labelledby="outcomes">
       <Box css={s.wrap}>
-        <Eyebrow as="p" css={{ margin: "0 0 14px" }}>
+        <Eyebrow as="p" css={{ margin: "0 0 14px", color: s.LINK }}>
           Lucky, partial or total
         </Eyebrow>
         <Anchor id="outcomes" css={s.h2}>
@@ -141,7 +142,7 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
                     cursor: "pointer",
                     fontSize: "$2",
                     fontWeight: "$semibold",
-                    color: "var(--theme-brand)",
+                    color: s.LINK,
                     "&:hover": { textDecoration: "underline" },
                     "&:focus-visible": { outline: "2px solid var(--theme-brand)", outlineOffset: 2, borderRadius: 3 },
                   }}
@@ -153,7 +154,7 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
           })}
         </Box>
 
-        <TableView summary="Show all outcomes as a table">
+        <TableView summary="Show all outcomes as a table" label="All outcomes, table">
           <table>
             <thead>
               <tr>
@@ -203,6 +204,8 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
             </tbody>
           </table>
         </TableView>
+
+        <Lockout />
       </Box>
     </Box>
   );

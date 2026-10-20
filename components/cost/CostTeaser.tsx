@@ -97,7 +97,7 @@ export function CostTeaser() {
           }}
         >
           <Box>
-            <Eyebrow as="p" css={{ margin: "0 0 14px" }}>
+            <Eyebrow as="p" css={{ margin: "0 0 14px", color: s.LINK }}>
               What one failure costs
             </Eyebrow>
             <Text as="h2" id="cost-teaser-h" css={s.h2}>

@@ -74,7 +74,7 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
   return (
     <Box as="section" css={s.section} aria-labelledby="timeline">
       <Box css={s.wrap}>
-        <Eyebrow as="p" css={{ margin: "0 0 14px" }}>
+        <Eyebrow as="p" css={{ margin: "0 0 14px", color: s.LINK }}>
           One event, day by day
         </Eyebrow>
         <Anchor id="timeline" css={s.h2}>
@@ -125,13 +125,13 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
               {yTicks.map((t) => (
                 <g key={t}>
                   <line x1={m.l} x2={W - m.r} y1={y(t)} y2={y(t)} stroke={s.GRID} />
-                  <text x={m.l - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill={s.INK_MUTED}>
+                  <text x={m.l - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill={s.INK_2}>
                     {fmtCompact(t)}
                   </text>
                 </g>
               ))}
               {xTicks.map((t) => (
-                <text key={t} x={x(t)} y={H - 8} textAnchor="middle" fontSize={11} fill={s.INK_MUTED}>
+                <text key={t} x={x(t)} y={H - 8} textAnchor="middle" fontSize={11} fill={s.INK_2}>
                   {fmtX(t)}
                 </text>
               ))}
@@ -232,7 +232,7 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
               " Slashed validators are penalised for missed attestations until withdrawable (at least 8,192 epochs, ~36 days), and pay the correlation penalty halfway."}
           </Text>
 
-          <TableView>
+          <TableView label="Event timeline, table">
             <table>
               <thead>
                 <tr>

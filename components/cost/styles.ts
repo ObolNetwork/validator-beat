@@ -1,5 +1,8 @@
 import type { CSS } from "@stitches/react";
 
+/** Text-coloured links and accents: AA on every surface on this page. */
+export const LINK = "var(--theme-cost-link)";
+
 /** Layout tokens shared by the cost-of-failure sections (mirror Landing.tsx). */
 export const wrap: CSS = { maxWidth: 1140, margin: "0 auto", padding: "0 28px", "@media (max-width: 480px)": { padding: "0 16px" } };
 export const section: CSS = { padding: "72px 0", "@media (max-width: 760px)": { padding: "52px 0" } };
@@ -42,7 +45,8 @@ export const prose: CSS = {
   maxWidth: 780,
   textWrap: "pretty",
   "& strong": { color: "$body", fontWeight: "$semibold" },
-  "& a": { color: "var(--theme-brand)", fontWeight: "$semibold" },
+  "& a": { color: LINK, fontWeight: "$semibold", textDecoration: "underline", textUnderlineOffset: 2 },
+  "& code": { color: "$body" },
 };
 export const small: CSS = { fontSize: "$1", lineHeight: 1.5, color: "$textMiddle" };
 export const cardPad: CSS = { padding: 26, "@media (max-width: 480px)": { padding: 18 } };
@@ -57,6 +61,7 @@ export const statValue: CSS = {
 export const statLabel: CSS = { fontSize: "$2", color: "$textMiddle", marginTop: 6, lineHeight: 1.45 };
 
 export const S0 = "var(--theme-cost-s0)";
+
 export const S1 = "var(--theme-cost-s1)";
 export const GRID = "var(--theme-cost-grid)";
 export const INK_MUTED = "var(--theme-text-muted)";

@@ -39,7 +39,7 @@ export function Odds({ params: p, update, replace, mc, heatmap, running, econ, p
   return (
     <Box as="section" css={{ ...s.section, ...s.band }} aria-labelledby="odds">
       <Box css={s.wrap}>
-        <Eyebrow as="p" css={{ margin: "0 0 14px" }}>
+        <Eyebrow as="p" css={{ margin: "0 0 14px", color: s.LINK }}>
           The odds over time
         </Eyebrow>
         <Anchor id="odds" css={s.h2}>
@@ -270,7 +270,7 @@ function SeverityShape({
         <path d={d} fill="none" stroke={s.S0} strokeWidth={2} />
         <line x1={0} x2={W} y1={H} y2={H} stroke={s.GRID} />
         {[0, 0.5, 1].map((t) => (
-          <text key={t} x={t * W} y={H + 13} fontSize={11} fill={s.INK_MUTED} textAnchor={t === 0 ? "start" : t === 1 ? "end" : "middle"}>
+          <text key={t} x={t * W} y={H + 13} fontSize={11} fill={s.INK_2} textAnchor={t === 0 ? "start" : t === 1 ? "end" : "middle"}>
             {fmtPct(t)}
           </text>
         ))}
@@ -365,7 +365,7 @@ function Fan({ mc }: { mc: MonteCarloResult }) {
         {ticks.map((t) => (
           <g key={t}>
             <line x1={m.l} x2={W - m.r} y1={y(t)} y2={y(t)} stroke={s.GRID} />
-            <text x={m.l - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill={s.INK_MUTED}>
+            <text x={m.l - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill={s.INK_2}>
               {fmtCompact(t)}
             </text>
           </g>
@@ -379,15 +379,15 @@ function Fan({ mc }: { mc: MonteCarloResult }) {
         ))}
         {ys.map((d, i) =>
           n <= 12 || i % 2 === n % 2 || i === n - 1 ? (
-            <text key={d.year} x={x(i)} y={H - 7} textAnchor="middle" fontSize={11} fill={s.INK_MUTED}>
+            <text key={d.year} x={x(i)} y={H - 7} textAnchor="middle" fontSize={11} fill={s.INK_2}>
               {d.year}y
             </text>
           ) : null,
         )}
-        <text x={m.l + 6} y={m.t + 12} fontSize={11} fill={s.INK_MUTED}>
+        <text x={m.l + 6} y={m.t + 12} fontSize={11} fill={s.INK_2}>
           ↑ Stage 1 ahead
         </text>
-        <text x={m.l + 6} y={m.t + ih - 6} fontSize={11} fill={s.INK_MUTED}>
+        <text x={m.l + 6} y={m.t + ih - 6} fontSize={11} fill={s.INK_2}>
           ↓ Stage 0 ahead
         </text>
         {hover !== null && <line x1={x(hover)} x2={x(hover)} y1={m.t} y2={m.t + ih} stroke={s.INK_MUTED} pointerEvents="none" />}
@@ -415,7 +415,7 @@ function Fan({ mc }: { mc: MonteCarloResult }) {
           <Text css={s.small}>Stage 0 ahead in {fmtPct(hy.pStage0Ahead)}</Text>
         </Box>
       )}
-      <TableView>
+      <TableView label="Stage 1 minus Stage 0 by year, table">
         <table>
           <thead>
             <tr>
@@ -496,7 +496,7 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
       >
         <Box />
         {yearCols.map((y) => (
-          <Text key={y} css={{ fontSize: 10, color: s.INK_MUTED, textAlign: "center" }}>
+          <Text key={y} css={{ fontSize: 11, color: s.INK_2, textAlign: "center" }}>
             {y}y
           </Text>
         ))}
@@ -504,7 +504,7 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
           const ri = hm.rates.indexOf(r);
           return (
             <Box key={r} role="row" css={{ display: "contents" }}>
-              <Text css={{ fontSize: 10, color: s.INK_MUTED, alignSelf: "center", textAlign: "right", paddingRight: 4 }}>{r}%</Text>
+              <Text css={{ fontSize: 11, color: s.INK_2, alignSelf: "center", textAlign: "right", paddingRight: 4 }}>{r}%</Text>
               {yearCols.map((y) => {
                 const v = value(ri, y);
                 const mine = r === nearestRate && y === nearestYear;
@@ -533,18 +533,18 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
       <Box css={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 10, gap: 10, flexWrap: "wrap" }}>
         {view === "chance" ? (
           <Box css={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Text css={{ fontSize: 10, color: s.INK_MUTED }}>Stage 1 usually ahead</Text>
+            <Text css={{ fontSize: 11, color: s.INK_2 }}>Stage 1 usually ahead</Text>
             {[0, 0.25, 0.5, 0.75, 1].map((v) => (
               <Box key={v} css={{ width: 16, height: 10, borderRadius: 2, backgroundColor: chanceColor(v) }} />
             ))}
-            <Text css={{ fontSize: 10, color: s.INK_MUTED }}>Stage 0 usually ahead</Text>
+            <Text css={{ fontSize: 11, color: s.INK_2 }}>Stage 0 usually ahead</Text>
           </Box>
         ) : (
           <Box css={{ display: "flex", alignItems: "flex-start", gap: 3 }} aria-label="Legend: years of Stage 0 rewards">
             {[-4, -1, -0.25, -0.05, 0, 0.05, 0.25, 1, 4].map((v) => (
               <Box key={v} css={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: 30 }}>
                 <Box css={{ width: 26, height: 10, borderRadius: 2, backgroundColor: averageColor(v) }} />
-                <Text css={{ fontSize: 9, color: s.INK_MUTED, whiteSpace: "nowrap" }}>
+                <Text css={{ fontSize: 9, color: s.INK_2, whiteSpace: "nowrap" }}>
                   {v === 0 ? "even" : `${v > 0 ? "+" : "−"}${Math.abs(v)}y`}
                 </Text>
               </Box>
@@ -568,7 +568,7 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
           </>
         )}
       </Text>
-      <TableView>
+      <TableView label={view === "chance" ? "Chance Stage 0 is ahead, table" : "Average outcome, table"}>
         <table>
           <thead>
             <tr>

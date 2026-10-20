@@ -5,6 +5,7 @@ import { DEFAULT_PARAMS, type CostParams, type FocusEvent } from "@lib/cost/para
 import type { Economics, OutcomeCase } from "@lib/cost/model";
 import { Chips, NumberField, Slider, Toggle } from "./controls";
 import { LogBars } from "./LogBars";
+import { Ref } from "./refs";
 import * as s from "./styles";
 
 const FOCUS: { id: FocusEvent; label: string; hint: string }[] = [
@@ -45,7 +46,7 @@ export function Hero({ params: p, update, focusCase: c, econ }: HeroProps) {
   return (
     <Box as="header" css={{ ...s.section, paddingBottom: 56 }}>
       <Box css={s.wrap}>
-        <Eyebrow as="p" css={{ margin: "0 0 14px" }}>
+        <Eyebrow as="p" css={{ margin: "0 0 14px", color: s.LINK }}>
           The cost of a single point of failure
         </Eyebrow>
         <Text as="h1" css={{ ...s.h1, maxWidth: 860 }}>
@@ -116,7 +117,12 @@ export function Hero({ params: p, update, focusCase: c, econ }: HeroProps) {
                   label="Apply EIP-7716 (opt in)"
                   checked={p.eip7716}
                   onChange={(eip7716) => update({ eip7716 })}
-                  hint="Draft proposal for Hegotá: scales the target penalty with how much stake is offline together."
+                  hint={
+                    <>
+                      Draft proposal for Hegotá: scales the target penalty with how much stake is offline together
+                      <Ref k="eip7716" />.
+                    </>
+                  }
                 />
               </>
             )}

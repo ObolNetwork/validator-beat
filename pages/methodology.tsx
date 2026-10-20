@@ -3,7 +3,7 @@ import { Fragment } from "react";
 import { AnchorHeading } from "@components/methodology/AnchorHeading";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
-import { ASSESS_PATH, DOWNTIME_CALCULATOR_URL, GITHUB_URL, SITE_NAME, SITE_URL } from "@constants/index";
+import { ASSESS_PATH, COST_PATH, DOWNTIME_CALCULATOR_URL, GITHUB_URL, SITE_NAME, SITE_URL } from "@constants/index";
 import { AskAnAgent } from "@components/agents/AskAnAgent";
 import { Inline } from "@components/methodology/Inline";
 import { assessPrompt } from "@lib/agents/prompts";
@@ -221,6 +221,14 @@ export default function MethodologyPage() {
             alone would pay what they pay today — so the Provider and Geography slices, which
             decide whether you fail alone or with a crowd, carry real money.
           </p>
+          <p>
+            For safety failures, the{" "}
+            <Link href={COST_PATH}>cost of failure</Link> page prices it in ETH. A key compromise
+            at an operator running 10% of the network, with every key slashed, costs a 200,000 ETH
+            stake about 39,000 ETH at Stage 0. At Stage 1 it means replacing one key-holder, which
+            costs a few ETH. The page also asks how often that happens, and when a higher Stage 1
+            fee pays for itself.
+          </p>
         </section>
 
         <section>
@@ -276,6 +284,10 @@ export default function MethodologyPage() {
         <section>
           <AnchorHeading id="further-reading">Further reading</AnchorHeading>
           <ul>
+            <li>
+              <Link href={COST_PATH}>The cost of failure</Link> — what a key compromise, slashing or
+              outage costs at Stage 0 vs Stage 1, from the consensus spec and today&apos;s queues.
+            </li>
             <li>
               <a
                 href="https://lidofinance.github.io/valos/valos-spec.html"
