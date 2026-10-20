@@ -1,0 +1,23 @@
+{
+  "asOf": "2026-10-19",
+  "fork": "Fulu",
+  "headSlot": 15468978,
+  "headEpoch": 483405,
+  "sources": {
+    "beacon": "https://ethereum-beacon-api.publicnode.com (Lighthouse v8.2.3): /eth/v1/beacon/states/head/{pending_deposits,pending_consolidations,validators?status=active_exiting,validator_balances}",
+    "queues": "https://validatorqueue.com (etheralpha/validatorqueue-com historical_data.json, 2026-10-19 row)",
+    "price": "https://coins.llama.fi/prices/current/coingecko:ethereum"
+  },
+  "totalActiveEth": 43691145,
+  "activeValidators": 829823,
+  "pendingDepositsEth": 1179689,
+  "pendingDepositCount": 15917,
+  "pendingConsolidationCount": 8901,
+  "exitingValidators": 11311,
+  "exitingEth": 789307,
+  "latestExitEpoch": 484865,
+  "newExitWaitEpochs": 1460,
+  "depositInflowEthPerEpoch90d": 187,
+  "aprPct": 2.55,
+  "ethUsd": 2404
+}

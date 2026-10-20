@@ -1,0 +1,907 @@
+{
+  "source": "https://validatorqueue.com (github.com/etheralpha/validatorqueue-com historical_data.json)",
+  "fetchedAt": "2026-10-19",
+  "note": "Daily snapshots. exitWaitDays is validatorqueue’s exit_queue ÷ 256 ETH/epoch; under Electra it also counts consolidation sources, which drain on separate churn, so it overstates the wait for a new voluntary exit.",
+  "days": [
+    {
+      "date": "2026-07-18",
+      "validators": 881635,
+      "entryQueueEth": 2590840,
+      "entryWaitDays": 44.98,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 40705124,
+      "aprPct": 2.65
+    },
+    {
+      "date": "2026-07-19",
+      "validators": 882437,
+      "entryQueueEth": 2543275,
+      "entryWaitDays": 44.15,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 40767526,
+      "aprPct": 2.65
+    },
+    {
+      "date": "2026-07-20",
+      "validators": 884019,
+      "entryQueueEth": 2489069,
+      "entryWaitDays": 43.21,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 40825384,
+      "aprPct": 2.64
+    },
+    {
+      "date": "2026-07-21",
+      "validators": 884945,
+      "entryQueueEth": 2479352,
+      "entryWaitDays": 43.04,
+      "exitQueueEth": 1440,
+      "exitWaitDays": 0.02,
+      "stakedEth": 40878968,
+      "aprPct": 2.64
+    },
+    {
+      "date": "2026-07-22",
+      "validators": 885644,
+      "entryQueueEth": 2486019,
+      "entryWaitDays": 43.16,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 40898612,
+      "aprPct": 2.64
+    },
+    {
+      "date": "2026-07-27",
+      "validators": 886732,
+      "entryQueueEth": 2456160,
+      "entryWaitDays": 42.64,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41119153,
+      "aprPct": 2.66
+    },
+    {
+      "date": "2026-07-28",
+      "validators": 886860,
+      "entryQueueEth": 2448777,
+      "entryWaitDays": 42.51,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41133297,
+      "aprPct": 2.66
+    },
+    {
+      "date": "2026-07-29",
+      "validators": 887883,
+      "entryQueueEth": 2431722,
+      "entryWaitDays": 42.22,
+      "exitQueueEth": 1536,
+      "exitWaitDays": 0.03,
+      "stakedEth": 41191020,
+      "aprPct": 2.66
+    },
+    {
+      "date": "2026-07-30",
+      "validators": 889001,
+      "entryQueueEth": 2468142,
+      "entryWaitDays": 42.85,
+      "exitQueueEth": 416,
+      "exitWaitDays": 0.01,
+      "stakedEth": 41206635,
+      "aprPct": 2.66
+    },
+    {
+      "date": "2026-07-31",
+      "validators": 890279,
+      "entryQueueEth": 2494152,
+      "entryWaitDays": 43.3,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41244180,
+      "aprPct": 2.67
+    },
+    {
+      "date": "2026-08-01",
+      "validators": 890958,
+      "entryQueueEth": 2504362,
+      "entryWaitDays": 43.48,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41270328,
+      "aprPct": 2.67
+    },
+    {
+      "date": "2026-08-02",
+      "validators": 891316,
+      "entryQueueEth": 2460088,
+      "entryWaitDays": 42.71,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41317554,
+      "aprPct": 2.67
+    },
+    {
+      "date": "2026-08-03",
+      "validators": 892359,
+      "entryQueueEth": 2408499,
+      "entryWaitDays": 41.81,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41348420,
+      "aprPct": 2.67
+    },
+    {
+      "date": "2026-08-04",
+      "validators": 893815,
+      "entryQueueEth": 2533195,
+      "entryWaitDays": 43.98,
+      "exitQueueEth": 20164,
+      "exitWaitDays": 0.35,
+      "stakedEth": 41410983,
+      "aprPct": 2.66
+    },
+    {
+      "date": "2026-08-05",
+      "validators": 894872,
+      "entryQueueEth": 2488354,
+      "entryWaitDays": 43.2,
+      "exitQueueEth": 96,
+      "exitWaitDays": 0,
+      "stakedEth": 41450040,
+      "aprPct": 2.65
+    },
+    {
+      "date": "2026-08-06",
+      "validators": 895605,
+      "entryQueueEth": 2518753,
+      "entryWaitDays": 43.73,
+      "exitQueueEth": 128,
+      "exitWaitDays": 0,
+      "stakedEth": 41440657,
+      "aprPct": 2.65
+    },
+    {
+      "date": "2026-08-07",
+      "validators": 895821,
+      "entryQueueEth": 2490492,
+      "entryWaitDays": 43.24,
+      "exitQueueEth": 288,
+      "exitWaitDays": 0,
+      "stakedEth": 41531843,
+      "aprPct": 2.64
+    },
+    {
+      "date": "2026-08-08",
+      "validators": 897042,
+      "entryQueueEth": 2469237,
+      "entryWaitDays": 42.87,
+      "exitQueueEth": 32,
+      "exitWaitDays": 0,
+      "stakedEth": 41358868,
+      "aprPct": 2.63
+    },
+    {
+      "date": "2026-08-09",
+      "validators": 897122,
+      "entryQueueEth": 2426164,
+      "entryWaitDays": 42.12,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41697174,
+      "aprPct": 2.62
+    },
+    {
+      "date": "2026-08-10",
+      "validators": 897161,
+      "entryQueueEth": 2374824,
+      "entryWaitDays": 41.23,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41752643,
+      "aprPct": 2.62
+    },
+    {
+      "date": "2026-08-11",
+      "validators": 897002,
+      "entryQueueEth": 2355926,
+      "entryWaitDays": 40.9,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41765089,
+      "aprPct": 2.61
+    },
+    {
+      "date": "2026-08-12",
+      "validators": 897014,
+      "entryQueueEth": 2367429,
+      "entryWaitDays": 41.1,
+      "exitQueueEth": 96,
+      "exitWaitDays": 0,
+      "stakedEth": 41818817,
+      "aprPct": 2.61
+    },
+    {
+      "date": "2026-08-13",
+      "validators": 897546,
+      "entryQueueEth": 2317570,
+      "entryWaitDays": 40.24,
+      "exitQueueEth": 128,
+      "exitWaitDays": 0,
+      "stakedEth": 41881099,
+      "aprPct": 2.61
+    },
+    {
+      "date": "2026-08-14",
+      "validators": 898286,
+      "entryQueueEth": 2281136,
+      "entryWaitDays": 39.6,
+      "exitQueueEth": 32,
+      "exitWaitDays": 0,
+      "stakedEth": 41904724,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-08-15",
+      "validators": 898169,
+      "entryQueueEth": 2286511,
+      "entryWaitDays": 39.7,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 41975061,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-08-16",
+      "validators": 898091,
+      "entryQueueEth": 2238011,
+      "entryWaitDays": 38.85,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 42026059,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-08-17",
+      "validators": 897975,
+      "entryQueueEth": 2186844,
+      "entryWaitDays": 37.97,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 42017216,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-08-18",
+      "validators": 899273,
+      "entryQueueEth": 2208206,
+      "entryWaitDays": 38.34,
+      "exitQueueEth": 64,
+      "exitWaitDays": 0,
+      "stakedEth": 42135912,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-08-19",
+      "validators": 900930,
+      "entryQueueEth": 2186662,
+      "entryWaitDays": 37.96,
+      "exitQueueEth": 320,
+      "exitWaitDays": 0.01,
+      "stakedEth": 42176090,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-08-20",
+      "validators": 901581,
+      "entryQueueEth": 2202149,
+      "entryWaitDays": 38.23,
+      "exitQueueEth": 1184,
+      "exitWaitDays": 0.02,
+      "stakedEth": 42220566,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-08-21",
+      "validators": 901991,
+      "entryQueueEth": 2228284,
+      "entryWaitDays": 38.69,
+      "exitQueueEth": 5071,
+      "exitWaitDays": 0.09,
+      "stakedEth": 42203331,
+      "aprPct": 2.62
+    },
+    {
+      "date": "2026-08-22",
+      "validators": 901697,
+      "entryQueueEth": 2262825,
+      "entryWaitDays": 39.29,
+      "exitQueueEth": 1728,
+      "exitWaitDays": 0.03,
+      "stakedEth": 42228608,
+      "aprPct": 2.64
+    },
+    {
+      "date": "2026-08-23",
+      "validators": 901437,
+      "entryQueueEth": 2248711,
+      "entryWaitDays": 39.04,
+      "exitQueueEth": 160,
+      "exitWaitDays": 0,
+      "stakedEth": 42248862,
+      "aprPct": 2.66
+    },
+    {
+      "date": "2026-08-24",
+      "validators": 902163,
+      "entryQueueEth": 2199123,
+      "entryWaitDays": 38.18,
+      "exitQueueEth": 32,
+      "exitWaitDays": 0,
+      "stakedEth": 42296589,
+      "aprPct": 2.67
+    },
+    {
+      "date": "2026-08-25",
+      "validators": 902676,
+      "entryQueueEth": 2216207,
+      "entryWaitDays": 38.48,
+      "exitQueueEth": 64,
+      "exitWaitDays": 0,
+      "stakedEth": 42360602,
+      "aprPct": 2.68
+    },
+    {
+      "date": "2026-08-26",
+      "validators": 902773,
+      "entryQueueEth": 2214739,
+      "entryWaitDays": 38.45,
+      "exitQueueEth": 64,
+      "exitWaitDays": 0,
+      "stakedEth": 42383318,
+      "aprPct": 2.7
+    },
+    {
+      "date": "2026-08-27",
+      "validators": 903269,
+      "entryQueueEth": 2170352,
+      "entryWaitDays": 37.68,
+      "exitQueueEth": 20737,
+      "exitWaitDays": 0.36,
+      "stakedEth": 42402453,
+      "aprPct": 2.7
+    },
+    {
+      "date": "2026-08-28",
+      "validators": 903044,
+      "entryQueueEth": 2126298,
+      "entryWaitDays": 36.91,
+      "exitQueueEth": 2464,
+      "exitWaitDays": 0.04,
+      "stakedEth": 42290711,
+      "aprPct": 2.67
+    },
+    {
+      "date": "2026-08-29",
+      "validators": 902651,
+      "entryQueueEth": 2134076,
+      "entryWaitDays": 37.05,
+      "exitQueueEth": 2464,
+      "exitWaitDays": 0.04,
+      "stakedEth": 42464828,
+      "aprPct": 2.65
+    },
+    {
+      "date": "2026-08-30",
+      "validators": 902429,
+      "entryQueueEth": 2079301,
+      "entryWaitDays": 36.1,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 42437422,
+      "aprPct": 2.63
+    },
+    {
+      "date": "2026-08-31",
+      "validators": 903604,
+      "entryQueueEth": 2033114,
+      "entryWaitDays": 35.3,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 42516391,
+      "aprPct": 2.62
+    },
+    {
+      "date": "2026-09-01",
+      "validators": 903892,
+      "entryQueueEth": 2073824,
+      "entryWaitDays": 36,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 42609119,
+      "aprPct": 2.62
+    },
+    {
+      "date": "2026-09-02",
+      "validators": 904423,
+      "entryQueueEth": 2088205,
+      "entryWaitDays": 36.25,
+      "exitQueueEth": 12386,
+      "exitWaitDays": 0.22,
+      "stakedEth": 42613696,
+      "aprPct": 2.61
+    },
+    {
+      "date": "2026-09-03",
+      "validators": 905286,
+      "entryQueueEth": 2093340,
+      "entryWaitDays": 36.34,
+      "exitQueueEth": 256,
+      "exitWaitDays": 0,
+      "stakedEth": 42680388,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-09-04",
+      "validators": 905998,
+      "entryQueueEth": 2110424,
+      "entryWaitDays": 36.64,
+      "exitQueueEth": 256,
+      "exitWaitDays": 0,
+      "stakedEth": 42731908,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-09-05",
+      "validators": 906814,
+      "entryQueueEth": 2087651,
+      "entryWaitDays": 36.24,
+      "exitQueueEth": 1984,
+      "exitWaitDays": 0.03,
+      "stakedEth": 42668141,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-09-06",
+      "validators": 907830,
+      "entryQueueEth": 2041024,
+      "entryWaitDays": 35.43,
+      "exitQueueEth": 352,
+      "exitWaitDays": 0.01,
+      "stakedEth": 42796737,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-09-07",
+      "validators": 908538,
+      "entryQueueEth": 1993972,
+      "entryWaitDays": 34.62,
+      "exitQueueEth": 6752,
+      "exitWaitDays": 0.12,
+      "stakedEth": 42856364,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-09-08",
+      "validators": 909660,
+      "entryQueueEth": 1965493,
+      "entryWaitDays": 34.12,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 42892543,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-09-09",
+      "validators": 910085,
+      "entryQueueEth": 1931206,
+      "entryWaitDays": 33.53,
+      "exitQueueEth": 4480,
+      "exitWaitDays": 0.08,
+      "stakedEth": 42952408,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-10",
+      "validators": 909745,
+      "entryQueueEth": 1895282,
+      "entryWaitDays": 32.9,
+      "exitQueueEth": 25270,
+      "exitWaitDays": 0.44,
+      "stakedEth": 42940104,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-11",
+      "validators": 909711,
+      "entryQueueEth": 1881451,
+      "entryWaitDays": 32.66,
+      "exitQueueEth": 2635,
+      "exitWaitDays": 0.05,
+      "stakedEth": 42977207,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-12",
+      "validators": 910493,
+      "entryQueueEth": 1879592,
+      "entryWaitDays": 32.63,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 43070115,
+      "aprPct": 2.58
+    },
+    {
+      "date": "2026-09-13",
+      "validators": 911512,
+      "entryQueueEth": 1835126,
+      "entryWaitDays": 31.86,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 43015663,
+      "aprPct": 2.46
+    },
+    {
+      "date": "2026-09-14",
+      "validators": 911853,
+      "entryQueueEth": 1783270,
+      "entryWaitDays": 30.96,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 43135294,
+      "aprPct": 2.46
+    },
+    {
+      "date": "2026-09-15",
+      "validators": 911478,
+      "entryQueueEth": 1796748,
+      "entryWaitDays": 31.19,
+      "exitQueueEth": 320,
+      "exitWaitDays": 0.01,
+      "stakedEth": 43151863,
+      "aprPct": 2.46
+    },
+    {
+      "date": "2026-09-16",
+      "validators": 911245,
+      "entryQueueEth": 1828449,
+      "entryWaitDays": 31.74,
+      "exitQueueEth": 0,
+      "exitWaitDays": 0,
+      "stakedEth": 43204707,
+      "aprPct": 2.46
+    },
+    {
+      "date": "2026-09-17",
+      "validators": 911045,
+      "entryQueueEth": 1840280,
+      "entryWaitDays": 31.95,
+      "exitQueueEth": 21159,
+      "exitWaitDays": 0.37,
+      "stakedEth": 43248808,
+      "aprPct": 2.46
+    },
+    {
+      "date": "2026-09-18",
+      "validators": 911234,
+      "entryQueueEth": 1852679,
+      "entryWaitDays": 32.16,
+      "exitQueueEth": 38112,
+      "exitWaitDays": 0.66,
+      "stakedEth": 43248504,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-19",
+      "validators": 909658,
+      "entryQueueEth": 1827465,
+      "entryWaitDays": 31.73,
+      "exitQueueEth": 76199,
+      "exitWaitDays": 1.32,
+      "stakedEth": 43194206,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-20",
+      "validators": 908206,
+      "entryQueueEth": 1783417,
+      "entryWaitDays": 30.96,
+      "exitQueueEth": 132832,
+      "exitWaitDays": 2.31,
+      "stakedEth": 43142129,
+      "aprPct": 2.58
+    },
+    {
+      "date": "2026-09-21",
+      "validators": 905770,
+      "entryQueueEth": 1745626,
+      "entryWaitDays": 30.31,
+      "exitQueueEth": 138624,
+      "exitWaitDays": 2.41,
+      "stakedEth": 43201992,
+      "aprPct": 2.58
+    },
+    {
+      "date": "2026-09-22",
+      "validators": 902665,
+      "entryQueueEth": 1733143,
+      "entryWaitDays": 30.09,
+      "exitQueueEth": 144992,
+      "exitWaitDays": 2.52,
+      "stakedEth": 43017763,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-23",
+      "validators": 900862,
+      "entryQueueEth": 1706847,
+      "entryWaitDays": 29.63,
+      "exitQueueEth": 149984,
+      "exitWaitDays": 2.6,
+      "stakedEth": 43150895,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-24",
+      "validators": 899111,
+      "entryQueueEth": 1677082,
+      "entryWaitDays": 29.12,
+      "exitQueueEth": 154144,
+      "exitWaitDays": 2.68,
+      "stakedEth": 43220679,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-25",
+      "validators": 895998,
+      "entryQueueEth": 1685652,
+      "entryWaitDays": 29.26,
+      "exitQueueEth": 158400,
+      "exitWaitDays": 2.75,
+      "stakedEth": 43263572,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-26",
+      "validators": 893907,
+      "entryQueueEth": 1668697,
+      "entryWaitDays": 28.97,
+      "exitQueueEth": 158944,
+      "exitWaitDays": 2.76,
+      "stakedEth": 43298980,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-09-27",
+      "validators": 891429,
+      "entryQueueEth": 1642812,
+      "entryWaitDays": 28.52,
+      "exitQueueEth": 160192,
+      "exitWaitDays": 2.78,
+      "stakedEth": 43379282,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-09-28",
+      "validators": 888821,
+      "entryQueueEth": 1596087,
+      "entryWaitDays": 27.71,
+      "exitQueueEth": 161264,
+      "exitWaitDays": 2.8,
+      "stakedEth": 43556478,
+      "aprPct": 2.58
+    },
+    {
+      "date": "2026-09-29",
+      "validators": 886707,
+      "entryQueueEth": 1602138,
+      "entryWaitDays": 27.81,
+      "exitQueueEth": 166042,
+      "exitWaitDays": 2.88,
+      "stakedEth": 43602127,
+      "aprPct": 2.61
+    },
+    {
+      "date": "2026-09-30",
+      "validators": 884366,
+      "entryQueueEth": 1603958,
+      "entryWaitDays": 27.85,
+      "exitQueueEth": 205011,
+      "exitWaitDays": 3.56,
+      "stakedEth": 43663442,
+      "aprPct": 2.63
+    },
+    {
+      "date": "2026-10-01",
+      "validators": 880414,
+      "entryQueueEth": 1565839,
+      "entryWaitDays": 27.18,
+      "exitQueueEth": 773447,
+      "exitWaitDays": 13.43,
+      "stakedEth": 43668267,
+      "aprPct": 2.64
+    },
+    {
+      "date": "2026-10-02",
+      "validators": 878089,
+      "entryQueueEth": 1576820,
+      "entryWaitDays": 27.38,
+      "exitQueueEth": 850736,
+      "exitWaitDays": 14.77,
+      "stakedEth": 43648886,
+      "aprPct": 2.64
+    },
+    {
+      "date": "2026-10-03",
+      "validators": 873849,
+      "entryQueueEth": 1544764,
+      "entryWaitDays": 26.82,
+      "exitQueueEth": 805497,
+      "exitWaitDays": 13.98,
+      "stakedEth": 43677646,
+      "aprPct": 2.63
+    },
+    {
+      "date": "2026-10-04",
+      "validators": 870913,
+      "entryQueueEth": 1498284,
+      "entryWaitDays": 26.01,
+      "exitQueueEth": 836659,
+      "exitWaitDays": 14.53,
+      "stakedEth": 43670273,
+      "aprPct": 2.63
+    },
+    {
+      "date": "2026-10-05",
+      "validators": 868121,
+      "entryQueueEth": 1457964,
+      "entryWaitDays": 25.31,
+      "exitQueueEth": 786275,
+      "exitWaitDays": 13.65,
+      "stakedEth": 43657647,
+      "aprPct": 2.63
+    },
+    {
+      "date": "2026-10-06",
+      "validators": 864800,
+      "entryQueueEth": 1432630,
+      "entryWaitDays": 24.87,
+      "exitQueueEth": 857082,
+      "exitWaitDays": 14.88,
+      "stakedEth": 43682148,
+      "aprPct": 2.61
+    },
+    {
+      "date": "2026-10-07",
+      "validators": 861596,
+      "entryQueueEth": 1409392,
+      "entryWaitDays": 24.47,
+      "exitQueueEth": 837187,
+      "exitWaitDays": 14.53,
+      "stakedEth": 43675583,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-10-08",
+      "validators": 857234,
+      "entryQueueEth": 1389996,
+      "entryWaitDays": 24.13,
+      "exitQueueEth": 831614,
+      "exitWaitDays": 14.44,
+      "stakedEth": 43688816,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-10-09",
+      "validators": 854419,
+      "entryQueueEth": 1397669,
+      "entryWaitDays": 24.27,
+      "exitQueueEth": 817231,
+      "exitWaitDays": 14.19,
+      "stakedEth": 43655042,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-10-10",
+      "validators": 852649,
+      "entryQueueEth": 1400242,
+      "entryWaitDays": 24.31,
+      "exitQueueEth": 894327,
+      "exitWaitDays": 15.53,
+      "stakedEth": 43679166,
+      "aprPct": 2.6
+    },
+    {
+      "date": "2026-10-11",
+      "validators": 848643,
+      "entryQueueEth": 1340724,
+      "entryWaitDays": 23.28,
+      "exitQueueEth": 933098,
+      "exitWaitDays": 16.2,
+      "stakedEth": 43669573,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-10-12",
+      "validators": 845643,
+      "entryQueueEth": 1298694,
+      "entryWaitDays": 22.55,
+      "exitQueueEth": 876223,
+      "exitWaitDays": 15.21,
+      "stakedEth": 43696533,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-10-13",
+      "validators": 841332,
+      "entryQueueEth": 1248788,
+      "entryWaitDays": 21.68,
+      "exitQueueEth": 980061,
+      "exitWaitDays": 17.01,
+      "stakedEth": 43678703,
+      "aprPct": 2.59
+    },
+    {
+      "date": "2026-10-14",
+      "validators": 838441,
+      "entryQueueEth": 1232018,
+      "entryWaitDays": 21.39,
+      "exitQueueEth": 962338,
+      "exitWaitDays": 16.71,
+      "stakedEth": 43683292,
+      "aprPct": 2.58
+    },
+    {
+      "date": "2026-10-15",
+      "validators": 835919,
+      "entryQueueEth": 1282776,
+      "entryWaitDays": 22.27,
+      "exitQueueEth": 978751,
+      "exitWaitDays": 16.99,
+      "stakedEth": 43673126,
+      "aprPct": 2.58
+    },
+    {
+      "date": "2026-10-16",
+      "validators": 834645,
+      "entryQueueEth": 1292455,
+      "entryWaitDays": 22.44,
+      "exitQueueEth": 1030696,
+      "exitWaitDays": 17.89,
+      "stakedEth": 43618090,
+      "aprPct": 2.58
+    },
+    {
+      "date": "2026-10-17",
+      "validators": 831792,
+      "entryQueueEth": 1291577,
+      "entryWaitDays": 22.42,
+      "exitQueueEth": 965887,
+      "exitWaitDays": 16.77,
+      "stakedEth": 43661577,
+      "aprPct": 2.57
+    },
+    {
+      "date": "2026-10-18",
+      "validators": 829654,
+      "entryQueueEth": 1269887,
+      "entryWaitDays": 22.05,
+      "exitQueueEth": 928024,
+      "exitWaitDays": 16.11,
+      "stakedEth": 43671917,
+      "aprPct": 2.57
+    },
+    {
+      "date": "2026-10-19",
+      "validators": 829823,
+      "entryQueueEth": 1218551,
+      "entryWaitDays": 21.16,
+      "exitQueueEth": 809405,
+      "exitWaitDays": 14.05,
+      "stakedEth": 43691145,
+      "aprPct": 2.56
+    }
+  ]
+}

@@ -52,6 +52,11 @@
   --theme-pizza-empty: #e9e5d8;
   --theme-pizza-empty-stroke: #d2cbb8;
   --theme-pizza-ink: #0e1b1d;
+
+  /* ---- Cost-of-failure charts: Stage 0 vs Stage 1 (validated for CVD on the card surface) ---- */
+  --theme-cost-s0: #c46044;
+  --theme-cost-s1: #3d73b8;
+  --theme-cost-grid: #ebe6d6;
 }
 
 /* =============================================================================
@@ -96,6 +101,11 @@
   --theme-pizza-empty: #16282d;
   --theme-pizza-empty-stroke: #2d4d53;
   --theme-pizza-ink: #e1e9eb;
+
+  /* ---- Cost-of-failure charts ---- */
+  --theme-cost-s0: #dd603c;
+  --theme-cost-s1: #4f8fd6;
+  --theme-cost-grid: #22383d;
 
   /* Re-point surface aliases past obol-ui's scoped --colors-* tokens. */
   --bg-01: var(--theme-surface-page);
