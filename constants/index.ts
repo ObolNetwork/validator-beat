@@ -7,6 +7,7 @@ export const SITE_URL =
 /** Canonical internal routes + external links used across the shared site chrome. */
 export const ASSESS_PATH = "/assess/";
 export const METHODOLOGY_PATH = "/methodology/";
+export const COST_PATH = "/cost-of-failure/";
 export const VALOS_URL = "https://lidofinance.github.io/valos/valos-spec.html";
 export const GITHUB_URL = "https://github.com/ObolNetwork/validator-beat";
 /** Interactive EIP-7716 calculator — how correlated downtime penalties would scale. */

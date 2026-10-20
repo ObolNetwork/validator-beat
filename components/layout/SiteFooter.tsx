@@ -4,6 +4,7 @@ import { TopNavLink, TopSpacer } from "@components/assessment/stitches";
 import {
   ASSESS_PATH,
   GITHUB_URL,
+  COST_PATH,
   METHODOLOGY_PATH,
   VALOS_URL,
 } from "@constants/index";
@@ -52,6 +53,7 @@ export function SiteFooter({ contentWidth = 1140 }: SiteFooterProps) {
           A simple view into validator operations
         </Text>
         <TopSpacer />
+        <TopNavLink href={COST_PATH}>Cost of failure</TopNavLink>
         <TopNavLink href={METHODOLOGY_PATH}>Methodology</TopNavLink>
         <Box
           as="a"

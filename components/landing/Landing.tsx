@@ -15,6 +15,7 @@ import { AskAnAgent } from "@components/agents/AskAnAgent";
 import { assessPrompt } from "@lib/agents/prompts";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
+import { CostTeaser } from "@components/cost/CostTeaser";
 import {
   ASSESS_PATH as ASSESS,
   METHODOLOGY_PATH as METHODOLOGY,
@@ -706,6 +707,7 @@ export function Landing() {
         <LHero />
         <LGap />
         <LFail />
+        <CostTeaser />
         <LRead />
         <LSides />
         <LValos />

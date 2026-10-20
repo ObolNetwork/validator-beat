@@ -10,7 +10,7 @@ import {
 } from "@components/assessment/stitches";
 import { ThemeToggle } from "@components/assessment/ThemeToggle";
 import { IconArrowRight } from "@components/landing/icons";
-import { ASSESS_PATH, METHODOLOGY_PATH, VALOS_URL } from "@constants/index";
+import { ASSESS_PATH, COST_PATH, METHODOLOGY_PATH, VALOS_URL } from "@constants/index";
 
 const bar: CSS = {
   position: "sticky",
@@ -128,6 +128,7 @@ export function SiteHeader({ contentWidth = 1140 }: SiteHeaderProps) {
           <Box as={NextLink} href="/#how" css={navLink}>
             How it works
           </Box>
+          <TopNavLink href={COST_PATH}>Cost of failure</TopNavLink>
           <TopNavLink href={METHODOLOGY_PATH}>Methodology</TopNavLink>
           <Box
             as="a"
