@@ -1,6 +1,6 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import { fmtCompact, fmtEth } from "@lib/cost/format";
-import { GRID, INK_MUTED, S0, S1, SURFACE } from "./styles";
+import { GRID, INK_2, S0, S1, SURFACE } from "./styles";
 
 interface Row {
   key: string;
@@ -53,8 +53,8 @@ export function LogBars({ rows, min = 0.1, max }: { rows: Row[]; min?: number; m
                 left: `${x(t)}%`,
                 top: 3,
                 transform: "translateX(-50%)",
-                fontSize: 10,
-                color: INK_MUTED,
+                fontSize: 11,
+                color: INK_2,
                 fontVariantNumeric: "tabular-nums",
               }}
             >
@@ -63,7 +63,7 @@ export function LogBars({ rows, min = 0.1, max }: { rows: Row[]; min?: number; m
           ))}
         </Box>
       </Box>
-      <Text css={{ fontSize: 10, color: INK_MUTED, marginTop: 2, textAlign: "right" }}>ETH, log scale: each tick is 10×</Text>
+      <Text css={{ fontSize: 11, color: INK_2, marginTop: 2, textAlign: "right" }}>ETH, log scale: each tick is 10×</Text>
     </Box>
   );
 }

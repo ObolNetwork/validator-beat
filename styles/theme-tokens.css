@@ -57,6 +57,8 @@
   --theme-cost-s0: #c46044;
   --theme-cost-s1: #3d73b8;
   --theme-cost-grid: #ebe6d6;
+  /* Brand green darkened for text on the panel band (#edf1e7): 5.5:1 vs 4.49:1. */
+  --theme-cost-link: #256b57;
 }
 
 /* =============================================================================
@@ -106,6 +108,7 @@
   --theme-cost-s0: #dd603c;
   --theme-cost-s1: #4f8fd6;
   --theme-cost-grid: #22383d;
+  --theme-cost-link: #2fe4ab;
 
   /* Re-point surface aliases past obol-ui's scoped --colors-* tokens. */
   --bg-01: var(--theme-surface-page);

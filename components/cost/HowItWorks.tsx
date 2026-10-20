@@ -7,8 +7,8 @@ import { DEFAULT_PARAMS, applyQueuePreset } from "@lib/cost/params";
 import { safetyCase, stage1Compromise } from "@lib/cost/model";
 import { simulate } from "@lib/cost/montecarlo";
 import { SPEC_REFS, SPEC_VERSION } from "@lib/cost/protocol";
-import { DOWNTIME_CALCULATOR_URL } from "@constants/index";
-import { TableView } from "./controls";
+import { TableView, srOnly } from "./controls";
+import { Ref, References } from "./refs";
 import { useWidth } from "./useWidth";
 import { Anchor } from "./Anchor";
 import * as s from "./styles";
@@ -33,13 +33,13 @@ function Spark({ days, field, label }: { days: QueueDay[]; field: "entryQueueEth
         <path d={`${d}L${W},${H}L0,${H}Z`} fill={s.INK_2} opacity={0.1} />
         <path d={d} fill="none" stroke={s.INK_2} strokeWidth={2} strokeLinejoin="round" />
         <circle cx={W} cy={H - (lastV / max) * (H - 6)} r={4} fill={s.INK_2} stroke={s.SURFACE} strokeWidth={2} />
-        <text x={0} y={H + 13} fontSize={11} fill={s.INK_MUTED}>
+        <text x={0} y={H + 13} fontSize={11} fill={s.INK_2}>
           {days[0].date}
         </text>
-        <text x={W} y={H + 13} fontSize={11} fill={s.INK_MUTED} textAnchor="end">
+        <text x={W} y={H + 13} fontSize={11} fill={s.INK_2} textAnchor="end">
           {days[days.length - 1].date}
         </text>
-        <text x={4} y={18} fontSize={11} fill={s.INK_MUTED}>
+        <text x={4} y={18} fontSize={11} fill={s.INK_2}>
           {fmtCompact(max)}
         </text>
       </svg>
@@ -129,7 +129,7 @@ export function HowItWorks() {
   return (
     <Box as="section" css={{ ...s.section, ...s.band }} aria-labelledby="how-calculated">
       <Box css={s.wrap}>
-        <Eyebrow as="p" css={{ margin: "0 0 14px" }}>
+        <Eyebrow as="p" css={{ margin: "0 0 14px", color: s.LINK }}>
           How it&apos;s calculated
         </Eyebrow>
         <Anchor id="how-calculated" css={s.h2}>
@@ -157,7 +157,8 @@ export function HowItWorks() {
           </Card>
         </Box>
         <Text css={{ ...s.small, marginTop: 10, maxWidth: 900 }}>
-          Source: {QUEUE_HISTORY_SOURCE}; head state from a public beacon node, {SNAPSHOT.asOf}. Since Electra,
+          Source: {QUEUE_HISTORY_SOURCE}
+          <Ref k="queues" />; head state from a public beacon node, {SNAPSHOT.asOf}. Since Electra,
           validatorqueue&apos;s exit queue also counts consolidation sources, which drain on their own churn, so its implied
           exit wait overstates the wait for a new exit. Today it implies ~14 days; the head state shows new exits clearing in ~6.5.
         </Text>
@@ -173,10 +174,12 @@ export function HowItWorks() {
               </Text>
               <Text as="dd" css={{ ...s.small, margin: "8px 0 0", fontSize: "$2" }}>
                 {f.body}
+                <Box as="span" css={{ display: "block", marginTop: 10 }}>
+                  <Box as="a" href={SPEC_REFS[f.ref]} target="_blank" rel="noopener noreferrer" css={{ fontSize: "$1", fontWeight: "$semibold", color: s.LINK, fontFamily: "monospace" }}>
+                    {f.refLabel} ↗<Box as="span" css={srOnly}> (spec, opens in a new tab)</Box>
+                  </Box>
+                </Box>
               </Text>
-              <Box as="a" href={SPEC_REFS[f.ref]} target="_blank" rel="noopener noreferrer" css={{ display: "inline-block", marginTop: 10, fontSize: "$1", fontWeight: "$semibold", color: "var(--theme-brand)", fontFamily: "monospace" }}>
-                {f.refLabel} ↗
-              </Box>
             </Card>
           ))}
         </Box>
@@ -189,7 +192,7 @@ export function HowItWorks() {
           still in the 8,192-epoch vector at that moment. When an operator&apos;s whole book is slashed together and has to
           drain through 256 ETH per epoch, validators more than ~53 days back in the queue become withdrawable so late that
           their own slashing has rolled out of the window. They pay the initial penalty and ~2–3 months of missed duties, but
-          not the 3× correlation penalty. This is current behaviour (unchanged in Gloas). A simpler model that charges every
+          not the 3× correlation penalty<Ref k="slashings" />. This is current behaviour (unchanged in Gloas). A simpler model that charges every
           slashed validator the full penalty overstates this worst case by about half.
         </Text>
 
@@ -201,7 +204,7 @@ export function HowItWorks() {
           downtime at 1.5× forgone rewards and charges every slashed validator the full correlation penalty. With the same
           inputs (200K ETH, a 10% operator, 2.61% APR, 90-day average queues), here is how far apart the two land, and why.
         </Text>
-        <TableView summary="Show the comparison">
+        <TableView summary="Show the comparison" label="Comparison with a simpler model, table">
           <table>
             <thead>
               <tr>
@@ -229,12 +232,10 @@ export function HowItWorks() {
         </Anchor>
         <Box as="ul" css={{ ...s.prose, paddingLeft: 20, "& li": { marginTop: 6 } }}>
           <li>
-            <strong>Client bugs and wrong-fork lockouts.</strong> A supermajority client finalising a bad chain is a different
-            mechanism (the inactivity leak drains the trapped side). The{" "}
-            <a href={DOWNTIME_CALCULATOR_URL} target="_blank" rel="noopener noreferrer">
-              downtime calculator
-            </a>{" "}
-            models it.
+            <strong>Client bugs and wrong-fork lockouts, which make these figures an understatement.</strong> If ⅔ or more of
+            stake justifies an invalid chain, as on Holešky in February 2025<Ref k="holesky" />, trapped validators lose
+            most of their balance to the inactivity leak<Ref k="lockout" />. That risk is larger than anything modelled here
+            and isn&apos;t in the totals or the odds. <a href="#wrong-fork-lockout">More above</a>.
           </li>
           <li>
             <strong>Correlation between operators.</strong> Incidents at different operators are independent here. A shared
@@ -252,6 +253,7 @@ export function HowItWorks() {
             not a measurement.
           </li>
         </Box>
+        <References />
         <Text css={{ ...s.small, marginTop: 24 }}>
           Changelog · {SNAPSHOT.asOf}: first version. Network snapshot at epoch {SNAPSHOT.headEpoch.toLocaleString("en-US")};
           spec pinned to Fulu.

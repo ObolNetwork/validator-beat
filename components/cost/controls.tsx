@@ -91,7 +91,7 @@ const resetCss: CSS = {
   cursor: "pointer",
   fontSize: "$1",
   fontWeight: "$semibold",
-  color: "var(--theme-brand)",
+  color: "var(--theme-cost-link)",
   "&:hover": { textDecoration: "underline" },
   "&:focus-visible": { outline: "2px solid var(--theme-brand)", outlineOffset: 2, borderRadius: 3 },
 };
@@ -165,7 +165,7 @@ export function Chips<T extends string>({ label, value, options, onChange, hideL
                 }}
               >
                 {checked && (
-                  <Box as="span" aria-hidden="true" css={{ color: "var(--theme-brand)", marginRight: 5 }}>
+                  <Box as="span" aria-hidden="true" css={{ color: "var(--theme-cost-link)", marginRight: 5 }}>
                     ●
                   </Box>
                 )}
@@ -304,12 +304,25 @@ export function NumberField({ label, value, onChange, min, max, step, suffix, hi
 }
 
 /** "Show as table" disclosure under every chart. */
-export function TableView({ summary = "Show as table", children }: { summary?: string; children: ReactNode }) {
+export function TableView({
+  summary = "Show as table",
+  label,
+  children,
+}: {
+  summary?: string;
+  /** Accessible name for the scrollable table region; must be unique on the page. */
+  label: string;
+  children: ReactNode;
+}) {
   return (
     <Box as="details" css={{ marginTop: 12, "& > summary": { cursor: "pointer", ...ui.hint, fontWeight: "$semibold" } }}>
       <Box as="summary">{summary}</Box>
       <Box
+        role="region"
+        aria-label={label}
+        tabIndex={0}
         css={{
+          "&:focus-visible": { outline: "2px solid var(--theme-cost-link)", outlineOffset: 2 },
           marginTop: 10,
           overflowX: "auto",
           "& table": { borderCollapse: "collapse", fontSize: "$1", fontVariantNumeric: "tabular-nums", minWidth: "100%" },

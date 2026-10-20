@@ -20,6 +20,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://validatorbeat.com/cost-of-failure/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://validatorbeat.com/llms.txt</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
