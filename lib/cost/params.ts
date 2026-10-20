@@ -217,6 +217,64 @@ export function encodeParams(p: CostParams): string {
   return q.toString();
 }
 
+/**
+ * Allowed range per numeric parameter: the same bounds as the page's
+ * controls. Values from a URL are clamped to these, so a crafted link can't
+ * ask the simulation for a billion runs or an impossible network.
+ */
+type NumKey = { [K in keyof CostParams]: CostParams[K] extends number ? K : never }[keyof CostParams];
+export const PARAM_BOUNDS: Record<NumKey, { min: number; max: number; int?: boolean }> = {
+  stakeEth: { min: 32, max: 10_000_000 },
+  operatorSharePct: { min: 0.5, max: 33 },
+  operators: { min: 1, max: 10, int: true },
+  aprPct: { min: 1.5, max: 4.5 },
+  ethUsd: { min: 1, max: 1_000_000 },
+  fee0Pct: { min: 0, max: 5 },
+  fee1Pct: { min: 0, max: 5 },
+  exitQueueEth: { min: 0, max: 5_000_000 },
+  depositQueueEth: { min: 0, max: 4_000_000 },
+  depositInflowEthPerEpoch: { min: 0, max: 400 },
+  partialPct: { min: 5, max: 95 },
+  slashSpreadDays: { min: 0, max: 90 },
+  redepositDelayDays: { min: 0, max: 14 },
+  outageHours: { min: 1, max: 72 },
+  reshareEpochs: { min: 1, max: 30, int: true },
+  s1ResharePct: { min: 0, max: 100 },
+  s1ResidualPct: { min: 0, max: 10 },
+  s1LivenessCoverPct: { min: 0, max: 100 },
+  incidentRatePct: { min: 0, max: 15 },
+  rateUncertainty: { min: 0, max: 1.5 },
+  pSlashPct: { min: 0, max: 100 },
+  betaA: { min: 0.5, max: 10 },
+  betaB: { min: 0.5, max: 10 },
+  outagesPerYear: { min: 0, max: 6 },
+  outageMedianHours: { min: 0.5, max: 48 },
+  years: { min: 1, max: 20, int: true },
+  runs: { min: 1000, max: 20_000, int: true },
+  seed: { min: 0, max: 2 ** 32 - 1, int: true },
+};
+
+/** Clamp every number to its bounds and reset unknown enum or boolean values to defaults. */
+export function sanitizeParams(input: Partial<CostParams>): CostParams {
+  const out: CostParams = { ...DEFAULT_PARAMS };
+  const rec = out as unknown as Record<string, unknown>;
+  (Object.keys(DEFAULT_PARAMS) as Key[]).forEach((k) => {
+    const v = (input as Record<string, unknown>)[k];
+    const def = DEFAULT_PARAMS[k];
+    if (typeof def === "number") {
+      const b = PARAM_BOUNDS[k as NumKey];
+      if (typeof v !== "number" || !Number.isFinite(v)) return;
+      const c = Math.min(b.max, Math.max(b.min, v));
+      rec[k] = b.int ? Math.round(c) : c;
+    } else if (typeof def === "boolean") {
+      if (typeof v === "boolean") rec[k] = v;
+    } else if (typeof v === "string" && ENUMS[k]?.includes(v)) {
+      rec[k] = v;
+    }
+  });
+  return out;
+}
+
 export function decodeParams(search: string): CostParams {
   const q = new URLSearchParams(search);
   const out: CostParams = { ...DEFAULT_PARAMS };
@@ -233,5 +291,5 @@ export function decodeParams(search: string): CostParams {
       (out as unknown as Record<string, unknown>)[k] = raw;
     }
   });
-  return out;
+  return sanitizeParams(out);
 }

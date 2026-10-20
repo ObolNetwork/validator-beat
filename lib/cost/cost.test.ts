@@ -15,7 +15,7 @@ import {
   outageCost,
 } from "./rewards";
 import { correlationPenaltyPerEth, goodLeaver, safetyEvent, type SafetyEventInput } from "./events";
-import { DEFAULT_PARAMS, applyQueuePreset, decodeParams, encodeParams, type CostParams } from "./params";
+import { DEFAULT_PARAMS, applyQueuePreset, decodeParams, encodeParams, sanitizeParams, type CostParams } from "./params";
 import { outcomeCases, safetyCase, stage1Compromise } from "./model";
 import { expectations, simulate } from "./montecarlo";
 
@@ -236,6 +236,20 @@ describe("URL state", () => {
     expect(encodeParams(DEFAULT_PARAMS)).toBe("");
     const p: CostParams = { ...DEFAULT_PARAMS, stakeEth: 5000, eip7716: true, severity: "severe", fee1Pct: 3.75 };
     expect(decodeParams(encodeParams(p))).toEqual(p);
+  });
+
+  it("clamps out-of-range values from a crafted link", () => {
+    const p = decodeParams("n=1000000000&y=100000&k=500&s=-5&seed=1.7&o=99");
+    expect(p.runs).toBe(20_000);
+    expect(p.years).toBe(20);
+    expect(p.operators).toBe(10);
+    expect(p.stakeEth).toBe(32);
+    expect(p.seed).toBe(2);
+    expect(p.operatorSharePct).toBe(33);
+  });
+
+  it("defaults sit inside their own bounds", () => {
+    expect(sanitizeParams(DEFAULT_PARAMS)).toEqual(DEFAULT_PARAMS);
   });
 
   it("ignores junk", () => {
