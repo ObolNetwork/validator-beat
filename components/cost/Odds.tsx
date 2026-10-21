@@ -379,7 +379,7 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
       <Box
         role="grid"
         aria-label={view === "chance" ? "Chance the solo-operator setup is still ahead, by incident rate and years" : "Average outcome, by incident rate and years"}
-        css={{ display: "grid", gridTemplateColumns: `40px repeat(${yearCols.length}, minmax(0, 1fr))`, gap: 2 }}
+        css={{ display: "grid", gridTemplateColumns: `88px repeat(${yearCols.length}, minmax(0, 1fr))`, gap: 2 }}
         onMouseLeave={() => setHover(null)}
       >
         <Box />
@@ -392,7 +392,16 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
           const ri = hm.rates.indexOf(r);
           return (
             <Box key={r} role="row" css={{ display: "contents" }}>
-              <Text css={{ fontSize: 11, color: s.INK_2, alignSelf: "center", textAlign: "right", paddingRight: 4 }}>{r}%</Text>
+              <Text
+                role="rowheader"
+                css={{ fontSize: 11, lineHeight: 1.15, color: s.INK_2, alignSelf: "center", textAlign: "right", paddingRight: 6, whiteSpace: "nowrap" }}
+                aria-label={`${r}% a year, about one incident every ${fmtYearsBetween(r)}`}
+              >
+                <Box as="span" css={{ fontWeight: r === nearestRate ? "$bold" : "$regular", color: r === nearestRate ? "$body" : undefined }}>
+                  {r}%
+                </Box>{" "}
+                <Box as="span" css={{ fontSize: 10 }}>· 1 in {Math.round(100 / r)}y</Box>
+              </Text>
               {yearCols.map((y) => {
                 const v = value(ri, y);
                 const mine = r === nearestRate && y === nearestYear;
@@ -444,6 +453,11 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
         </Text>
       </Box>
       <Text css={{ ...s.small, marginTop: 8 }}>
+        Each row is an incident rate per operator: 4% a year means about one security incident every 25 years at each
+        operator. The rows at 2% and below assume every operator goes 50 years or more without one, which is a lot of
+        luck to bank on.
+      </Text>
+      <Text css={{ ...s.small, marginTop: 8 }}>
         {view === "chance" ? (
           <>
             &ldquo;Ahead&rdquo; is not &ldquo;better on average&rdquo;: the solo-operator setup wins most runs by a little and loses
@@ -460,7 +474,7 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
         <table>
           <thead>
             <tr>
-              <th>Rate / yr</th>
+              <th>Incidents per operator a year</th>
               {yearCols.map((y) => (
                 <th key={y}>{y}y</th>
               ))}
@@ -469,7 +483,9 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
           <tbody>
             {hm.rates.map((r, ri) => (
               <tr key={r}>
-                <td>{r}%</td>
+                <td>
+                  {r}% (1 in {Math.round(100 / r)} years)
+                </td>
                 {yearCols.map((y) => (
                   <td key={y}>
                     {view === "chance"
@@ -541,7 +557,7 @@ export function AheadMap({
       </Box>
       <Box>
         <Text css={{ ...s.small }}>
-          Rows: key incidents per operator per year. Columns: years held, 1 to {HEATMAP_YEARS}, from{" "}
+          Rows: key incidents per operator per year, and how often that is. Columns: years held, 1 to {HEATMAP_YEARS}, from{" "}
           {HEATMAP_RUNS.toLocaleString("en-US")} simulated runs per row. Your rate and your {p.years}-year setting are outlined.
         </Text>
         {heatmap ? <HeatGrid hm={heatmap} rate={p.incidentRatePct} years={p.years} view={p.heatView} /> : <Placeholder />}

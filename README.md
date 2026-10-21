@@ -57,9 +57,13 @@ https://validatorbeat.com/GGGRGG/?n=Ethereum%20Foundation's%20cluster
   [![Validator Beat: Stage 1](https://validatorbeat.com/badge/GYYGGY.svg)](https://validatorbeat.com/GYYGGY/)
   ```
 
+## What it costs
+
+[validatorbeat.com/cost-of-failure](https://validatorbeat.com/cost-of-failure/) asks whether it's worth paying your operators to run your validators together. It compares the same operators running your stake separately (Stage 0) with running it as one multi-operator distributed validator (Stage 1): expected losses, the extra cost, and the break-even, framed as "do you expect each operator to go N years without a security incident?". The model follows the consensus spec and current queues, lives in [`lib/cost/`](./lib/cost), and every assumption is a URL parameter.
+
 ## Private by construction
 
-There is no backend. The site is a static export on GitHub Pages; scoring runs in your browser and nothing is submitted, stored, or tracked. Every one of the 1,296 possible results is a pre-built page. AI agents can run the same assessment from [`skill.md`](https://validatorbeat.com/skill.md) and [`llms.txt`](https://validatorbeat.com/llms.txt), both generated from the rubric so they can't drift.
+There is no backend. The site is a static export on GitHub Pages; scoring runs in your browser and nothing is submitted, stored, or tracked. Every one of the 1,296 possible results is a pre-built page. AI agents can run the same assessment, and price the risk with the cost-of-failure model, from [`skill.md`](https://validatorbeat.com/skill.md), [`llms.txt`](https://validatorbeat.com/llms.txt) and [`llms-full.txt`](https://validatorbeat.com/llms-full.txt), all generated from the code so they can't drift.
 
 ## Improve the rubric
 
@@ -74,7 +78,7 @@ Requires **Node.js 24+** (see [`.nvmrc`](./.nvmrc)).
 ```bash
 yarn install
 yarn dev        # http://localhost:3000
-yarn test       # rubric unit tests
+yarn test       # rubric, cost model and agent-doc tests
 yarn build      # OG images + badges + agent files → static export in out/
 ```
 

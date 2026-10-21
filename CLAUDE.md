@@ -50,6 +50,18 @@ Banding thresholds (⅓ / ⅔) map to the threshold-signing math: DV clusters ty
 - **`pages/[code].tsx`** statically generates **one share page per valid code** (`allShareCodes()`, currently 1,296) at build time. Each share URL like `/GYYGGY` rehydrates the assessment to that result in "guest" mode (big owner name from `?n=`, "Take it yourself & compare" CTA). `?vs=CODE&vn=Name` adds a head-to-head (`components/assessment/Compare.tsx`); `lib/share/share-url.ts` owns all query parsing/building.
 - **`scripts/generate-og-images.ts`** runs *before* `next build` (see `package.json` `build` script) and pre-renders an OG preview PNG into `public/og/` and a README badge SVG into `public/badge/` for every code. Both must stay in sync with `allShareCodes`.
 
+### Cost of failure (`/cost-of-failure/`)
+
+A second tool on the site: is it worth paying your operators to run your validators together? It compares the same operators running a stake **separately** (solo-operator setup, Stage 0) with running it **together** as a multi-operator distributed validator (Stage 1). Default: 200,000 ETH across 4 operators, each 10% of the network.
+
+- **`lib/cost/`** is the model: pure TypeScript, no UI imports, Jest-tested (`cost.test.ts`). Works in epochs and ETH, pinned to the Fulu spec (`protocol.ts`, with `SPEC_REFS` links). `events.ts` simulates exits, slashing (initial + correlation penalty at withdrawable − 4096, including deep-queue validators escaping their own correlation), sweep and re-entry; `rewards.ts` outages, flag penalties, inactivity leak and opt-in EIP-7716; `model.ts` turns `CostParams` into per-incident cases; `montecarlo.ts` is the seeded simulation, heatmap and analytic expectations; `summary.ts` the headline numbers at the defaults.
+- **Modelling rules that must survive edits:** a solo operator's incident hits only its slice (stake ÷ operators) but can slash it; a multi-operator DV's incident touches the whole stake but is a reshare or consolidation unless the attacker reaches the threshold (`s1ResidualPct`); a DV's outage loss is `(1 − s1LivenessCoverPct)` × the same solo outage, on the same stake. Wrong-fork lockouts are cited, not added to totals.
+- **`lib/cost/params.ts`** is the page state: every parameter, its default, bounds (`PARAM_BOUNDS`), URL key (`URL_KEYS`), meaning (`PARAM_DOCS`). URLs carry only non-default values; `decodeParams` clamps everything (a crafted link can't freeze the simulation). Adding a parameter means adding it to all four.
+- **`lib/cost/labels.ts`** holds the setup names; **`methodology.ts`** the formula copy and **`references.ts`** the citations, shared by the page and `llms-full.txt`.
+- **`data/network/`** is a hand-refreshed mainnet snapshot (head state, pending deposits/consolidations, price) plus 90 days of validatorqueue.com history. Refresh both together and update `snapshot.json`'s `asOf`.
+- **`components/cost/`** is the page. Basic view (default, `?v=advanced` for the rest) shows Setup, Results (analytic, instant), the heatmap and the lockout caveat; the Monte Carlo runs in a Web Worker (`simulation.worker.ts`). Chart colours are `--theme-cost-s0/s1` (validated for colour-blind separation in both themes).
+- **Agent docs:** `lib/agents/files.ts` generates the cost section of `llms-full.txt`, the `llms.txt` line and the `skill.md` pricing section from the model, so their numbers match the page. `lib/share/cost-og-svg.ts` draws the OG card (its own 1M ETH scenario). Tests in `lib/agents/agents.test.ts` fail if they drift.
+
 ### Hard constraints from the static-export setup
 
 - `next.config.js` sets `output: "export"` — **no API routes, no `getServerSideProps`, no runtime image optimization** (`images.unoptimized: true`). All data must be derivable at build time or in the browser.
@@ -66,7 +78,7 @@ Banding thresholds (⅓ / ⅔) map to the threshold-signing math: DV clusters ty
 | Command | What it does |
 |---|---|
 | `yarn dev` | Next dev server on :3000 |
-| `yarn test` | Jest (jsdom) — primarily `lib/rubric/*.test.ts` |
+| `yarn test` | Jest (jsdom): `lib/rubric`, `lib/cost` (the cost-of-failure model) and `lib/agents` |
 | `yarn test -t "not sure"` | Run a single test by name |
 | `yarn lint` | `next lint` (lints `pages`, `components`, `lib`, `constants`, `scripts`) |
 | `yarn tsc --noEmit` | Type-check only (also runs via husky pre-commit on staged files) |

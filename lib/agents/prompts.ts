@@ -41,3 +41,14 @@ export function resultPrompt(code: string): string {
     "My setup: [validators, execution and consensus clients, hosting providers and regions, signer / key setup].",
   ].join("\n");
 }
+
+/** Prompt for a visitor's own AI assistant to run the cost-of-failure numbers with them. */
+export function costPrompt(): string {
+  return [
+    `Read the "Cost of failure" section of ${BASE}/llms-full.txt, then help me decide whether to pay my operators to run my validators together as a multi-operator distributed validator (Stage 1) instead of separately (Stage 0).`,
+    "",
+    `Ask me for anything missing below, then build me a pre-filled ${BASE}/cost-of-failure/ link with my numbers, and tell me: my expected loss a year each way, the extra cost, the break-even as "one incident every N years per operator", and what a worst-case incident would cost me. Remind me the figures are a floor: wrong-fork lockouts aren't included.`,
+    "",
+    "My setup: [stake in ETH, how many operators, roughly how big each is (% of all staked ETH), fees I pay now and fees quoted for a multi-operator DV].",
+  ].join("\n");
+}

@@ -20,6 +20,8 @@ import { AdvancedCTA } from "./AdvancedCTA";
 import { Assumptions } from "./Assumptions";
 import { HowItWorks } from "./HowItWorks";
 import { References } from "./refs";
+import { AskAnAgent } from "@components/agents/AskAnAgent";
+import { costPrompt } from "@lib/agents/prompts";
 import * as s from "./styles";
 
 /** Sections that only exist in the Advanced view; a link to one switches views. */
@@ -144,6 +146,12 @@ export function CostOfFailure() {
                 Assess your validator →
               </Box>
             </Box>
+            <AskAnAgent
+              prompt={costPrompt()}
+              title="Prefer to ask your AI?"
+              lede="Paste this into ChatGPT, Claude, or any assistant that can read a URL. It will ask for your numbers and build you a pre-filled link."
+              css={{ marginTop: 28 }}
+            />
             <References />
           </Box>
         </Box>
