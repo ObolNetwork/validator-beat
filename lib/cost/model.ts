@@ -73,8 +73,13 @@ function replacement(p: CostParams, stakeEth: number) {
   return { good: goodLeaver(input), bad: badLeaver(input) };
 }
 
-/** Blend Stage 1's two responses into one expected result (for display). */
-export function stage1Compromise(p: CostParams, stakeEth = stakePerOperator(p)): { result: EventResult; good: EventResult; bad: EventResult } {
+/**
+ * Blend Stage 1's two responses into one expected result (for display).
+ * In a multi-operator DV every validator has a key share at every operator,
+ * so a compromise at any one of them touches the whole stake (but can't
+ * slash it): the default stake is all of it, not one operator's slice.
+ */
+export function stage1Compromise(p: CostParams, stakeEth = p.stakeEth): { result: EventResult; good: EventResult; bad: EventResult } {
   const { good, bad } = replacement(p, stakeEth);
   const w = p.s1ResharePct / 100;
   const mix = (a: number, b: number) => w * a + (1 - w) * b;
@@ -140,12 +145,19 @@ function scaled(r: EventResult, k: number): EventResult {
 }
 
 /**
- * One incident at one of your operators, for each outcome. Costs are for the
- * stake you hold with that operator (all of it on a 1-way split).
+ * One incident at one of your operators, for each outcome.
+ *
+ * Stage 0 (solo operators): the incident hits the slice that operator runs
+ * alone (all of your stake on a 1-way split), and that slice can be slashed.
+ * Stage 1 (multi-operator DV): the same operators run every validator
+ * together, so the incident touches the whole stake but is handled by
+ * replacing one key-holder; only if the attacker also reaches a signing
+ * threshold (the residual) is the whole stake exposed to slashing.
  */
 export function outcomeCases(p: CostParams): OutcomeCase[] {
   const res = p.s1ResidualPct / 100;
   const s1 = stage1Compromise(p).result;
+  const scale = p.stakeEth / stakePerOperator(p);
   const make = (id: FocusEvent, label: string, f: number): OutcomeCase => {
     const s0 = safetyCase(p, f);
     return {
@@ -154,11 +166,15 @@ export function outcomeCases(p: CostParams): OutcomeCase[] {
       slashedFraction: f,
       stage0: s0,
       stage1: s1,
-      stage1ExpectedEth: (1 - res) * s1.breakdown.totalEth + res * s0.breakdown.totalEth,
+      stage1ExpectedEth: (1 - res) * s1.breakdown.totalEth + res * s0.breakdown.totalEth * scale,
     };
   };
   const out0 = outageEvent(p);
-  const cover = p.s1LivenessCoverPct / 100;
+  // One operator down can't stop a threshold cluster; the outages a DV doesn't
+  // ride through are correlated ones (shared cloud, client), which would hit
+  // solo operators just as hard. So the DV loses (1 − cover) of what the same
+  // outage costs a solo operator, on the same stake.
+  const out1 = scaled(out0, 1 - p.s1LivenessCoverPct / 100);
   return [
     make("lucky", "Caught in time", 0),
     make("partial", "Partial slashing", p.partialPct / 100),
@@ -168,8 +184,8 @@ export function outcomeCases(p: CostParams): OutcomeCase[] {
       label: `${p.outageHours} h outage`,
       slashedFraction: 0,
       stage0: out0,
-      stage1: scaled(out0, 1 - cover),
-      stage1ExpectedEth: (1 - cover) * out0.breakdown.totalEth,
+      stage1: out1,
+      stage1ExpectedEth: out1.breakdown.totalEth,
     },
   ];
 }

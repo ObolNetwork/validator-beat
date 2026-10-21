@@ -6,7 +6,7 @@ import type { Economics, OutcomeCase } from "@lib/cost/model";
 import type { CostParams, FocusEvent } from "@lib/cost/params";
 import { TableView } from "./controls";
 import { Anchor } from "./Anchor";
-import { Lockout } from "./Lockout";
+import { SETUP } from "@lib/cost/labels";
 import * as s from "./styles";
 
 export const COMPONENTS: { key: keyof LossBreakdown; label: string }[] = [
@@ -33,11 +33,11 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
           Lucky, partial or total
         </Eyebrow>
         <Anchor id="outcomes" css={s.h2}>
-          A key compromise has three endings. Only one is cheap.
+          A key compromise has three endings. Only one is &ldquo;cheap&rdquo;.
         </Anchor>
         <Text as="p" css={s.prose}>
-          If the leak is caught first, the operator exits everything and pays only in lost rewards while the queues
-          clear. If not, the attacker slashes, and stolen keys gain leverage the more of them are used at once: the{" "}
+          If the leak is caught first, the operator exits everything and pays only in weeks or months of lost rewards while
+          going through the exit process and the activation queue. If not, the attacker slashes, and stolen keys gain leverage the more of them are used at once: the{" "}
           <strong>correlation penalty</strong> is three times the share of the network slashed in the same window. So
           when slashings happen they tend to be big, and the operator&apos;s total share of the network matters far
           more than your slice of it. Probabilities are per incident, under the assumptions in{" "}
@@ -88,11 +88,11 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
                 <Box>
                   <Text css={{ ...s.small, fontWeight: "$semibold" }}>
                     <Box as="span" css={s.swatch(s.S0)} />
-                    Stage 0
+                    {SETUP.s0.short}
                   </Text>
                   <Text css={{ ...s.statValue, fontSize: 26, marginTop: 4 }}>{fmtEth(b.totalEth)}</Text>
                   <Text css={s.small}>
-                    {fmtUsd(b.totalEth * p.ethUsd)} · {fmtYears(b.totalEth / Math.max(econ.premiumPerYearEth, 1e-9))} of premium
+                    {fmtUsd(b.totalEth * p.ethUsd)} · {fmtYears(b.totalEth / Math.max(econ.premiumPerYearEth, 1e-9))} of the DV fee
                   </Text>
                 </Box>
                 <Box as="ul" css={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 7 }}>
@@ -124,7 +124,7 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
                 <Box css={{ borderTop: "1px solid $bg05", paddingTop: 12, marginTop: "auto" }}>
                   <Text css={{ ...s.small, fontWeight: "$semibold" }}>
                     <Box as="span" css={s.swatch(s.S1)} />
-                    Stage 1
+                    {SETUP.s1.short}
                   </Text>
                   <Text css={{ ...s.statValue, fontSize: 22, marginTop: 4 }}>{fmtEth(s1)}</Text>
                   <Text css={s.small}>{c.id === "outage" ? "Expected, after coverage" : "Replace one key-holder"}</Text>
@@ -175,7 +175,7 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
               ))}
               <tr>
                 <td>
-                  <strong>Stage 0 total</strong>
+                  <strong>Solo-operator total</strong>
                 </td>
                 {cases.map((c) => (
                   <td key={c.id}>
@@ -184,19 +184,19 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
                 ))}
               </tr>
               <tr>
-                <td>Stage 1 (usual path / expected)</td>
+                <td>DV (usual path / expected)</td>
                 {cases.map((c) => (
                   <td key={c.id}>{fmtEth(c.id === "outage" ? c.stage1ExpectedEth : c.stage1.breakdown.totalEth, { unit: false })}</td>
                 ))}
               </tr>
               <tr>
-                <td>Stage 1 incl. residual threshold risk</td>
+                <td>DV incl. residual threshold risk</td>
                 {cases.map((c) => (
                   <td key={c.id}>{fmtEth(c.stage1ExpectedEth, { unit: false })}</td>
                 ))}
               </tr>
               <tr>
-                <td>Days not earning (Stage 0)</td>
+                <td>Days not earning (solo operators)</td>
                 {cases.map((c) => (
                   <td key={c.id}>{c.stage0.unpaidDays.toFixed(1)}</td>
                 ))}
@@ -204,8 +204,6 @@ export function Outcomes({ params: p, cases, econ, probabilities, onFocus }: Pro
             </tbody>
           </table>
         </TableView>
-
-        <Lockout />
       </Box>
     </Box>
   );

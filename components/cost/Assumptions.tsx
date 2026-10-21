@@ -193,7 +193,7 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
     const rows: (string | number)[][] = [
       ["Validator Beat cost of failure", `snapshot ${SNAPSHOT.asOf}`, window.location.href],
       [],
-      ["Outcome", ...COMPONENTS.map((c) => c.label), "Stage 0 total ETH", "Stage 1 ETH", "Stage 1 expected ETH", "Days not earning"],
+      ["Outcome", ...COMPONENTS.map((c) => c.label), "Solo-operator total ETH", "DV ETH", "DV expected ETH", "Days not earning"],
       ...cases.map((c) => [
         c.label,
         ...COMPONENTS.map((k) => c.stage0.breakdown[k.key].toFixed(4)),
@@ -204,7 +204,7 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
       ]),
     ];
     if (mc) {
-      rows.push([], ["Year", "P(Stage 0 ahead)", "Mean ETH", "P5", "P25", "Median", "P75", "P95"]);
+      rows.push([], ["Year", "P(solo operators ahead)", "Mean ETH", "P5", "P25", "Median", "P75", "P95"]);
       mc.years.forEach((y) => rows.push([y.year, y.pStage0Ahead, y.mean, y.p5, y.p25, y.p50, y.p75, y.p95].map((v) => (typeof v === "number" ? +v.toFixed(4) : v))));
     }
     rows.push([], ["Parameter", "Value"], ...Object.entries(p).map(([k, v]) => [k, String(v)]));
@@ -386,7 +386,7 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
 
           <Group
             id={GROUP_IDS.stage1}
-            title="Stage 1"
+            title="Multi-operator DV (Stage 1)"
             summary={`${p.reshareEpochs}-epoch reshare · ${p.s1ResharePct}% reshare, ${100 - p.s1ResharePct}% consolidate · ${p.s1ResidualPct}% still reach a threshold · rides through ${p.s1LivenessCoverPct}% of outages`}
             keys={GROUPS.stage1}
             params={p}
@@ -425,10 +425,10 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
               format={(v) => `${v}%`}
               defaultValue={DEFAULT_PARAMS.s1ResidualPct}
               onChange={(v) => update({ s1ResidualPct: v })}
-              hint="Stage 1 means no single failure can slash you. Two at once still can."
+              hint="A multi-operator DV means no single failure can slash you. Two at once still can."
             />
             <Slider
-              label="Outages a Stage 1 cluster rides through"
+              label="Outages a DV cluster rides through"
               value={p.s1LivenessCoverPct}
               min={0}
               max={100}
@@ -436,7 +436,7 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
               format={(v) => `${v}%`}
               defaultValue={DEFAULT_PARAMS.s1LivenessCoverPct}
               onChange={(v) => update({ s1LivenessCoverPct: v })}
-              hint="Most outages hit one node or one provider and leave a threshold online. Stage 2 is what removes the rest."
+              hint="The share of a solo operator's outage losses a DV avoids. One operator going down can't stop a threshold cluster; what's left are correlated failures, like a shared cloud or client. Stage 2 removes those too."
             />
           </Group>
 

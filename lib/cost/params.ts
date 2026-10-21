@@ -66,6 +66,8 @@ export interface CostParams {
   seed: number;
   /** Heatmap shows the chance Stage 0 is ahead, or the average outcome. */
   heatView: "chance" | "average";
+  /** Basic shows the answer; Advanced shows the model and every assumption. */
+  view: "basic" | "advanced";
 }
 
 export const FREQUENCY_PRESETS: Record<FrequencyId, { label: string; hint: string; incidentRatePct: number }> = {
@@ -91,7 +93,7 @@ export const SEVERITY_PRESETS: Record<
 export const DEFAULT_PARAMS: CostParams = {
   stakeEth: 200_000,
   operatorSharePct: 10,
-  operators: 1,
+  operators: 4,
   aprPct: SNAPSHOT.aprPct,
   ethUsd: SNAPSHOT.ethUsd,
   fee0Pct: 2,
@@ -130,6 +132,7 @@ export const DEFAULT_PARAMS: CostParams = {
   runs: 5000,
   seed: 7716,
   heatView: "chance",
+  view: "basic",
 };
 
 export function networkFromParams(p: CostParams): NetworkState {
@@ -196,6 +199,7 @@ const URL_KEYS: Record<Key, string> = {
   runs: "n",
   seed: "seed",
   heatView: "hv",
+  view: "v",
 };
 
 const ENUMS: Partial<Record<Key, readonly string[]>> = {
@@ -204,6 +208,7 @@ const ENUMS: Partial<Record<Key, readonly string[]>> = {
   frequency: ["rare", "central", "frequent", "custom"],
   severity: ["contained", "central", "severe", "custom"],
   heatView: ["chance", "average"],
+  view: ["basic", "advanced"],
 };
 
 /** Only parameters that differ from the defaults go in the URL. */

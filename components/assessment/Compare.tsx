@@ -47,7 +47,7 @@ export function CompareCard({ left, right }: CompareCardProps) {
               <Text css={{ fontSize: "$3", fontWeight: "$bold", color: "$body", marginTop: 6, textAlign: "center", overflowWrap: "anywhere" }}>
                 {side.label}
               </Text>
-              <Text css={{ fontSize: "$2", fontWeight: "$bold", color: risk[STAGE_META[stage].tone] }}>
+              <Text css={{ fontSize: "$2", fontWeight: "$bold", color: risk[`${STAGE_META[stage].tone}Text` as const] }}>
                 {STAGE_META[stage].name}
               </Text>
             </Box>

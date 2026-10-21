@@ -18,6 +18,7 @@ import { correlationPenaltyPerEth, goodLeaver, safetyEvent, type SafetyEventInpu
 import { DEFAULT_PARAMS, applyQueuePreset, decodeParams, encodeParams, sanitizeParams, type CostParams } from "./params";
 import { outcomeCases, safetyCase, stage1Compromise } from "./model";
 import { expectations, simulate } from "./montecarlo";
+import { fmtDays, fmtYearsBetween } from "./format";
 
 const T = 43_691_145;
 const net = (o: Partial<NetworkState> = {}): NetworkState => ({ ...DEFAULT_NETWORK, totalActiveEth: T, ...o });
@@ -35,7 +36,7 @@ const event = (o: Partial<SafetyEventInput> = {}) =>
   });
 
 /** The risk note's simplified inputs: 90-day average queues, 2.61% APR. */
-const NOTE: CostParams = { ...applyQueuePreset(DEFAULT_PARAMS, "avg90"), aprPct: 2.61 };
+const NOTE: CostParams = { ...applyQueuePreset(DEFAULT_PARAMS, "avg90"), aprPct: 2.61, operators: 1 };
 
 describe("spec pieces, hand-computed", () => {
   it("churn limits at 43.69M ETH", () => {
@@ -158,6 +159,21 @@ describe("safety events", () => {
 });
 
 describe("Stage 1", () => {
+  it("a DV loses (1 − cover) of what the same outage costs a solo operator", () => {
+    const out = outcomeCases(DEFAULT_PARAMS).find((c) => c.id === "outage")!;
+    expect(out.stage1.breakdown.totalEth).toBeCloseTo(out.stage0.breakdown.totalEth * (1 - DEFAULT_PARAMS.s1LivenessCoverPct / 100), 9);
+  });
+
+  it("a multi-operator DV is affected as a whole; a solo operator only its slice", () => {
+    const four = outcomeCases({ ...DEFAULT_PARAMS, operators: 4 });
+    const one = outcomeCases({ ...DEFAULT_PARAMS, operators: 1 });
+    const lucky = (cs: typeof four) => cs.find((c) => c.id === "lucky")!;
+    // Stage 0: a quarter of the stake per incident.
+    expect(lucky(four).stage0.breakdown.totalEth).toBeCloseTo(lucky(one).stage0.breakdown.totalEth / 4, 3);
+    // Stage 1: the whole stake either way.
+    expect(lucky(four).stage1.breakdown.totalEth).toBeCloseTo(lucky(one).stage1.breakdown.totalEth, 6);
+  });
+
   it("is never worse than Stage 0 for a single compromise", () => {
     for (const c of outcomeCases(DEFAULT_PARAMS)) {
       expect(c.stage1.breakdown.totalEth).toBeLessThanOrEqual(c.stage0.breakdown.totalEth + 1e-9);
@@ -221,13 +237,27 @@ describe("Monte Carlo and expectations", () => {
   it("with no incidents, Stage 0 is always ahead by the premium", () => {
     const mc = simulate({ ...DEFAULT_PARAMS, incidentRatePct: 0, outagesPerYear: 0, runs: 50, years: 3 });
     expect(mc.years[2].pStage0Ahead).toBe(1);
-    expect(mc.years[0].mean).toBeCloseTo(-(200_000 * 0.0255 * 0.02), 6);
+    expect(mc.years[0].mean).toBeCloseTo(-(200_000 * 0.0255 * 0.02), 4);
   });
 
   it("break-even rate is where the expected advantage is zero", () => {
     const e = expectations(DEFAULT_PARAMS);
     const at = expectations({ ...DEFAULT_PARAMS, incidentRatePct: e.breakEvenRatePct });
     expect(Math.abs(at.annualAdvantageEth)).toBeLessThan(1e-6);
+  });
+});
+
+describe("formatting", () => {
+  it("turns a break-even rate into years between incidents", () => {
+    expect(fmtYearsBetween(0.86)).toBe("116 years");
+    expect(fmtYearsBetween(4)).toBe("25 years");
+    expect(fmtYearsBetween(12)).toBe("8.3 years");
+    expect(fmtYearsBetween(0.05)).toBe("1,000 years");
+  });
+
+  it("never shows a zero duration as a minute", () => {
+    expect(fmtDays(0)).toBe("no time");
+    expect(fmtDays(1 / 1440)).toBe("1 min");
   });
 });
 

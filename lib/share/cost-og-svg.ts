@@ -38,7 +38,7 @@ function waffle(x0: number, y0: number, loss: number, stake: number, color: stri
 
 /**
  * OG card for /cost-of-failure: the headline loss at the page's defaults,
- * Stage 0 vs Stage 1 as to-scale waffles. Rendered to
+ * solo operators (Stage 0) vs a multi-operator DV (Stage 1) as to-scale waffles. Rendered to
  * public/og/cost-of-failure.png at build time.
  */
 export function costOgSvg(displayHost: string = "validatorbeat.com"): string {
@@ -54,16 +54,16 @@ export function costOgSvg(displayHost: string = "validatorbeat.com"): string {
   <text x="64" y="176" font-family="${FONT}" font-size="19" font-weight="600" fill="${OG_ACCENT}" letter-spacing="0.12em">THE COST OF ONE FAILURE</text>
   <text x="64" y="250" font-family="${FONT}" font-size="62" font-weight="700" fill="${OG_HEAD}">One leaked key.</text>
   <text x="64" y="324" font-family="${FONT}" font-size="62" font-weight="700" fill="${S0}">${escapeXml(fmtEth(loss0))}</text>
-  <text x="64" y="380" font-family="${FONT}" font-size="25" fill="${OG_SUB}">${p.operatorSharePct}% operator, every key slashed, ${escapeXml(fmtEth(p.stakeEth))}.</text>
-  <text x="64" y="418" font-family="${FONT}" font-size="25" fill="${OG_SUB}">At Stage 1: <tspan fill="${OG_HEAD}" font-weight="700">about ${escapeXml(fmtEth(loss1))}</tspan>.</text>
-  <text x="64" y="456" font-family="${FONT}" font-size="25" fill="${OG_SUB}">${escapeXml(`= ${Math.round(premiumYears)} years of a ${p.fee0Pct}% → ${p.fee1Pct}% fee premium.`)}</text>
+  <text x="64" y="380" font-family="${FONT}" font-size="25" fill="${OG_SUB}">${escapeXml(fmtEth(p.stakeEth))} across ${p.operators} solo operators; one is slashed.</text>
+  <text x="64" y="418" font-family="${FONT}" font-size="25" fill="${OG_SUB}">Run together as a DV: <tspan fill="${OG_HEAD}" font-weight="700">about ${escapeXml(fmtEth(loss1))}</tspan>.</text>
+  <text x="64" y="456" font-family="${FONT}" font-size="25" fill="${OG_SUB}">${escapeXml(`= ${Math.round(premiumYears)} years of paying ${p.fee1Pct}% instead of ${p.fee0Pct}%.`)}</text>
   ${ogPulse(500)}
   ${ogCta("Run the numbers for your stake →", 568)}
   <rect x="${gx}" y="170" width="14" height="4" rx="2" fill="${S0}"/>
-  <text x="${gx + 22}" y="177" font-family="${FONT}" font-size="20" font-weight="700" fill="${OG_LABEL}" letter-spacing="0.06em">STAGE 0 · ${escapeXml(fmtEth(loss0))}</text>
+  <text x="${gx + 22}" y="177" font-family="${FONT}" font-size="20" font-weight="700" fill="${OG_LABEL}" letter-spacing="0.06em">SOLO OPERATORS · ${escapeXml(fmtEth(loss0))}</text>
   ${waffle(gx, 192, loss0, p.stakeEth, S0)}
   <rect x="${gx}" y="370" width="14" height="4" rx="2" fill="${S1}"/>
-  <text x="${gx + 22}" y="377" font-family="${FONT}" font-size="20" font-weight="700" fill="${OG_LABEL}" letter-spacing="0.06em">STAGE 1 · ${escapeXml(fmtEth(loss1))}</text>
+  <text x="${gx + 22}" y="377" font-family="${FONT}" font-size="20" font-weight="700" fill="${OG_LABEL}" letter-spacing="0.06em">MULTI-OPERATOR DV · ${escapeXml(fmtEth(loss1))}</text>
   ${waffle(gx, 392, loss1, p.stakeEth, S1)}
   <text x="${gx}" y="566" font-family="${FONT}" font-size="19" fill="${OG_LABEL}">Each square: ${escapeXml(fmtEth(p.stakeEth / (COLS * ROWS)))}. To scale.</text>`);
 }

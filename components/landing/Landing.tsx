@@ -430,10 +430,10 @@ function LFail() {
         </Box>
         <Box css={s.cards2}>
           <Card as="article" css={s.cardPad}>
-            <Box css={{ ...s.failIcon, backgroundColor: risk.redT, color: risk.red }}>
+            <Box css={{ ...s.failIcon, backgroundColor: risk.redT, color: risk.redText }}>
               <IconSafety size={24} />
             </Box>
-            <Text css={{ fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.05em", color: risk.red, marginBottom: 6 }}>
+            <Text css={{ fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.05em", color: risk.redText, marginBottom: 6 }}>
               Safety failure · slashing
             </Text>
             <Text as="h3" css={s.h3}>It signs something it never should have.</Text>
@@ -443,10 +443,10 @@ function LFail() {
             </Text>
           </Card>
           <Card as="article" css={s.cardPad}>
-            <Box css={{ ...s.failIcon, backgroundColor: risk.yellowT, color: risk.yellow }}>
+            <Box css={{ ...s.failIcon, backgroundColor: risk.yellowT, color: risk.yellowText }}>
               <IconLiveness size={24} />
             </Box>
-            <Text css={{ fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.05em", color: risk.yellow, marginBottom: 6 }}>
+            <Text css={{ fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.05em", color: risk.yellowText, marginBottom: 6 }}>
               Liveness failure · downtime
             </Text>
             <Text as="h3" css={s.h3}>It goes offline and misses its duties.</Text>
@@ -491,7 +491,7 @@ function LRead() {
                     <Text css={{ fontSize: "$4", fontWeight: "$bold", color: "$body" }}>
                       {name} — {kind}
                     </Text>
-                    <Text css={{ fontSize: "$2", fontWeight: "$bold", color: risk[tone] }}>
+                    <Text css={{ fontSize: "$2", fontWeight: "$bold", color: risk[`${tone}Text` as const] }}>
                       {STAGE_META[n].tagline}
                     </Text>
                   </Box>
@@ -508,9 +508,9 @@ function LRead() {
             <Pizza answers={READ_SAMPLE} size={300} showCenter={false} glowOpacity={0.26} />
             <Text css={{ fontSize: "$2", color: "$textMiddle", textAlign: "center" }}>
               Each slice scored{" "}
-              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.green }}>green</Text>,{" "}
-              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.yellow }}>yellow</Text>, or{" "}
-              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.red }}>red</Text>
+              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.greenText }}>green</Text>,{" "}
+              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.yellowText }}>yellow</Text>, or{" "}
+              <Text as="span" css={{ display: "inline", fontWeight: "$bold", color: risk.redText }}>red</Text>
             </Text>
           </Box>
           <Box css={s.sliceGrid}>

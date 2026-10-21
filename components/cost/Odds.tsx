@@ -1,20 +1,12 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import { useMemo, useState } from "react";
 import { Card, Eyebrow } from "@components/assessment/stitches";
-import { fmtCompact, fmtEth, fmtPct, fmtYears } from "@lib/cost/format";
-import { betaShape, expectations, type Heatmap, type MonteCarloResult } from "@lib/cost/montecarlo";
-import {
-  DEFAULT_PARAMS,
-  FREQUENCY_PRESETS,
-  SEVERITY_PRESETS,
-  applyFrequency,
-  applySeverity,
-  type CostParams,
-  type FrequencyId,
-  type SeverityId,
-} from "@lib/cost/params";
+import { fmtCompact, fmtEth, fmtPct, fmtYears, fmtYearsBetween } from "@lib/cost/format";
+import { HEATMAP_RUNS, HEATMAP_YEARS, betaShape, expectations, type Heatmap, type MonteCarloResult } from "@lib/cost/montecarlo";
+import { DEFAULT_PARAMS, type CostParams } from "@lib/cost/params";
 import type { Economics } from "@lib/cost/model";
 import { Chips, Slider, TableView } from "./controls";
+import { SETUP } from "@lib/cost/labels";
 import { useWidth } from "./useWidth";
 import { niceTicks } from "./ticks";
 import { Anchor } from "./Anchor";
@@ -22,16 +14,12 @@ import * as s from "./styles";
 
 interface Props {
   params: CostParams;
-  update: (patch: Partial<CostParams>) => void;
-  replace: (fn: (p: CostParams) => CostParams) => void;
   mc: MonteCarloResult | null;
-  heatmap: Heatmap | null;
   running: boolean;
   econ: Economics;
-  probabilities: { lucky: number; partial: number; full: number };
 }
 
-export function Odds({ params: p, update, replace, mc, heatmap, running, econ, probabilities }: Props) {
+export function Odds({ params: p, mc, running, econ }: Props) {
   const exp = useMemo(() => expectations(p), [p]);
   const last = mc?.years[mc.years.length - 1];
   const unit = mc?.netRewardsPerYear0 ?? econ.rewardsPerYearEth;
@@ -43,99 +31,14 @@ export function Odds({ params: p, update, replace, mc, heatmap, running, econ, p
           The odds over time
         </Eyebrow>
         <Anchor id="odds" css={s.h2}>
-          Most years you overpay. The year you don&apos;t pays for decades.
+          How the odds play out, year by year
         </Anchor>
         <Text as="p" css={s.prose}>
-          Incidents are rare and their size is uncertain, so the honest answer is a distribution. We simulate{" "}
-          {p.runs.toLocaleString("en-US")} runs of {p.years} years: the same operators at Stage 0 and at Stage 1 (paying the
-          higher fee), hit by the same incidents. Pick how often bad things happen and how bad bad is, then refine with the
-          sliders.
+          The results above use averages. Incidents are rare and vary in size, so here are {p.runs.toLocaleString("en-US")}{" "}
+          simulated runs over your {p.years}-year setting instead: the same operators as a {SETUP.s0.name.toLowerCase()} and as a multi-operator DV
+          paying the higher fee, hit by the same incidents. Change the scenario in Setup. (The heatmap above runs its own
+          simulations at every incident rate, out to {HEATMAP_YEARS} years.)
         </Text>
-
-        <Box
-          css={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: 16,
-            marginTop: 30,
-            "@media (max-width: 860px)": { gridTemplateColumns: "minmax(0, 1fr)" },
-          }}
-        >
-          <Card css={{ ...s.cardPad, padding: 22, display: "flex", flexDirection: "column", gap: 18 }}>
-            <Chips
-              label="How often a key is compromised"
-              value={p.frequency}
-              options={(Object.keys(FREQUENCY_PRESETS) as FrequencyId[]).map((id) => ({ id, ...FREQUENCY_PRESETS[id] }))}
-              onChange={(id) => replace((q) => applyFrequency(q, id))}
-            />
-            <Slider
-              label="Incidents per operator per year"
-              value={p.incidentRatePct}
-              min={0}
-              max={15}
-              step={0.5}
-              format={(v) => `${v}%`}
-              defaultValue={DEFAULT_PARAMS.incidentRatePct}
-              onChange={(v) => update({ incidentRatePct: v, frequency: "custom" })}
-              hint="Base rate: ~8 public key or operator incidents across ~50 major operators since April 2023 (~4–5% a year). Thin data: treat it as a prior."
-            />
-            <Slider
-              label="Uncertainty in that rate"
-              value={p.rateUncertainty}
-              min={0}
-              max={1.5}
-              step={0.1}
-              format={(v) => (v === 0 ? "none" : `±${Math.round(v * 100)}%`)}
-              defaultValue={DEFAULT_PARAMS.rateUncertainty}
-              onChange={(v) => update({ rateUncertainty: v })}
-              hint="Each run draws its own rate (Gamma distribution with this coefficient of variation)."
-            />
-          </Card>
-
-          <Card css={{ ...s.cardPad, padding: 22, display: "flex", flexDirection: "column", gap: 18 }}>
-            <Chips
-              label="How bad bad is"
-              value={p.severity}
-              options={(Object.keys(SEVERITY_PRESETS) as SeverityId[]).map((id) => ({ id, ...SEVERITY_PRESETS[id] }))}
-              onChange={(id) => replace((q) => applySeverity(q, id))}
-            />
-            <Slider
-              label="Incidents that end in slashing"
-              value={p.pSlashPct}
-              min={0}
-              max={100}
-              step={5}
-              format={(v) => `${v}%`}
-              defaultValue={DEFAULT_PARAMS.pSlashPct}
-              onChange={(v) => update({ pSlashPct: v, severity: "custom" })}
-            />
-            <SeverityShape params={p} update={update} probabilities={probabilities} />
-          </Card>
-        </Box>
-
-        <Box css={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16, marginTop: 16, "@media (max-width: 860px)": { gridTemplateColumns: "minmax(0, 1fr)" } }}>
-          <Slider
-            label="Years"
-            value={p.years}
-            min={1}
-            max={20}
-            step={1}
-            format={(v) => `${v}`}
-            defaultValue={DEFAULT_PARAMS.years}
-            onChange={(v) => update({ years: v })}
-          />
-          <Slider
-            label="Split your stake across"
-            value={p.operators}
-            min={1}
-            max={10}
-            step={1}
-            format={(v) => (v === 1 ? "1 operator" : `${v} operators`)}
-            defaultValue={DEFAULT_PARAMS.operators}
-            onChange={(v) => update({ operators: v })}
-            hint="Each with the operator share above. Splitting averages the pain but multiplies the chances; Stage 1 removes it."
-          />
-        </Box>
 
         {/* Headline stats */}
         <Box
@@ -153,65 +56,48 @@ export function Odds({ params: p, update, replace, mc, heatmap, running, econ, p
         >
           <Stat
             value={last ? fmtPct(last.pStage0Ahead) : "…"}
-            label={`of runs where Stage 0 is still ahead after ${p.years} years: no incident, or one small enough that the fees saved cover it`}
+            label={`of runs where the solo-operator setup is still ahead after ${p.years} years: no incident, or one small enough that the fees saved cover it`}
           />
           <Stat
             value={last ? signed(last.mean) : "…"}
-            label={last ? `Average outcome for Stage 1, ${signedYears(last.mean / unit)} of Stage 0 rewards` : "Average outcome"}
+            label={last ? `Average outcome for the multi-operator DV: ${signedYears(last.mean / unit)} of rewards` : "Average outcome"}
           />
           <Stat
             value={last ? signed(last.p95) : "…"}
-            label="The 1-in-20 run: what Stage 1 saved when things went wrong"
+            label="The 1-in-20 run: what the multi-operator DV saved when things went wrong"
           />
           <Stat
             value={Number.isFinite(exp.breakEvenRatePct) ? `${exp.breakEvenRatePct.toFixed(exp.breakEvenRatePct < 1 ? 2 : 1)}%` : "never"}
-            label={`Break-even incident rate per operator-year. Stage 1 pays for itself on average above it (you chose ${p.incidentRatePct}%).`}
+            label={
+              Number.isFinite(exp.breakEvenRatePct) && exp.breakEvenRatePct > 0
+                ? `Break-even incident rate per operator-year: one incident every ${fmtYearsBetween(Number(exp.breakEvenRatePct.toFixed(exp.breakEvenRatePct < 1 ? 2 : 1)))}. Above it, the multi-operator DV pays for itself on average (you chose ${p.incidentRatePct}%).`
+                : `Break-even incident rate per operator-year (you chose ${p.incidentRatePct}%).`
+            }
           />
         </Box>
 
-        <Box css={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 1fr)", gap: 16, marginTop: 16, "@media (max-width: 900px)": { gridTemplateColumns: "minmax(0, 1fr)" } }}>
-          <Card css={{ ...s.cardPad, padding: 22 }}>
-            <Anchor as="h3" id="fan-chart" css={s.h3}>
-              Stage 1 minus Stage 0, by year
-            </Anchor>
-            <Text css={{ ...s.small, marginTop: 4 }}>
-              ETH. Above zero, Stage 1 is ahead. The median hugs the premium; the mean is pulled up by the runs where Stage 0
-              was slashed.
-            </Text>
-            {mc ? <Fan mc={mc} /> : <Placeholder />}
-          </Card>
-          <Card css={{ ...s.cardPad, padding: 22 }}>
-            <Anchor as="h3" id="ahead-heatmap" css={s.h3}>
-              {p.heatView === "chance" ? "Chance Stage 0 is still ahead" : "Who comes out ahead on average"}
-            </Anchor>
-            <Chips
-              label="Heatmap view"
-              hideLabel
-              size="sm"
-              value={p.heatView}
-              options={[
-                { id: "chance", label: "Chance of being ahead" },
-                { id: "average", label: "Average outcome" },
-              ]}
-              onChange={(heatView) => update({ heatView })}
-              css={{ marginTop: 10 }}
-            />
-            <Text css={{ ...s.small, marginTop: 8 }}>By incident rate (rows) and years held (columns). Your settings are outlined.</Text>
-            {heatmap ? <HeatGrid hm={heatmap} rate={p.incidentRatePct} years={p.years} view={p.heatView} /> : <Placeholder />}
-          </Card>
-        </Box>
+        <Card css={{ ...s.cardPad, padding: 22, marginTop: 16 }}>
+          <Anchor as="h3" id="fan-chart" css={s.h3}>
+            Multi-operator DV minus solo operators, by year
+          </Anchor>
+          <Text css={{ ...s.small, marginTop: 4 }}>
+            ETH. Above zero, the multi-operator DV is ahead. The median sits near the extra fee paid; the mean is pulled up by
+            the runs where a solo operator was slashed.
+          </Text>
+          {mc ? <Fan mc={mc} /> : <Placeholder />}
+        </Card>
 
         <Text as="p" css={{ ...s.prose, maxWidth: 900 }}>
-          Expected loss per incident at one operator: <strong>{fmtEth(exp.perIncident0Eth)}</strong> on Stage 0 vs{" "}
-          <strong>{fmtEth(exp.perIncident1Eth)}</strong> on Stage 1 (including a {p.s1ResidualPct}% chance the attacker
-          reaches a threshold anyway). Outages add about {fmtEth(exp.outage0PerYearEth)} a year on Stage 0 and{" "}
-          {fmtEth(exp.outage1PerYearEth)} on Stage 1. The premium is {fmtEth(econ.premiumPerYearEth)} a year.
+          Expected loss per incident at one operator: <strong>{fmtEth(exp.perIncident0Eth)}</strong> with solo operators vs{" "}
+          <strong>{fmtEth(exp.perIncident1Eth)}</strong> DV (including a {p.s1ResidualPct}% chance the attacker reaches a
+          signing threshold anyway). Outages add about {fmtEth(exp.outage0PerYearEth)} a year with solo operators and{" "}
+          {fmtEth(exp.outage1PerYearEth)} DV. The multi-operator DV&apos;s extra fee is {fmtEth(econ.premiumPerYearEth)} a year.
           {mc && (
             <>
               {" "}
               Across the runs: {mc.incidents.lucky.toLocaleString("en-US")} incidents caught in time,{" "}
               {mc.incidents.partial.toLocaleString("en-US")} partial slashings and {mc.incidents.full.toLocaleString("en-US")}{" "}
-              near-total ones. Worst Stage 0 run lost {fmtEth(mc.worstStage0LossEth)}.
+              near-total ones. The worst solo-operator run lost {fmtEth(mc.worstStage0LossEth)}.
             </>
           )}
         </Text>
@@ -244,7 +130,7 @@ function Placeholder() {
   );
 }
 
-function SeverityShape({
+export function SeverityShape({
   params: p,
   update,
   probabilities,
@@ -285,6 +171,7 @@ function SeverityShape({
           step={0.5}
           defaultValue={DEFAULT_PARAMS.betaA}
           onChange={(v) => update({ betaA: v, severity: "custom" })}
+          hint="Higher pushes slashings towards all of the operator's keys. Stolen keys gain leverage when used together, so attackers tend to slash many at once."
         />
         <Slider
           label="Skew to small (b)"
@@ -294,6 +181,7 @@ function SeverityShape({
           step={0.5}
           defaultValue={DEFAULT_PARAMS.betaB}
           onChange={(v) => update({ betaB: v, severity: "custom" })}
+          hint="Higher pushes slashings towards a few keys. Together with the one on the left, this sets a Beta(a, b) distribution for the share slashed."
         />
       </Box>
       <Text css={{ ...s.small, marginTop: 8 }}>
@@ -385,10 +273,10 @@ function Fan({ mc }: { mc: MonteCarloResult }) {
           ) : null,
         )}
         <text x={m.l + 6} y={m.t + 12} fontSize={11} fill={s.INK_2}>
-          ↑ Stage 1 ahead
+          ↑ DV ahead
         </text>
         <text x={m.l + 6} y={m.t + ih - 6} fontSize={11} fill={s.INK_2}>
-          ↓ Stage 0 ahead
+          ↓ Solo operators ahead
         </text>
         {hover !== null && <line x1={x(hover)} x2={x(hover)} y1={m.t} y2={m.t + ih} stroke={s.INK_MUTED} pointerEvents="none" />}
       </svg>
@@ -412,15 +300,15 @@ function Fan({ mc }: { mc: MonteCarloResult }) {
           <Text css={s.small}>
             5–95%: {signed(hy.p5)} to {signed(hy.p95)}
           </Text>
-          <Text css={s.small}>Stage 0 ahead in {fmtPct(hy.pStage0Ahead)}</Text>
+          <Text css={s.small}>Solo operators ahead in {fmtPct(hy.pStage0Ahead)}</Text>
         </Box>
       )}
-      <TableView label="Stage 1 minus Stage 0 by year, table">
+      <TableView label="DV minus solo operators by year, table">
         <table>
           <thead>
             <tr>
               <th>Year</th>
-              <th>P(Stage 0 ahead)</th>
+              <th>P(solo operators ahead)</th>
               <th>Mean</th>
               <th>5%</th>
               <th>25%</th>
@@ -473,7 +361,7 @@ function averageColor(years: number): string {
 
 function fmtAvg(years: number): string {
   if (Math.abs(years) < 0.05) return "about even";
-  return `${years > 0 ? "Stage 1" : "Stage 0"} ahead by ${fmtYears(Math.abs(years))}`;
+  return `${years > 0 ? "DV" : "solo operators"} ahead by ${fmtYears(Math.abs(years))}`;
 }
 
 export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number; years: number; view: HeatView }) {
@@ -484,13 +372,13 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
   const nearestYear = nearest(yearCols, years);
   const value = (ri: number, y: number) => (view === "chance" ? hm.cells[ri][y - 1] : hm.meanYears[ri][y - 1]);
   const color = (v: number) => (view === "chance" ? chanceColor(v) : averageColor(v));
-  const describe = (v: number) => (view === "chance" ? `Stage 0 ahead in ${fmtPct(v)} of runs` : `${fmtAvg(v)} of rewards on average`);
+  const describe = (v: number) => (view === "chance" ? `solo operators ahead in ${fmtPct(v)} of runs` : `${fmtAvg(v)} of rewards on average`);
 
   return (
     <Box css={{ marginTop: 14 }}>
       <Box
         role="grid"
-        aria-label={view === "chance" ? "Chance Stage 0 is still ahead, by incident rate and years" : "Average outcome, by incident rate and years"}
+        aria-label={view === "chance" ? "Chance the solo-operator setup is still ahead, by incident rate and years" : "Average outcome, by incident rate and years"}
         css={{ display: "grid", gridTemplateColumns: `40px repeat(${yearCols.length}, minmax(0, 1fr))`, gap: 2 }}
         onMouseLeave={() => setHover(null)}
       >
@@ -533,14 +421,14 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
       <Box css={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 10, gap: 10, flexWrap: "wrap" }}>
         {view === "chance" ? (
           <Box css={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Text css={{ fontSize: 11, color: s.INK_2 }}>Stage 1 usually ahead</Text>
+            <Text css={{ fontSize: 11, color: s.INK_2 }}>DV usually ahead</Text>
             {[0, 0.25, 0.5, 0.75, 1].map((v) => (
               <Box key={v} css={{ width: 16, height: 10, borderRadius: 2, backgroundColor: chanceColor(v) }} />
             ))}
-            <Text css={{ fontSize: 11, color: s.INK_2 }}>Stage 0 usually ahead</Text>
+            <Text css={{ fontSize: 11, color: s.INK_2 }}>Solo operators usually ahead</Text>
           </Box>
         ) : (
-          <Box css={{ display: "flex", alignItems: "flex-start", gap: 3 }} aria-label="Legend: years of Stage 0 rewards">
+          <Box css={{ display: "flex", alignItems: "flex-start", gap: 3 }} aria-label="Legend: years of rewards, DV minus solo operators">
             {[-4, -1, -0.25, -0.05, 0, 0.05, 0.25, 1, 4].map((v) => (
               <Box key={v} css={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: 30 }}>
                 <Box css={{ width: 26, height: 10, borderRadius: 2, backgroundColor: averageColor(v) }} />
@@ -558,17 +446,17 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
       <Text css={{ ...s.small, marginTop: 8 }}>
         {view === "chance" ? (
           <>
-            &ldquo;Ahead&rdquo; is not &ldquo;better on average&rdquo;: Stage 0 wins most runs by a little and loses a few by a lot.
-            Switch to the average to see it.
+            &ldquo;Ahead&rdquo; is not &ldquo;better on average&rdquo;: the solo-operator setup wins most runs by a little and loses
+            a few by a lot. Switch to the average to see it.
           </>
         ) : (
           <>
-            Average of Stage 1 minus Stage 0, in years of Stage 0 rewards. Blue: Stage 1 comes out ahead on average, even where
-            Stage 0 wins most individual runs.
+            Average of DV minus solo operators, in years of rewards. Blue: the multi-operator DV comes out ahead on average, even where the
+            solo-operator setup wins most individual runs.
           </>
         )}
       </Text>
-      <TableView label={view === "chance" ? "Chance Stage 0 is ahead, table" : "Average outcome, table"}>
+      <TableView label={view === "chance" ? "Chance solo operators are ahead, table" : "Average outcome, table"}>
         <table>
           <thead>
             <tr>
@@ -595,5 +483,69 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
         </table>
       </TableView>
     </Box>
+  );
+}
+
+/** The heatmap card on its own: shown in both views, right after Results. */
+export function AheadMap({
+  params: p,
+  update,
+  heatmap,
+}: {
+  params: CostParams;
+  update: (patch: Partial<CostParams>) => void;
+  heatmap: Heatmap | null;
+}) {
+  return (
+    <Card
+      as="section"
+      aria-labelledby="ahead-heatmap"
+      css={{
+        ...s.cardPad,
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 0.8fr) minmax(0, 1.2fr)",
+        gap: 28,
+        "@media (max-width: 900px)": { gridTemplateColumns: "minmax(0, 1fr)" },
+      }}
+    >
+      <Box>
+        <Anchor as="h2" id="ahead-heatmap" css={{ ...s.h3, fontSize: 22 }}>
+          {p.heatView === "chance" ? "How often the solo setup still comes out ahead" : "Who comes out ahead on average"}
+        </Anchor>
+        <Text as="p" css={{ ...s.prose, fontSize: "$2", marginTop: 10 }}>
+          {p.heatView === "chance" ? (
+            <>
+              Each cell is the share of simulated runs where the {SETUP.s0.name.toLowerCase()} is still ahead: no incident yet,
+              or only small ones its lower fees have covered. With {Math.max(1, Math.round(p.operators))} separate operators there
+              are that many chances of an incident each year, so the odds fall quickly.
+            </>
+          ) : (
+            <>
+              Each cell is the average result, in years of rewards. Blue means the multi-operator DV comes out ahead on
+              average, even where the solo setup wins most individual runs: when it loses, it loses a lot.
+            </>
+          )}
+        </Text>
+        <Chips
+          label="Heatmap view"
+          hideLabel
+          size="sm"
+          value={p.heatView}
+          options={[
+            { id: "chance", label: "Chance of being ahead" },
+            { id: "average", label: "Average outcome" },
+          ]}
+          onChange={(heatView) => update({ heatView })}
+          css={{ marginTop: 14, maxWidth: 360 }}
+        />
+      </Box>
+      <Box>
+        <Text css={{ ...s.small }}>
+          Rows: key incidents per operator per year. Columns: years held, 1 to {HEATMAP_YEARS}, from{" "}
+          {HEATMAP_RUNS.toLocaleString("en-US")} simulated runs per row. Your rate and your {p.years}-year setting are outlined.
+        </Text>
+        {heatmap ? <HeatGrid hm={heatmap} rate={p.incidentRatePct} years={p.years} view={p.heatView} /> : <Placeholder />}
+      </Box>
+    </Card>
   );
 }

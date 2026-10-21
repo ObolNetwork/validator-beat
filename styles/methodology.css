@@ -36,7 +36,7 @@
   font-size: 18px;
   font-weight: 700;
   margin: 28px 0 12px;
-  color: var(--vb-green);
+  color: var(--vb-green-text);
 }
 
 .vb-methodology__main h3 {
@@ -87,14 +87,14 @@
 .vb-anchor:hover .vb-anchor__link,
 .vb-anchor__link:focus-visible {
   opacity: 1;
-  color: var(--vb-green);
+  color: var(--vb-green-text);
 }
 
 .vb-anchor__copied {
   margin-left: 10px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--vb-green);
+  color: var(--vb-green-text);
 }
 
 .vb-methodology__main [id] {
@@ -118,7 +118,7 @@
 }
 
 .vb-stage-row__mechanic {
-  color: var(--fg-3);
+  color: var(--fg-2);
 }
 
 /* Highlighted rule-of-thumb callout. */

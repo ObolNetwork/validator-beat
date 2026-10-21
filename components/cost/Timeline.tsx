@@ -5,7 +5,7 @@ import { fmtCompact, fmtDays, fmtEth } from "@lib/cost/format";
 import type { EventResult, TracePoint } from "@lib/cost/events";
 import type { OutcomeCase } from "@lib/cost/model";
 import type { CostParams } from "@lib/cost/params";
-import { describeCase } from "./Hero";
+import { describeCase } from "./Incident";
 import { TableView } from "./controls";
 import { useWidth } from "./useWidth";
 import { niceTicks } from "./ticks";
@@ -81,20 +81,26 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
           Where the ETH goes
         </Anchor>
         <Text as="p" css={s.prose}>
-          {describeCase(p)} The line is your cumulative loss against a validator that kept earning. Exits drain at{" "}
-          <strong>256 ETH per epoch</strong>, so a large operator&apos;s whole book takes {fmtDays(s0.drainDays)} to leave, and
-          the re-deposits then queue again on the way back in.
+          {describeCase(p)} The line is your cumulative loss against a validator that kept earning.{" "}
+          {c.id === "outage" ? (
+            <>Nothing exits in an outage: the loss stops when the operator is back online.</>
+          ) : (
+            <>
+              Exits drain at <strong>256 ETH per epoch</strong>, so the operator&apos;s whole book takes{" "}
+              {fmtDays(s0.drainDays)} to leave, and the re-deposits then queue again on the way back in.
+            </>
+          )}
         </Text>
 
         <Card css={{ ...s.cardPad, marginTop: 28 }}>
           <Box css={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 6 }}>
             <Text css={s.small}>
               <Box as="span" css={s.swatch(s.S0)} />
-              Stage 0: {fmtEth(s0.breakdown.totalEth)}
+              Solo operators: {fmtEth(s0.breakdown.totalEth)}
             </Text>
             <Text css={s.small}>
               <Box as="span" css={s.swatch(s.S1)} />
-              Stage 1: {fmtEth(s1.breakdown.totalEth)}
+              DV: {fmtEth(s1.breakdown.totalEth)}
               {s1.breakdown.totalEth < yMax / 50 && " (flat at this scale)"}
             </Text>
           </Box>
@@ -103,7 +109,7 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
               width={W}
               height={H}
               role="img"
-              aria-label={`Cumulative loss over ${fmtDays(horizon)}: Stage 0 reaches ${fmtEth(s0.breakdown.totalEth)}, Stage 1 ${fmtEth(s1.breakdown.totalEth)}.`}
+              aria-label={`Cumulative loss over ${fmtDays(horizon)}: solo operators reach ${fmtEth(s0.breakdown.totalEth)}, DV ${fmtEth(s1.breakdown.totalEth)}.`}
               onMouseMove={(e) => {
                 const r = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
                 const d = ((e.clientX - r.left - m.l) / iw) * horizon;
@@ -180,11 +186,11 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
                 </Text>
                 <Text css={s.small}>
                   <Box as="span" css={s.swatch(s.S0)} />
-                  Stage 0: {fmtEth(at(s0.trace, hoverDay))}
+                  Solo operators: {fmtEth(at(s0.trace, hoverDay))}
                 </Text>
                 <Text css={s.small}>
                   <Box as="span" css={s.swatch(s.S1)} />
-                  Stage 1: {fmtEth(at(s1.trace, hoverDay))}
+                  DV: {fmtEth(at(s1.trace, hoverDay))}
                 </Text>
                 <Text css={{ ...s.small, marginTop: 3 }}>
                   {phases.find((ph) => hoverDay >= ph.startDays && hoverDay < ph.endDays)?.label ?? ""}
@@ -193,8 +199,8 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
             )}
           </Box>
 
-          {/* Phase lanes: what your stake is doing, Stage 0 */}
-          <Box css={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 6 }} aria-label="Phases, Stage 0">
+          {/* Phase lanes: what your stake is doing on the solo-operator setup */}
+          <Box css={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 6 }} aria-label="Phases, solo-operator setup">
             {phases.map((ph) => (
               <Box key={ph.id} css={{ position: "relative", height: 22 }}>
                 <Box
@@ -237,8 +243,8 @@ export function Timeline({ params: p, focusCase: c }: { params: CostParams; focu
               <thead>
                 <tr>
                   <th>{hoursMode ? "Hour" : "Day"}</th>
-                  <th>Stage 0 loss (ETH)</th>
-                  <th>Stage 1 loss (ETH)</th>
+                  <th>Solo-operator loss (ETH)</th>
+                  <th>DV loss (ETH)</th>
                 </tr>
               </thead>
               <tbody>
