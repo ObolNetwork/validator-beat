@@ -8,7 +8,7 @@ import { safetyCase, stage1Compromise } from "@lib/cost/model";
 import { simulate } from "@lib/cost/montecarlo";
 import { SPEC_REFS, SPEC_VERSION } from "@lib/cost/protocol";
 import { TableView, srOnly } from "./controls";
-import { Ref, References } from "./refs";
+import { Ref } from "./refs";
 import { useWidth } from "./useWidth";
 import { Anchor } from "./Anchor";
 import * as s from "./styles";
@@ -92,7 +92,7 @@ const FORMULAS: { title: string; body: string; ref: keyof typeof SPEC_REFS; refL
     refLabel: "process_pending_deposits",
   },
   {
-    title: "Consolidation (Stage 1 bad leaver)",
+    title: "Consolidation (DV bad leaver)",
     body: "Sources drain at the consolidation churn (balance churn − 256, ~410 ETH per epoch) and keep earning while they wait. They then earn nothing for the 256-epoch withdrawability delay before the balance lands on the new cluster. New 0x02 targets need a 32 ETH seed through the entry queue.",
     ref: "pendingConsolidations",
     refLabel: "process_pending_consolidations",
@@ -120,8 +120,8 @@ export function HowItWorks() {
       { label: "Attacker slashes 25% of the operator", note: "~5,137 ETH", got: fmtEth(safetyCase(note, 0.25).breakdown.totalEth), why: "Lower: see the correlation-window note below." },
       { label: "Attacker slashes 50%", note: "~16,674 ETH", got: fmtEth(safetyCase(note, 0.5).breakdown.totalEth), why: "" },
       { label: "Attacker slashes 100%", note: "~62,249 ETH", got: fmtEth(safetyCase(note, 1).breakdown.totalEth), why: "Validators deep in an ~80-day exit queue escape their own correlation penalty." },
-      { label: "Stage 1 bad leaver (consolidation)", note: "~16 ETH", got: fmtEth(stage1Compromise(note).bad.breakdown.totalEth), why: "Higher: adds the 32 ETH seed deposits for new targets." },
-      { label: "Stage 1 good leaver (reshare)", note: "<1 ETH", got: fmtEth(stage1Compromise(note).good.breakdown.totalEth), why: "" },
+      { label: "DV bad leaver (consolidation)", note: "~16 ETH", got: fmtEth(stage1Compromise(note).bad.breakdown.totalEth), why: "Higher: adds the 32 ETH seed deposits for new targets." },
+      { label: "DV good leaver (reshare)", note: "<1 ETH", got: fmtEth(stage1Compromise(note).good.breakdown.totalEth), why: "" },
       { label: "Monte Carlo: solo runs ahead after 10 years", note: "81%", got: `${Math.round(y.pStage0Ahead * 100)}%`, why: "4%/yr, half slash 10–100% (uniform), 3.25% premium." },
     ];
   }, []);
@@ -239,7 +239,8 @@ export function HowItWorks() {
           </li>
           <li>
             <strong>Correlation between operators.</strong> Incidents at different operators are independent here. A shared
-            dependency would make splitting less effective.
+            dependency (a shared cloud, client or signer) would make splitting even less effective, since one
+            failure could hit several of your operators at once.
           </li>
           <li>
             <strong>Feedback on the network.</strong> Total stake, base rewards and APR stay fixed while an operator exits.
@@ -253,7 +254,6 @@ export function HowItWorks() {
             not a measurement.
           </li>
         </Box>
-        <References />
         <Text css={{ ...s.small, marginTop: 24 }}>
           Changelog · {SNAPSHOT.asOf}: first version. Network snapshot at epoch {SNAPSHOT.headEpoch.toLocaleString("en-US")};
           spec pinned to Fulu.

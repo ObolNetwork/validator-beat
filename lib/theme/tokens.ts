@@ -4,7 +4,7 @@
  */
 import type { SliceColor } from "@lib/rubric/types";
 
-export const THEME_BRAND = "#2c7a64";
+export const THEME_BRAND = "#256b57";
 
 export const PIZZA_FILL: Record<SliceColor, string> = {
   green: "#3a9e80",

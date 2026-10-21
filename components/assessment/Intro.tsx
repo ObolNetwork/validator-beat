@@ -30,7 +30,7 @@ export function Intro({ onStart, compare }: IntroProps) {
           <HeroEyebrow>Head to head</HeroEyebrow>
           <HeroLine css={{ marginTop: 4 }}>
             <b>{compare.name}</b> is{" "}
-            <b style={{ color: risk[STAGE_META[compare.stage].tone] }}>
+            <b style={{ color: risk[`${STAGE_META[compare.stage].tone}Text` as const] }}>
               {STAGE_META[compare.stage].name}
             </b>
             . Answer for your own setup and see how you compare, slice by slice.
@@ -43,9 +43,9 @@ export function Intro({ onStart, compare }: IntroProps) {
         Six quick questions about how you run. Each one checks for a single point of failure —
         any party, client, provider, machine, or place that, if it broke or turned hostile, could
         get you
-        <span style={{ color: risk.red, fontWeight: 600 }}> slashed</span>, knocked
-        <span style={{ color: risk.yellow, fontWeight: 600 }}> offline</span>, or
-        <span style={{ color: risk.red, fontWeight: 600 }}> censored</span>. Your answers fill the
+        <span style={{ color: risk.redText, fontWeight: 600 }}> slashed</span>, knocked
+        <span style={{ color: risk.yellowText, fontWeight: 600 }}> offline</span>, or
+        <span style={{ color: risk.redText, fontWeight: 600 }}> censored</span>. Your answers fill the
         pizza and set your Stage. About a minute · nothing is submitted or stored.
       </IntroLede>
       <IntroGoal>

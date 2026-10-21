@@ -129,21 +129,22 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
   const diff = new Float64Array(runs * Y);
   const incidents = { lucky: 0, partial: 0, full: 0, outages: 0, runs };
   let worst = 0;
+  // Stage 0: k separate slices. Stage 1: one pool run by all k operators.
   const bal0 = new Float64Array(k);
-  const bal1 = new Float64Array(k);
+  const S = p.stakeEth;
 
   for (let run = 0; run < runs; run++) {
     // The incident rate itself is uncertain: one draw per run (Gamma, mean λ).
     const lambda = cv > 0 && lambdaMean > 0 ? gamma(rng, 1 / (cv * cv)) * lambdaMean * cv * cv : lambdaMean;
     bal0.fill(s);
-    bal1.fill(s);
+    let bal1 = S;
     let net0 = 0;
     let net1 = 0;
     let loss0 = 0;
     for (let y = 0; y < Y; y++) {
+      net1 += bal1 * apr * keep1;
       for (let o = 0; o < k; o++) {
         net0 += bal0[o] * apr * keep0;
-        net1 += bal1[o] * apr * keep1;
 
         const nInc = poisson(rng, lambda);
         for (let i = 0; i < nInc; i++) {
@@ -160,14 +161,16 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
           loss0 += l0;
           const p0 = bal0[o] * pr;
           bal0[o] -= p0;
-          // Stage 1: usually a key replacement; rarely the threshold falls too.
+          // Stage 1: the compromised operator holds a share of every validator,
+          // so the whole pool is affected. Usually a key replacement; rarely
+          // the attacker reaches a threshold too and the pool is exposed.
           if (rng() < res) {
-            net1 -= bal1[o] * fg * keep1;
-            bal1[o] -= bal1[o] * pr;
+            net1 -= bal1 * fg * keep1;
+            bal1 -= bal1 * pr;
           } else {
             const c = rng() < reshare ? table.good1 : table.bad1;
-            net1 -= bal1[o] * c.forgone * keep1;
-            bal1[o] -= bal1[o] * c.principal;
+            net1 -= bal1 * c.forgone * keep1;
+            bal1 -= bal1 * c.principal;
           }
         }
 
@@ -179,17 +182,15 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
           const perEth = table.outagePerEthPerEpoch * epochs + (table.outageLeak ? inactivityLeakEth(1, epochs) : 0);
           net0 -= bal0[o] * perEth;
           loss0 += bal0[o] * perEth;
-          if (rng() >= cover) net1 -= bal1[o] * perEth;
+          // One operator down can't stop a threshold cluster; the uncovered
+          // share are correlated failures, costed on the same slice of stake.
+          if (rng() >= cover) net1 -= (bal1 / k) * perEth;
         }
       }
       // Lost principal is lost wealth: count it in the position.
       let b0 = 0;
-      let b1 = 0;
-      for (let o = 0; o < k; o++) {
-        b0 += bal0[o];
-        b1 += bal1[o];
-      }
-      diff[run * Y + y] = net1 + b1 - (net0 + b0);
+      for (let o = 0; o < k; o++) b0 += bal0[o];
+      diff[run * Y + y] = net1 + bal1 - (net0 + b0);
     }
     if (loss0 > worst) worst = loss0;
   }
@@ -229,6 +230,9 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
 // ── Heatmap: P(Stage 0 ahead) by incident rate × years ──────────────────────
 
 export const HEATMAP_RATES = [0.5, 1, 2, 3, 4, 5, 6, 8, 10, 12];
+/** The heatmap always spans this many years, whatever the Years setting, so the grid keeps its shape. */
+export const HEATMAP_YEARS = 20;
+export const HEATMAP_RUNS = 1500;
 
 export interface Heatmap {
   rates: number[];
@@ -239,7 +243,7 @@ export interface Heatmap {
   meanYears: number[][];
 }
 
-export function heatmap(p: CostParams, maxYears = 20, runs = 1500): Heatmap {
+export function heatmap(p: CostParams, maxYears = HEATMAP_YEARS, runs = HEATMAP_RUNS): Heatmap {
   const table = costTable(p);
   const runsByRate = HEATMAP_RATES.map((rate, i) =>
     simulate({ ...p, seed: p.seed + i + 1 }, { incidentRatePct: rate, runs, years: maxYears, table }),
@@ -269,7 +273,7 @@ function betaExpectation(a: number, b: number, g: (f: number) => number): number
 }
 
 export interface Expectations {
-  /** Expected Stage 0 loss per incident, ETH (net of fee on forgone rewards). */
+  /** Expected loss per incident at one operator, ETH (net of fee on forgone rewards). Stage 0 hits that operator's slice; Stage 1 the whole pool. */
   perIncident0Eth: number;
   perIncident1Eth: number;
   /** Expected outage loss per year, each stage, ETH. */
@@ -295,7 +299,8 @@ export function expectations(p: CostParams, table: CostTable = costTable(p)): Ex
   const res = p.s1ResidualPct / 100;
   const w = p.s1ResharePct / 100;
   const repl = w * (table.good1.forgone * keep1 + table.good1.principal) + (1 - w) * (table.bad1.forgone * keep1 + table.bad1.principal);
-  const per1 = s * ((1 - res) * repl + res * ((1 - pSlash) * cost0at1(0) + pSlash * eSlashAt1));
+  // A multi-operator DV is touched as a whole by any operator's incident.
+  const per1 = p.stakeEth * ((1 - res) * repl + res * ((1 - pSlash) * cost0at1(0) + pSlash * eSlashAt1));
 
   // E[hours] for log-normal(σ = 1) = median × e^{1/2}.
   const meanEpochs = p.outageMedianHours * Math.exp(0.5) * (EPOCHS_PER_DAY / 24);

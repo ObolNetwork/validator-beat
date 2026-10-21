@@ -102,23 +102,24 @@ export function CostTeaser() {
             </Eyebrow>
             <Text as="h2" id="cost-teaser-h" css={s.h2}>
               One leaked key.{" "}
-              <Text as="span" css={{ display: "inline", color: "var(--vb-red)" }}>
+              <Text as="span" css={{ display: "inline", color: "var(--vb-red-text)" }}>
                 {fmtEth(LOSS0)}
               </Text>{" "}
               gone.
             </Text>
             <Text as="p" css={{ ...s.prose, fontSize: "$4" }}>
-              A key compromise at an operator running {P.operatorSharePct}% of the network. The attacker slashes every key
-              before it can exit. On a {fmtEth(P.stakeEth)} stake at Stage 0, that costs{" "}
+              Split {fmtEth(P.stakeEth)} across {P.operators} operators, each running its share alone (Stage 0). One of
+              them, running {P.operatorSharePct}% of the network, has its keys leaked and the attacker slashes them all:{" "}
               <strong>
                 {fmtEth(LOSS0)} ({fmtUsd(LOSS0 * P.ethUsd)})
-              </strong>
-              . At Stage 1 no single key can sign, so the same leak means replacing one key-holder:{" "}
+              </strong>{" "}
+              gone. If the same {P.operators} operators ran every validator together as a multi-operator distributed
+              validator (Stage 1), no single compromise could sign, and the same leak means replacing one operator:{" "}
               <strong>about {fmtEth(LOSS1)}</strong>.
             </Text>
             <Text as="p" css={s.prose}>
-              Stage 1 can cost twice the fees, {P.fee1Pct}% of rewards instead of {P.fee0Pct}%. This one event would cover{" "}
-              <strong>{fmtYears(LOSS0 / ECON.premiumPerYearEth)}</strong> of that difference.
+              Running together can cost twice the fees, {P.fee1Pct}% of rewards instead of {P.fee0Pct}%. This one event would
+              cover <strong>{fmtYears(LOSS0 / ECON.premiumPerYearEth)}</strong> of that difference.
             </Text>
             <Box css={{ marginTop: 26 }}>
               <Box as={NextLink} href={COST_PATH} css={ctaCss}>
@@ -130,19 +131,19 @@ export function CostTeaser() {
             <Box css={{ display: "flex", flexDirection: "column", gap: 10, flex: "1 1 200px", maxWidth: 300 }}>
               <Text css={{ fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "$textMiddle" }}>
                 <Box as="span" css={s.swatch(s.S0)} />
-                Stage 0 · {fmtEth(LOSS0)}
+                Solo operators · {fmtEth(LOSS0)}
               </Text>
-              <Waffle loss={LOSS0} stake={P.stakeEth} color={s.S0} label="Stage 0 loss" />
+              <Waffle loss={LOSS0} stake={P.stakeEth} color={s.S0} label="Solo-operator setup loss" />
             </Box>
             <Box css={{ display: "flex", flexDirection: "column", gap: 10, flex: "1 1 200px", maxWidth: 300 }}>
               <Text css={{ fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "$textMiddle" }}>
                 <Box as="span" css={s.swatch(s.S1)} />
-                Stage 1 · {fmtEth(LOSS1)}
+                DV · {fmtEth(LOSS1)}
               </Text>
-              <Waffle loss={LOSS1} stake={P.stakeEth} color={s.S1} label="Stage 1 loss" />
+              <Waffle loss={LOSS1} stake={P.stakeEth} color={s.S1} label="Multi-operator DV loss" />
             </Box>
             <Text css={{ ...s.small, flexBasis: "100%", textAlign: "center" }}>
-              Each square is {fmtEth(P.stakeEth / CELLS)} of a {fmtEth(P.stakeEth)} stake, to scale. Stage 1&apos;s loss is a
+              Each square is {fmtEth(P.stakeEth / CELLS)} of a {fmtEth(P.stakeEth)} stake, to scale. The DV loss is a
               fraction of one square.
             </Text>
           </Box>

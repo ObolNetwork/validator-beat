@@ -32,6 +32,7 @@ export function fmtUsd(usd: number): string {
 
 export function fmtDays(days: number): string {
   if (!Number.isFinite(days)) return "never";
+  if (days <= 0) return "no time";
   if (days < 1 / 24) return `${Math.max(1, Math.round(days * 1440))} min`;
   if (days < 2) return `${(days * 24).toFixed(days < 0.5 ? 1 : 0)} h`;
   if (days < 100) return `${days.toFixed(days < 10 ? 1 : 0)} days`;
@@ -49,4 +50,12 @@ export function fmtYears(years: number): string {
 
 export function fmtPct(x: number, digits = 0): string {
   return `${(x * 100).toFixed(digits)}%`;
+}
+
+/** An annual rate in percent, as the average gap between incidents: 0.86% → "116 years". */
+export function fmtYearsBetween(ratePct: number): string {
+  const years = 100 / ratePct;
+  if (years >= 1000) return "1,000 years";
+  if (years >= 10) return `${Math.round(years).toLocaleString("en-US")} years`;
+  return `${years.toFixed(1)} years`;
 }

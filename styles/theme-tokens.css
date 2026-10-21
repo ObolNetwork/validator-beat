@@ -14,8 +14,8 @@
 :root {
   /* ---- Brand accent (links, primary buttons, wordmark highlight) ----
      Muted deep sage-green, readable on the cream paper. */
-  --theme-brand: #2c7a64;          /* deep sage — primary CTA / links */
-  --theme-brand-hover: #235f4e;    /* pressed / hover sage */
+  --theme-brand: #256b57;          /* deep sage — primary CTA / links (≥4.5:1 as text on every light surface) */
+  --theme-brand-hover: #1c5443;    /* pressed / hover sage */
   --theme-brand-highlight: #2fe4ab; /* mint — decorative tints / confetti */
 
   /* ---- Page surfaces — warm cream ---- */
@@ -53,12 +53,17 @@
   --theme-pizza-empty-stroke: #d2cbb8;
   --theme-pizza-ink: #0e1b1d;
 
+  /* ---- Risk colours as TEXT: darker steps of the fills that pass 4.5:1 on every light surface,
+     including the tinted stage cards. Fills (pizza, dots, bars) keep --theme-risk-*. ---- */
+  --theme-risk-green-text: #1b6b52;
+  --theme-risk-yellow-text: #7d5610;
+  --theme-risk-red-text: #9a3d23;
+
   /* ---- Cost-of-failure charts: Stage 0 vs Stage 1 (validated for CVD on the card surface) ---- */
   --theme-cost-s0: #c46044;
   --theme-cost-s1: #3d73b8;
   --theme-cost-grid: #ebe6d6;
-  /* Brand green darkened for text on the panel band (#edf1e7): 5.5:1 vs 4.49:1. */
-  --theme-cost-link: #256b57;
+  --theme-cost-link: var(--theme-brand);
 }
 
 /* =============================================================================
@@ -104,11 +109,16 @@
   --theme-pizza-empty-stroke: #2d4d53;
   --theme-pizza-ink: #e1e9eb;
 
+  /* ---- Risk colours as TEXT (dark) ---- */
+  --theme-risk-green-text: #6ff0c8;
+  --theme-risk-yellow-text: #f0c95f;
+  --theme-risk-red-text: #ee9a82;
+
   /* ---- Cost-of-failure charts ---- */
   --theme-cost-s0: #dd603c;
   --theme-cost-s1: #4f8fd6;
   --theme-cost-grid: #22383d;
-  --theme-cost-link: #2fe4ab;
+  --theme-cost-link: var(--theme-brand);
 
   /* Re-point surface aliases past obol-ui's scoped --colors-* tokens. */
   --bg-01: var(--theme-surface-page);
@@ -151,6 +161,9 @@
   --vb-yellow: var(--theme-risk-yellow);
   --vb-red: var(--theme-risk-red);
   --vb-unknown: var(--theme-risk-unknown);
+  --vb-green-text: var(--theme-risk-green-text);
+  --vb-yellow-text: var(--theme-risk-yellow-text);
+  --vb-red-text: var(--theme-risk-red-text);
   --vb-green-t: color-mix(in srgb, var(--theme-risk-green) 14%, transparent);
   --vb-yellow-t: color-mix(in srgb, var(--theme-risk-yellow) 14%, transparent);
   --vb-red-t: color-mix(in srgb, var(--theme-risk-red) 14%, transparent);

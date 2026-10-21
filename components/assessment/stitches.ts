@@ -8,6 +8,11 @@ export const risk = {
   yellow: "var(--vb-yellow)",
   red: "var(--vb-red)",
   unknown: "var(--vb-unknown)",
+  /** Text-safe steps of the risk colours (AA on every surface); use these for words, the plain ones for fills. */
+  greenText: "var(--vb-green-text)",
+  yellowText: "var(--vb-yellow-text)",
+  redText: "var(--vb-red-text)",
+  unknownText: "var(--theme-text-secondary)",
   greenT: "var(--vb-green-t)",
   yellowT: "var(--vb-yellow-t)",
   redT: "var(--vb-red-t)",
@@ -66,13 +71,13 @@ export const BrandAccent = styled("span", {
    with a pulsing halo behind it. Reads from the --vb-* tokens, so it follows the
    light/dark theme automatically. */
 const beatColor = keyframes({
-  "0%": { color: "var(--vb-green)" },
-  "10%": { color: "var(--vb-green)" },
-  "33%": { color: "var(--vb-yellow)" },
-  "43%": { color: "var(--vb-yellow)" },
-  "66%": { color: "var(--vb-red)" },
-  "76%": { color: "var(--vb-red)" },
-  "100%": { color: "var(--vb-green)" },
+  "0%": { color: "var(--vb-green-text)" },
+  "10%": { color: "var(--vb-green-text)" },
+  "33%": { color: "var(--vb-yellow-text)" },
+  "43%": { color: "var(--vb-yellow-text)" },
+  "66%": { color: "var(--vb-red-text)" },
+  "76%": { color: "var(--vb-red-text)" },
+  "100%": { color: "var(--vb-green-text)" },
 });
 const beatRing = keyframes({
   "0%": { opacity: 0, transform: "translate(-50%,-50%) scale(0.6)", boxShadow: "0 0 0 0 var(--vb-green)" },
@@ -327,9 +332,9 @@ export const LadderName = styled(Text, {
   whiteSpace: "nowrap",
   variants: {
     tone: {
-      red: { color: risk.red },
-      yellow: { color: risk.yellow },
-      green: { color: risk.green },
+      red: { color: risk.redText },
+      yellow: { color: risk.yellowText },
+      green: { color: risk.greenText },
     },
   },
 });
@@ -346,9 +351,9 @@ export const LadderKind = styled(Text, {
   padding: "3px 7px",
   variants: {
     tone: {
-      red: { color: risk.red, borderColor: risk.redB },
-      yellow: { color: risk.yellow, borderColor: risk.yellowB },
-      green: { color: risk.green, borderColor: risk.greenB },
+      red: { color: risk.redText, borderColor: risk.redB },
+      yellow: { color: risk.yellowText, borderColor: risk.yellowB },
+      green: { color: risk.greenText, borderColor: risk.greenB },
     },
   },
 });
@@ -376,9 +381,9 @@ export const LadderCheck = styled(Text, {
   fontWeight: "$bold",
   variants: {
     tone: {
-      red: { color: risk.red },
-      yellow: { color: risk.yellow },
-      green: { color: risk.green },
+      red: { color: risk.redText },
+      yellow: { color: risk.yellowText },
+      green: { color: risk.greenText },
     },
   },
 });
@@ -468,7 +473,7 @@ export const QuestionCount = styled(Text, {
 export const QuestionSlice = styled(Text, {
   fontSize: "$2",
   fontWeight: "$bold",
-  color: risk.green,
+  color: risk.greenText,
   whiteSpace: "nowrap",
 });
 
@@ -647,7 +652,7 @@ export const BlockText = styled(Text, {
   margin: 0,
   "& b": { color: "$body" },
   variants: {
-    win: { true: { color: risk.green, fontWeight: "$semibold" } },
+    win: { true: { color: risk.greenText, fontWeight: "$semibold" } },
     hint: { true: { color: "$textMiddle", fontStyle: "italic" } },
   },
 });
@@ -758,7 +763,7 @@ export const WonHead = styled(Box, {
   gap: "$xxs",
   fontSize: "$2",
   fontWeight: "$bold",
-  color: risk.green,
+  color: risk.greenText,
   margin: "0 0 12px",
 });
 
@@ -828,7 +833,7 @@ export const WinBadge = styled(Text, {
   fontWeight: "$bold",
   textTransform: "uppercase",
   letterSpacing: "0.05em",
-  color: risk.green,
+  color: risk.greenText,
   whiteSpace: "nowrap",
   flexShrink: 0,
 });
@@ -885,8 +890,8 @@ export const UpFlag = styled(Text, {
   flexShrink: 0,
   variants: {
     color: {
-      red: { color: risk.red },
-      yellow: { color: risk.yellow },
+      red: { color: risk.redText },
+      yellow: { color: risk.yellowText },
       unknown: { color: risk.unknown },
     },
   },
@@ -1021,7 +1026,7 @@ export const NameLabel = styled(Text, {
 
 export const NameError = styled(Text, {
   fontSize: "$1",
-  color: risk.red,
+  color: risk.redText,
   marginTop: 4,
 });
 

@@ -97,6 +97,7 @@ type ResultHeroProps = {
 export function ResultHero({ stage, answers, ownerName, guest = false }: ResultHeroProps) {
   const m = STAGE_META[stage];
   const tone = risk[m.tone];
+  const toneText = risk[`${m.tone}Text` as const];
   const name = ownerName?.trim();
   const greens = SLICES.filter((s) => answers[s.id] === "green").length;
   const toGo = blockers(answers).length;
@@ -110,8 +111,8 @@ export function ResultHero({ stage, answers, ownerName, guest = false }: ResultH
       <HeroEyebrow>{guest ? "Shared result" : name ? "Result for" : "Your result"}</HeroEyebrow>
       {name && <HeroOwner>{name}</HeroOwner>}
       <HeroStageLine>
-        <HeroStageNum css={{ color: tone }}>{m.name}</HeroStageNum>
-        <HeroStageKind css={{ color: tone, borderColor: tone }}>{m.kind}</HeroStageKind>
+        <HeroStageNum css={{ color: toneText }}>{m.name}</HeroStageNum>
+        <HeroStageKind css={{ color: toneText, borderColor: tone }}>{m.kind}</HeroStageKind>
       </HeroStageLine>
       <HeroProgress>{progress}</HeroProgress>
       <HeroLine>{guest ? m.tagline + "." : STAGE_LINE[stage]}</HeroLine>

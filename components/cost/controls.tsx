@@ -1,6 +1,7 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import type { CSS } from "@stitches/react";
 import { useId, type ReactNode } from "react";
+import { InfoTip } from "./InfoTip";
 
 export const ui = {
   label: {
@@ -49,9 +50,12 @@ export function Slider({ label, value, min, max, step, onChange, format, hint, d
   return (
     <Box css={{ display: "flex", flexDirection: "column", gap: 6, ...css }}>
       <Box css={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-        <Text as="label" htmlFor={id} css={ui.label}>
-          {label}
-        </Text>
+        <Box css={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+          <Text as="label" htmlFor={id} css={ui.label}>
+            {label}
+          </Text>
+          {hint && <InfoTip label={label}>{hint}</InfoTip>}
+        </Box>
         <Box css={{ display: "flex", alignItems: "baseline", gap: 8 }}>
           {changed && (
             <Box
@@ -81,7 +85,6 @@ export function Slider({ label, value, min, max, step, onChange, format, hint, d
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(Number(e.target.value))}
         css={rangeCss}
       />
-      {hint && <Text css={ui.hint}>{hint}</Text>}
     </Box>
   );
 }
@@ -112,75 +115,72 @@ interface ChipsProps<T extends string> {
   css?: CSS;
 }
 
-/** A radio group drawn as chips. Arrow keys move between options. */
+/**
+ * A radio group drawn as a one-line segmented control. Arrow keys move
+ * between options (native radios). The selected option's hint shows as one
+ * line underneath rather than under every option.
+ */
 export function Chips<T extends string>({ label, value, options, onChange, hideLabel, size = "md", css }: ChipsProps<T>) {
   const name = useId();
+  const selected = options.find((o) => o.id === value);
   return (
     <Box as="fieldset" css={{ border: 0, padding: 0, margin: 0, minWidth: 0, ...css }}>
-      <Text
-        as="legend"
-        css={hideLabel ? srOnly : { ...ui.label, marginBottom: 8, padding: 0 }}
-      >
+      <Text as="legend" css={hideLabel ? srOnly : { ...ui.label, marginBottom: 8, padding: 0 }}>
         {label}
       </Text>
-      <Box css={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+      <Box
+        css={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`,
+          gap: 4,
+          padding: 4,
+          borderRadius: "$3",
+          backgroundColor: "$bg03",
+          border: "1px solid $bg05",
+        }}
+      >
         {options.map((o) => {
           const checked = value === o.id;
           return (
             <Box
               as="label"
               key={o.id}
-              title={o.hint}
               css={{
                 position: "relative",
-                display: "inline-flex",
-                flexDirection: "column",
-                gap: 1,
                 cursor: "pointer",
-                borderRadius: "$3",
-                border: "1px solid",
-                borderColor: checked ? "var(--theme-brand)" : "$bg05",
-                backgroundColor: checked ? "$bg03" : "$bg02",
-                padding: size === "sm" ? "6px 11px" : "9px 14px",
-                transition: "border-color .15s, background-color .15s",
-                "&:hover": { borderColor: checked ? "var(--theme-brand)" : "var(--theme-border-strong)" },
-                "&:focus-within": { outline: "2px solid var(--theme-brand)", outlineOffset: 2 },
+                borderRadius: 7,
+                padding: size === "sm" ? "6px 8px" : "8px 10px",
+                textAlign: "center",
+                backgroundColor: checked ? "$bg02" : "transparent",
+                boxShadow: checked ? "0 1px 3px rgba(0,0,0,.10), inset 0 0 0 1.5px var(--theme-brand)" : "none",
+                transition: "background-color .15s, box-shadow .15s",
+                "&:hover": { backgroundColor: checked ? "$bg02" : "$bg04" },
+                "&:focus-within": { outline: "2px solid var(--theme-brand)", outlineOffset: 1 },
               }}
             >
-              <Box
-                as="input"
-                type="radio"
-                name={name}
-                value={o.id}
-                checked={checked}
-                onChange={() => onChange(o.id)}
-                css={srOnly}
-              />
+              <Box as="input" type="radio" name={name} value={o.id} checked={checked} onChange={() => onChange(o.id)} css={srOnly} />
               <Text
                 css={{
                   fontSize: size === "sm" ? "$1" : "$2",
-                  fontWeight: "$semibold",
+                  fontWeight: checked ? "$bold" : "$semibold",
                   color: checked ? "$body" : "$textMiddle",
                   whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
-                {checked && (
-                  <Box as="span" aria-hidden="true" css={{ color: "var(--theme-cost-link)", marginRight: 5 }}>
-                    ●
-                  </Box>
-                )}
                 {o.label}
               </Text>
-              {o.hint && size === "md" && (
-                <Text css={{ fontSize: 11, color: "$textMiddle", whiteSpace: "nowrap" }}>{o.hint}</Text>
-              )}
+              {o.hint && <Box as="span" css={srOnly}>{`: ${o.hint}`}</Box>}
             </Box>
           );
         })}
-        {value === "custom" && (
-          <Text css={{ ...ui.hint, alignSelf: "center", fontStyle: "italic" }}>Custom</Text>
-        )}
       </Box>
+      {size === "md" && (
+        <Text css={{ ...ui.hint, marginTop: 6, minHeight: 17 }} aria-hidden="true">
+          {value === "custom" ? "Custom: set with the sliders below." : selected?.hint ?? ""}
+        </Text>
+      )}
     </Box>
   );
 }
@@ -240,11 +240,11 @@ export function Toggle({ label, checked, onChange, hint }: ToggleProps) {
           },
         }}
       />
-      <Box>
+      <Box css={{ display: "flex", alignItems: "center" }}>
         <Text as="label" htmlFor={id} css={{ ...ui.label, cursor: "pointer" }}>
           {label}
         </Text>
-        {hint && <Text css={{ ...ui.hint, marginTop: 3 }}>{hint}</Text>}
+        {hint && <InfoTip label={typeof label === "string" ? label : "this setting"}>{hint}</InfoTip>}
       </Box>
     </Box>
   );
@@ -265,9 +265,12 @@ export function NumberField({ label, value, onChange, min, max, step, suffix, hi
   const id = useId();
   return (
     <Box css={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <Text as="label" htmlFor={id} css={ui.label}>
-        {label}
-      </Text>
+      <Box css={{ display: "flex", alignItems: "center" }}>
+        <Text as="label" htmlFor={id} css={ui.label}>
+          {label}
+        </Text>
+        {hint && <InfoTip label={label}>{hint}</InfoTip>}
+      </Box>
       <Box css={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Box
           as="input"
@@ -298,7 +301,6 @@ export function NumberField({ label, value, onChange, min, max, step, suffix, hi
         />
         {suffix && <Text css={{ ...ui.hint, whiteSpace: "nowrap" }}>{suffix}</Text>}
       </Box>
-      {hint && <Text css={ui.hint}>{hint}</Text>}
     </Box>
   );
 }

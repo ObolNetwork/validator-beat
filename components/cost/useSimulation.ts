@@ -4,16 +4,16 @@ import type { CostParams } from "@lib/cost/params";
 
 /** Inputs that change the simulation (the hero's focus/partial view does not). */
 function simKey(p: CostParams): string {
-  const { focus: _f, partialPct: _p, outageHours: _o, heatView: _h, ...rest } = p;
+  const { focus: _f, partialPct: _p, outageHours: _o, heatView: _h, view: _v, ...rest } = p;
   return JSON.stringify(rest);
 }
 
 /**
  * Runs the Monte Carlo and heatmap in a Web Worker (debounced), so dragging a
- * slider never blocks the page. Falls back to the main thread if workers are
+ * slider never blocks the page. Only runs while `enabled` (the Advanced view). Falls back to the main thread if workers are
  * unavailable.
  */
-export function useSimulation(params: CostParams) {
+export function useSimulation(params: CostParams, enabled = true) {
   const [mc, setMc] = useState<MonteCarloResult | null>(null);
   const [hm, setHm] = useState<Heatmap | null>(null);
   const [running, setRunning] = useState(true);
@@ -43,6 +43,7 @@ export function useSimulation(params: CostParams) {
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
     setRunning(true);
     const t = window.setTimeout(() => {
       const id = ++reqId.current;
@@ -55,7 +56,7 @@ export function useSimulation(params: CostParams) {
       }
     }, 200);
     return () => window.clearTimeout(t);
-  }, [key]);
+  }, [key, enabled]);
 
   return { mc, heatmap: hm, running };
 }
