@@ -29,9 +29,39 @@ import {
 } from "@lib/rubric";
 import type { SliceColor, SliceMeta } from "@lib/rubric";
 import { SHARE_NAME_MAX } from "@lib/share/share-url";
+import { fmtEth, fmtPct, fmtYears } from "@lib/cost/format";
+import { SETUP } from "@lib/cost/labels";
+import { FORMULAS } from "@lib/cost/methodology";
+import { SNAPSHOT } from "@lib/cost/network";
+import {
+  DEFAULT_PARAMS,
+  PARAM_BOUNDS,
+  PARAM_DOCS,
+  PARAM_ENUMS,
+  URL_KEYS,
+  encodeParams,
+  type CostParams,
+} from "@lib/cost/params";
+import { SPEC_REFS, SPEC_VERSION } from "@lib/cost/protocol";
+import { REFS } from "@lib/cost/references";
+import { costSummary } from "@lib/cost/summary";
 
 const BASE = SITE_URL.replace(/\/$/, "");
 const DOWNTIME_URL = DOWNTIME_CALCULATOR_URL.replace(/\/$/, "");
+const COST = `${BASE}/cost-of-failure/`;
+
+/** A /cost-of-failure link with only the non-default parameters set. */
+export function costLink(patch: Partial<CostParams> = {}): string {
+  const q = encodeParams({ ...DEFAULT_PARAMS, ...patch });
+  return q ? `${COST}?${q}` : COST;
+}
+
+/** The cost-of-failure page's headline, in one sentence, at its defaults. */
+function costHeadline(): string {
+  const c = costSummary();
+  const p = c.params;
+  return `By default (${fmtEth(p.stakeEth)} split across ${p.operators} operators, each running ${p.operatorSharePct}% of the network, ${p.incidentRatePct}% incidents a year), the solo-operator setup is expected to lose ${fmtEth(c.lossPerYearSoloEth)} a year vs ${fmtEth(c.lossPerYearDvEth)} for the multi-operator DV, which may cost ${fmtEth(c.premiumPerYearEth)} a year more up front and saves ${fmtEth(c.netPerYearEth)} a year on average. It breaks even at ${c.breakEvenRatePct}% incidents per operator-year: one every ${Math.round(c.breakEvenYearsBetween)} years.`;
+}
 const EXAMPLE_CODE = "GYYGGY";
 
 const SAFETY = slicesOfKind("safety").map((s) => s.label).join(", ");
@@ -89,7 +119,7 @@ A result is encoded as six letters, one per slice in the order above: \`G\` (gre
 - [Full reference](${BASE}/llms-full.txt): every question, answer band, stage rule, and methodology nuance in one file
 - [Methodology](${BASE}/methodology/): scoring rules, the active/active assumption, nuances and limits
 - [Take the assessment](${BASE}/assess/): six questions, ~60 seconds, runs in the browser
-- [Cost of failure](${BASE}/cost-of-failure/): what a key compromise, slashing or outage costs at Stage 0 vs Stage 1, from the consensus spec and current queues; parameters live in the URL
+- [Cost of failure](${COST}): is it worth paying your operators to run your validators together? Compares the same operators running your stake separately (${SETUP.s0.name.toLowerCase()}, ${SETUP.s0.stage}) with running it together as a ${SETUP.s1.name.toLowerCase()} (${SETUP.s1.stage}), from the consensus spec and current queues. ${costHeadline()} Every assumption is a URL parameter; the full model is in llms-full.txt.
 - [Agent skill](${BASE}/skill.md): how an AI agent can run this assessment conversationally
 - [Source code](${GITHUB_URL}): Apache-2.0; the scoring rubric lives in \`lib/rubric\`
 
@@ -226,6 +256,8 @@ Example: \`${EXAMPLE_CODE}\` = ${describeExample()}. Link: ${BASE}/${EXAMPLE_COD
 
 Optional query parameters: \`?n=<name>\` names the result (max ${SHARE_NAME_MAX} characters, URL-encoded); \`&vs=<CODE>&vn=<name>\` shows it head-to-head against another result.
 
+${costSection()}
+
 ## Related
 
 - [Validator Downtime](${DOWNTIME_URL}/) ([llms.txt](${DOWNTIME_URL}/llms.txt)): what correlated downtime would cost under EIP-7716. Client Diversity is the safety side of the same story: a supermajority-client bug is either mass slashing or, with refuse-to-attest, correlated downtime.
@@ -233,6 +265,82 @@ Optional query parameters: \`?n=<name>\` names the result (max ${SHARE_NAME_MAX}
 - [clientdiversity.org](https://clientdiversity.org/): live network share for each execution and consensus client.
 - [Obol docs](https://docs.obol.org/): distributed validators, Charon, and chain-split safety settings.
 `;
+}
+
+
+/** Allowed values for a parameter, for the URL table. */
+function allowed(k: keyof CostParams): string {
+  const def = DEFAULT_PARAMS[k];
+  if (typeof def === "boolean") return "0 or 1";
+  if (typeof def === "number") {
+    const b = PARAM_BOUNDS[k as keyof typeof PARAM_BOUNDS];
+    return `${b.min}–${b.max}${b.int ? ", whole numbers" : ""}`;
+  }
+  return (PARAM_ENUMS[k] ?? []).join(", ");
+}
+
+function costSection(): string {
+  const c = costSummary();
+  const p = c.params;
+  const rows = (Object.keys(URL_KEYS) as (keyof CostParams)[])
+    .map((k) => {
+      const d = DEFAULT_PARAMS[k];
+      const shown = typeof d === "boolean" ? (d ? "1" : "0") : String(d);
+      return `| \`${URL_KEYS[k]}\` | ${k} | ${shown} | ${allowed(k)} | ${PARAM_DOCS[k]} |`;
+    })
+    .join("\n");
+  const formulas = FORMULAS.map((f) => `- **${f.title}.** ${f.body} Spec: [\`${f.refLabel}\`](${SPEC_REFS[f.ref]}).`).join("\n");
+  const refs = REFS.map((r, i) => `${i + 1}. [${r.title}](${r.url}) · ${r.publisher}`).join("\n");
+
+  return `## Cost of failure: solo operators vs a multi-operator DV
+
+${COST} asks one question: **is it worth paying your operators to run your validators together?** Large stakers usually split their stake across several operators, each running its share alone. That is a **${SETUP.s0.name.toLowerCase()}** (${SETUP.s0.stage}): ${SETUP.s0.definition} The same operators can instead run every validator together as a **${SETUP.s1.name.toLowerCase()}** (${SETUP.s1.stage}): ${SETUP.s1.definition} That usually costs more; the page estimates whether the risk it removes is worth it.
+
+The page has a Basic view (the answer from expected values) and an Advanced view (each incident day by day, Monte Carlo charts, every assumption). It runs entirely in the browser. Model code: \`lib/cost\` in ${GITHUB_URL} (pure TypeScript, unit-tested). The spec is pinned to ${SPEC_VERSION}, and network defaults come from a mainnet snapshot taken ${SNAPSHOT.asOf} (epoch ${SNAPSHOT.headEpoch.toLocaleString("en-US")}).
+
+### Headline at the defaults
+
+${fmtEth(p.stakeEth)} split across ${p.operators} operators (${fmtEth(c.stakePerOperatorEth)} each), each running ${p.operatorSharePct}% of all staked ETH. Fees ${p.fee0Pct}% (solo) vs ${p.fee1Pct}% (multi-operator DV) of rewards, at ${p.aprPct}% APR. Incidents: ${p.incidentRatePct}% per operator per year, ${p.pSlashPct}% of them ending in slashing, with the share of keys slashed skewed towards all of them (Beta(${p.betaA}, ${p.betaB})).
+
+- **Expected loss a year:** ${fmtEth(c.lossPerYearSoloEth)} solo vs ${fmtEth(c.lossPerYearDvEth)} multi-operator DV.
+- **Extra cost of the multi-operator DV:** ${fmtEth(c.premiumPerYearEth)} a year.
+- **Net, on average:** the multi-operator DV saves ${fmtEth(c.netPerYearEth)} a year after its extra cost.
+- **Break-even:** ${c.breakEvenRatePct}% incidents per operator-year, i.e. one incident every ${Math.round(c.breakEvenYearsBetween)} years for each operator. If you don't expect each operator to go that long without a security incident, the multi-operator DV is likely worth it. ${p.incidentRatePct}% a year is one incident every ${Math.round(100 / p.incidentRatePct)} years.
+- **One worst-case incident** (an operator's keys leak and the attacker slashes them all): ${fmtEth(c.worstCaseSoloEth)} for the solo slice that operator ran, vs ${fmtEth(c.worstCaseDvEth)} for the multi-operator DV, which replaces the operator at its own pace (${Math.round(c.worstCaseSoloEth / c.worstCaseDvEth).toLocaleString("en-US")}× smaller). That one incident costs ${fmtYears(c.worstCaseYearsOfPremium)} of the DV's extra fee.
+- **Caught in time** (nothing slashed, emergency exit and re-entry): ${fmtEth(c.caughtSoloEth)} solo vs ${fmtEth(c.caughtDvEth)} DV.
+- **Odds:** after ${p.years} years the solo setup is still ahead in ${fmtPct(c.pSoloAheadAtYears)} of ${p.runs.toLocaleString("en-US")} simulated runs; on average the multi-operator DV comes out ${fmtEth(c.meanDvAdvantageEth)} ahead. The solo setup wins most runs by a little and loses a few by a lot.
+
+### How the model works
+
+A compromise at a solo operator hits only the slice it runs, but that slice can be slashed: the operator's whole book queues to exit, slashed validators pay the initial and correlation penalties and missed-duty penalties until withdrawable, then everything re-enters through the deposit queue. In a multi-operator DV every validator has a key share at every operator, so one operator's compromise touches the whole stake but can't slash it: the cluster reshares (a few epochs offline) or consolidates onto fresh keys (about 27 hours of lost rewards), unless the attacker also reaches the signing threshold. A single operator's outage can't stop a threshold cluster; the DV loses only the share of outage losses it doesn't ride through (correlated failures).
+
+${formulas}
+
+A spec quirk: the correlation penalty is charged at withdrawable − 4,096 epochs and only counts slashings still in the 8,192-epoch vector. When a whole large operator is slashed at once and drains through 256 ETH per epoch, validators more than about 53 days back in the queue escape their own correlation penalty. Unchanged in Gloas.
+
+### Read it as a floor: wrong-fork lockouts
+
+These figures price a key compromise at one operator. A bug in the clients most of the network runs can cost far more: if two thirds or more of stake justifies an invalid chain, those validators can't vote on the correct chain without a surround slashing, and the inactivity leak drains them until the honest side is two thirds again. That happened on the Holešky testnet in February 2025. On mainnet a lockout of 67–94% of stake would cost each trapped validator about 72–93% of its balance over 30–45 days. A multi-operator DV with diverse clients across its key shares is far less exposed, because one client's bad vote can't reach the signing threshold. The page does not add lockouts to its totals. Which client combinations could cause one today: ${DOWNTIME_URL}/#when-clients-fail-together.
+
+Not modelled: correlation between operators (a shared cloud, client or signer would make splitting even less effective), feedback on total stake and APR while an operator exits, and future forks beyond Gloas. The incident base rate (about 8 public incidents across about 50 major operators since April 2023) is thin: a prior, not a measurement.
+
+### Linking to your own numbers
+
+Every assumption is a query parameter; only values that differ from the defaults are needed, and out-of-range values are clamped. Examples:
+
+- Default view: ${costLink()}
+- 500,000 ETH across 8 operators, each 5% of the network, frequent incidents: ${costLink({ stakeEth: 500_000, operators: 8, operatorSharePct: 5, frequency: "frequent", incidentRatePct: 10 })}
+- Same as the default, in the Advanced view at the outage case with EIP-7716: ${costLink({ view: "advanced", focus: "outage", eip7716: true })}
+
+| Key | Parameter | Default | Allowed | Meaning |
+|---|---|---|---|---|
+${rows}
+
+Preset parameters (\`q\`, \`fr\`, \`sv\`) only label the view; the numeric parameters are what the model uses, so set those too when you change one (e.g. \`fr=frequent&ir=10\`).
+
+### References
+
+${refs}`;
 }
 
 export function skillMd(): string {
@@ -247,7 +355,7 @@ export function skillMd(): string {
 
   return `---
 name: validator-beat-assessment
-description: Assess the resilience of an Ethereum validator setup by asking six questions, then give the operator their Stage (0, 1, or 2) and a shareable Validator Beat link.
+description: Assess the resilience of an Ethereum validator setup by asking six questions, then give the operator their Stage (0, 1, or 2) and a shareable Validator Beat link. Optionally price the risk with the cost-of-failure calculator (solo operators vs a multi-operator DV) and hand over a pre-filled link.
 ---
 
 # Validator Beat assessment
@@ -269,6 +377,15 @@ ${STAGE_RULES}
 Map each answer to a letter — G (green), Y (yellow), R (red), U (not sure) — in question order to form a six-letter code, then link to \`${BASE}/<CODE>\` — e.g. answers green, yellow, yellow, green, green, yellow → \`${BASE}/${EXAMPLE_CODE}\`. Optionally append \`?n=<name>\` (max ${SHARE_NAME_MAX} chars, URL-encoded) to name the result, and \`&vs=<CODE>&vn=<name>\` to show it head-to-head against another result.
 
 Every code resolves to a static page with an Open Graph preview card, so the link unfurls with the result pizza in chat apps and social feeds.
+
+## Pricing the risk: cost of failure
+
+After the assessment, a Stage 0 operator (or anyone choosing between operators) can see what it's worth: ${COST} compares the same operators running a stake separately (${SETUP.s0.name.toLowerCase()}, ${SETUP.s0.stage}) with running it together as a ${SETUP.s1.name.toLowerCase()} (${SETUP.s1.stage}).
+
+1. Ask for their stake, how many operators they split it across, roughly how big those operators are (share of all staked ETH), and the fees they pay or are quoted for each setup (percent of rewards).
+2. Build a link with those numbers, e.g. \`${costLink({ stakeEth: 500_000, operators: 8, operatorSharePct: 5, fee0Pct: 1.5, fee1Pct: 3.5 })}\`. Keys: \`s\` stake ETH, \`k\` operators, \`o\` each operator's network share %, \`f0\` / \`f1\` solo / DV fee %, \`ir\` incidents per operator per year %, \`v=advanced\` for the full model. The full parameter table is in ${BASE}/llms-full.txt (section "Cost of failure").
+3. Relay the answer as a question: if the break-even is one incident every N years per operator, ask whether they expect each operator to go N years or more without a security incident. ${costHeadline()}
+4. Say it's a floor: wrong-fork lockouts from a supermajority client bug aren't in the totals and can cost far more.
 
 ## Caveats to relay
 

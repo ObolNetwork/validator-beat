@@ -163,7 +163,48 @@ export function applySeverity(p: CostParams, id: SeverityId): CostParams {
 // ── URL state ───────────────────────────────────────────────────────────────
 
 type Key = keyof CostParams;
-const URL_KEYS: Record<Key, string> = {
+/** What each parameter means, for llms-full.txt and anyone building a link by hand. */
+export const PARAM_DOCS: Record<keyof CostParams, string> = {
+  stakeEth: "Your total stake, ETH.",
+  operatorSharePct: "Each operator's share of all staked ETH, percent. Drives the correlation penalty and how long its book takes to exit.",
+  operators: "How many operators your stake is split across (solo setup), or that run it together (multi-operator DV).",
+  aprPct: "Staking APR, consensus plus execution, percent.",
+  ethUsd: "ETH price in USD, for the dollar figures.",
+  fee0Pct: "Solo-operator fee, percent of staking rewards.",
+  fee1Pct: "Multi-operator DV fee, percent of staking rewards.",
+  queue: "Queue preset: today, avg90, worst90, empty, or custom.",
+  exitQueueEth: "ETH in the exit queue ahead of a new exit.",
+  depositQueueEth: "ETH in the pending-deposit (entry) queue.",
+  depositInflowEthPerEpoch: "New competing deposits per epoch while you wait to re-enter, ETH.",
+  focus: "Which single incident the Advanced view details: lucky (caught in time), partial, full (every key slashed) or outage.",
+  partialPct: "Share of an operator's keys slashed in the partial case, percent.",
+  slashSpreadDays: "Days over which the attacker spreads slashings (0 = all at once, which maximises the correlation penalty).",
+  operatorWide: "1 if a compromise makes the operator's whole book exit, 0 if only your validators exit.",
+  redepositDelayDays: "Your own delay between withdrawal and re-depositing, days.",
+  eip7716: "1 to apply the draft EIP-7716 correlated downtime penalties to outages.",
+  outageHours: "Length of the outage in the Advanced outage case, hours.",
+  reshareEpochs: "Epochs offline while a DV reshares away a compromised key-holder (good leaver).",
+  s1ResharePct: "Share of DV compromises fixed by a reshare rather than consolidating onto new keys, percent.",
+  s1ResidualPct: "Share of incidents where the attacker still reaches a DV's signing threshold, percent.",
+  s1LivenessCoverPct: "Share of a solo operator's outage losses a DV avoids, percent.",
+  frequency: "Incident-rate preset: rare, central (base rate), frequent, or custom.",
+  incidentRatePct: "Key or security incidents per operator per year, percent.",
+  rateUncertainty: "Spread of the incident rate across simulated runs (coefficient of variation).",
+  severity: "Severity preset: contained, central (skewed big), severe, or custom.",
+  pSlashPct: "Share of incidents that end in slashing, percent.",
+  betaA: "Beta(a, b) shape of the share of keys slashed: higher a skews towards slashing all of them.",
+  betaB: "Beta(a, b) shape of the share of keys slashed: higher b skews towards slashing a few.",
+  outagesPerYear: "Outages per operator per year.",
+  outageMedianHours: "Median outage length, hours (log-normal).",
+  years: "Years each simulated run lasts.",
+  runs: "Number of simulated runs.",
+  seed: "Random seed: the same seed and settings reproduce the same runs.",
+  heatView: "Heatmap view: chance (of the solo setup being ahead) or average (outcome).",
+  view: "Page view: basic or advanced.",
+};
+
+/** The query-string key for every parameter (shared links, llms-full.txt). */
+export const URL_KEYS: Record<Key, string> = {
   stakeEth: "s",
   operatorSharePct: "o",
   operators: "k",
@@ -202,7 +243,8 @@ const URL_KEYS: Record<Key, string> = {
   view: "v",
 };
 
-const ENUMS: Partial<Record<Key, readonly string[]>> = {
+/** Allowed values for the enum parameters. */
+export const PARAM_ENUMS: Partial<Record<Key, readonly string[]>> = {
   queue: ["today", "avg90", "worst90", "empty", "custom"],
   focus: ["lucky", "partial", "full", "outage"],
   frequency: ["rare", "central", "frequent", "custom"],
@@ -273,7 +315,7 @@ export function sanitizeParams(input: Partial<CostParams>): CostParams {
       rec[k] = b.int ? Math.round(c) : c;
     } else if (typeof def === "boolean") {
       if (typeof v === "boolean") rec[k] = v;
-    } else if (typeof v === "string" && ENUMS[k]?.includes(v)) {
+    } else if (typeof v === "string" && PARAM_ENUMS[k]?.includes(v)) {
       rec[k] = v;
     }
   });
@@ -292,7 +334,7 @@ export function decodeParams(search: string): CostParams {
     } else if (typeof def === "number") {
       const v = Number(raw);
       if (Number.isFinite(v)) (out as unknown as Record<string, unknown>)[k] = v;
-    } else if (ENUMS[k]?.includes(raw)) {
+    } else if (PARAM_ENUMS[k]?.includes(raw)) {
       (out as unknown as Record<string, unknown>)[k] = raw;
     }
   });

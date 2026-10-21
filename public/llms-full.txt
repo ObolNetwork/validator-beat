@@ -235,6 +235,107 @@ Example: `GYYGGY` = Key Custody green, Client Diversity yellow, Provider Diversi
 
 Optional query parameters: `?n=<name>` names the result (max 40 characters, URL-encoded); `&vs=<CODE>&vn=<name>` shows it head-to-head against another result.
 
+## Cost of failure: solo operators vs a multi-operator DV
+
+https://validatorbeat.com/cost-of-failure/ asks one question: **is it worth paying your operators to run your validators together?** Large stakers usually split their stake across several operators, each running its share alone. That is a **solo-operator setup** (Stage 0): Your stake is split across operators that each run their share alone. One compromised key at any of them can get that share slashed. The same operators can instead run every validator together as a **multi-operator distributed validator** (Stage 1): The same operators run every validator together, and signing needs a threshold of them. No single compromise can get you slashed. That usually costs more; the page estimates whether the risk it removes is worth it.
+
+The page has a Basic view (the answer from expected values) and an Advanced view (each incident day by day, Monte Carlo charts, every assumption). It runs entirely in the browser. Model code: `lib/cost` in https://github.com/ObolNetwork/validator-beat (pure TypeScript, unit-tested). The spec is pinned to consensus-specs v1.6 (Fulu, live on mainnet), and network defaults come from a mainnet snapshot taken 2026-10-19 (epoch 483,405).
+
+### Headline at the defaults
+
+200,000 ETH split across 4 operators (50,000 ETH each), each running 10% of all staked ETH. Fees 2% (solo) vs 4% (multi-operator DV) of rewards, at 2.55% APR. Incidents: 4% per operator per year, 50% of them ending in slashing, with the share of keys slashed skewed towards all of them (Beta(3, 1)).
+
+- **Expected loss a year:** 498 ETH solo vs 22 ETH multi-operator DV.
+- **Extra cost of the multi-operator DV:** 102 ETH a year.
+- **Net, on average:** the multi-operator DV saves 374 ETH a year after its extra cost.
+- **Break-even:** 0.82% incidents per operator-year, i.e. one incident every 122 years for each operator. If you don't expect each operator to go that long without a security incident, the multi-operator DV is likely worth it. 4% a year is one incident every 25 years.
+- **One worst-case incident** (an operator's keys leak and the attacker slashes them all): 9,762 ETH for the solo slice that operator ran, vs 6.5 ETH for the multi-operator DV, which replaces the operator at its own pace (1,506× smaller). That one incident costs 96 years of the DV's extra fee.
+- **Caught in time** (nothing slashed, emergency exit and re-entry): 177 ETH solo vs 6.5 ETH DV.
+- **Odds:** after 10 years the solo setup is still ahead in 50% of 5,000 simulated runs; on average the multi-operator DV comes out 4,101 ETH ahead. The solo setup wins most runs by a little and loses a few by a lot.
+
+### How the model works
+
+A compromise at a solo operator hits only the slice it runs, but that slice can be slashed: the operator's whole book queues to exit, slashed validators pay the initial and correlation penalties and missed-duty penalties until withdrawable, then everything re-enters through the deposit queue. In a multi-operator DV every validator has a key share at every operator, so one operator's compromise touches the whole stake but can't slash it: the cluster reshares (a few epochs offline) or consolidates onto fresh keys (about 27 hours of lost rewards), unless the attacker also reaches the signing threshold. A single operator's outage can't stop a threshold cluster; the DV loses only the share of outage losses it doesn't ride through (correlated failures).
+
+- **Exit epoch.** Exits drain through one queue at get_activation_exit_churn_limit = min(256, max(128, total ÷ 65,536)) ETH per epoch. Your place is the queue ahead plus your position in the operator's book. Spec: [`compute_exit_epoch_and_update_churn`](https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md#new-compute_exit_epoch_and_update_churn).
+- **Withdrawable epoch.** exit + 256 epochs (~27 h). A slashed validator waits at least slash + 8,192 epochs (~36 days), penalised for missed source and target votes the whole time. Spec: [`slash_validator`](https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md#modified-slash_validator).
+- **Initial slashing penalty.** effective_balance ÷ 4,096, applied at once. Spec: [`MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA`](https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md#modified-slash_validator).
+- **Correlation penalty.** At withdrawable − 4,096: effective_balance × min(3 × slashings in the last 8,192 epochs, total) ÷ total, rounded per ETH increment. A validator withdrawable more than ~12,288 epochs after its slashing finds it already out of the window. Spec: [`process_slashings`](https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md#modified-process_slashings).
+- **Missed-attestation penalty.** (14 + 26) ÷ 64 × base_reward per epoch, with base_reward_per_increment = 64 × 10⁹ ÷ √(total Gwei). Head carries no penalty. Spec: [`get_flag_index_deltas`](https://github.com/ethereum/consensus-specs/blob/master/specs/altair/beacon-chain.md#get_flag_index_deltas).
+- **Withdrawal sweep.** Each payload withdraws 16 validators, minus up to 8 pending partial withdrawals, so a full cycle is validators ÷ 16 slots. You wait half a cycle on average. Spec: [`get_expected_withdrawals`](https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md#modified-get_expected_withdrawals).
+- **Re-entry.** Re-deposits join pending_deposits behind the backlog and any new demand, and drain at the same 256 ETH per epoch (at most 16 deposits per epoch). A whole operator re-depositing clogs it for everyone. Activation follows ~9 epochs later. Spec: [`process_pending_deposits`](https://github.com/ethereum/consensus-specs/blob/master/specs/fulu/beacon-chain.md#modified-process_pending_deposits).
+- **Consolidation (DV bad leaver).** Sources drain at the consolidation churn (balance churn − 256, ~410 ETH per epoch) and keep earning while they wait. They then earn nothing for the 256-epoch withdrawability delay before the balance lands on the new cluster. New 0x02 targets need a 32 ETH seed through the entry queue. Spec: [`process_pending_consolidations`](https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md#new-process_pending_consolidations).
+- **Outages.** Forgone rewards plus source and target penalties. With EIP-7716 enabled, the target penalty is scaled by min(1 + 765 × share offline, 256) while the cohort is down. Above ⅓ offline the inactivity leak adds balance × n(n+1) ÷ 2²⁵. Spec: [`EIP-7716`](https://eips.ethereum.org/EIPS/eip-7716).
+
+A spec quirk: the correlation penalty is charged at withdrawable − 4,096 epochs and only counts slashings still in the 8,192-epoch vector. When a whole large operator is slashed at once and drains through 256 ETH per epoch, validators more than about 53 days back in the queue escape their own correlation penalty. Unchanged in Gloas.
+
+### Read it as a floor: wrong-fork lockouts
+
+These figures price a key compromise at one operator. A bug in the clients most of the network runs can cost far more: if two thirds or more of stake justifies an invalid chain, those validators can't vote on the correct chain without a surround slashing, and the inactivity leak drains them until the honest side is two thirds again. That happened on the Holešky testnet in February 2025. On mainnet a lockout of 67–94% of stake would cost each trapped validator about 72–93% of its balance over 30–45 days. A multi-operator DV with diverse clients across its key shares is far less exposed, because one client's bad vote can't reach the signing threshold. The page does not add lockouts to its totals. Which client combinations could cause one today: https://validatordowntime.obol.org/#when-clients-fail-together.
+
+Not modelled: correlation between operators (a shared cloud, client or signer would make splitting even less effective), feedback on total stake and APR while an operator exits, and future forks beyond Gloas. The incident base rate (about 8 public incidents across about 50 major operators since April 2023) is thin: a prior, not a measurement.
+
+### Linking to your own numbers
+
+Every assumption is a query parameter; only values that differ from the defaults are needed, and out-of-range values are clamped. Examples:
+
+- Default view: https://validatorbeat.com/cost-of-failure/
+- 500,000 ETH across 8 operators, each 5% of the network, frequent incidents: https://validatorbeat.com/cost-of-failure/?s=500000&o=5&k=8&fr=frequent&ir=10
+- Same as the default, in the Advanced view at the outage case with EIP-7716: https://validatorbeat.com/cost-of-failure/?e=outage&x7=1&v=advanced
+
+| Key | Parameter | Default | Allowed | Meaning |
+|---|---|---|---|---|
+| `s` | stakeEth | 200000 | 32–10000000 | Your total stake, ETH. |
+| `o` | operatorSharePct | 10 | 0.5–33 | Each operator's share of all staked ETH, percent. Drives the correlation penalty and how long its book takes to exit. |
+| `k` | operators | 4 | 1–10, whole numbers | How many operators your stake is split across (solo setup), or that run it together (multi-operator DV). |
+| `apr` | aprPct | 2.55 | 1.5–4.5 | Staking APR, consensus plus execution, percent. |
+| `px` | ethUsd | 2404 | 1–1000000 | ETH price in USD, for the dollar figures. |
+| `f0` | fee0Pct | 2 | 0–5 | Solo-operator fee, percent of staking rewards. |
+| `f1` | fee1Pct | 4 | 0–5 | Multi-operator DV fee, percent of staking rewards. |
+| `q` | queue | today | today, avg90, worst90, empty, custom | Queue preset: today, avg90, worst90, empty, or custom. |
+| `xq` | exitQueueEth | 373760 | 0–5000000 | ETH in the exit queue ahead of a new exit. |
+| `dq` | depositQueueEth | 1179689 | 0–4000000 | ETH in the pending-deposit (entry) queue. |
+| `di` | depositInflowEthPerEpoch | 187 | 0–400 | New competing deposits per epoch while you wait to re-enter, ETH. |
+| `e` | focus | full | lucky, partial, full, outage | Which single incident the Advanced view details: lucky (caught in time), partial, full (every key slashed) or outage. |
+| `pf` | partialPct | 25 | 5–95 | Share of an operator's keys slashed in the partial case, percent. |
+| `sd` | slashSpreadDays | 0 | 0–90 | Days over which the attacker spreads slashings (0 = all at once, which maximises the correlation penalty). |
+| `ow` | operatorWide | 1 | 0 or 1 | 1 if a compromise makes the operator's whole book exit, 0 if only your validators exit. |
+| `rd` | redepositDelayDays | 0 | 0–14 | Your own delay between withdrawal and re-depositing, days. |
+| `x7` | eip7716 | 0 | 0 or 1 | 1 to apply the draft EIP-7716 correlated downtime penalties to outages. |
+| `oh` | outageHours | 6 | 1–72 | Length of the outage in the Advanced outage case, hours. |
+| `re` | reshareEpochs | 5 | 1–30, whole numbers | Epochs offline while a DV reshares away a compromised key-holder (good leaver). |
+| `rs` | s1ResharePct | 70 | 0–100 | Share of DV compromises fixed by a reshare rather than consolidating onto new keys, percent. |
+| `rr` | s1ResidualPct | 1 | 0–10 | Share of incidents where the attacker still reaches a DV's signing threshold, percent. |
+| `lc` | s1LivenessCoverPct | 80 | 0–100 | Share of a solo operator's outage losses a DV avoids, percent. |
+| `fr` | frequency | central | rare, central, frequent, custom | Incident-rate preset: rare, central (base rate), frequent, or custom. |
+| `ir` | incidentRatePct | 4 | 0–15 | Key or security incidents per operator per year, percent. |
+| `ru` | rateUncertainty | 0.5 | 0–1.5 | Spread of the incident rate across simulated runs (coefficient of variation). |
+| `sv` | severity | central | contained, central, severe, custom | Severity preset: contained, central (skewed big), severe, or custom. |
+| `ps` | pSlashPct | 50 | 0–100 | Share of incidents that end in slashing, percent. |
+| `ba` | betaA | 3 | 0.5–10 | Beta(a, b) shape of the share of keys slashed: higher a skews towards slashing all of them. |
+| `bb` | betaB | 1 | 0.5–10 | Beta(a, b) shape of the share of keys slashed: higher b skews towards slashing a few. |
+| `or` | outagesPerYear | 1 | 0–6 | Outages per operator per year. |
+| `om` | outageMedianHours | 4 | 0.5–48 | Median outage length, hours (log-normal). |
+| `y` | years | 10 | 1–20, whole numbers | Years each simulated run lasts. |
+| `n` | runs | 5000 | 1000–20000, whole numbers | Number of simulated runs. |
+| `seed` | seed | 7716 | 0–4294967295, whole numbers | Random seed: the same seed and settings reproduce the same runs. |
+| `hv` | heatView | chance | chance, average | Heatmap view: chance (of the solo setup being ahead) or average (outcome). |
+| `v` | view | basic | basic, advanced | Page view: basic or advanced. |
+
+Preset parameters (`q`, `fr`, `sv`) only label the view; the numeric parameters are what the model uses, so set those too when you change one (e.g. `fr=frequent&ir=10`).
+
+### References
+
+1. [Holešky Pectra incident post-mortem](https://github.com/ethereum/pm/blob/master/Network-Upgrade-Archive/Pectra/holesky-postmortem.md) · Ethereum Foundation, ethereum/pm
+2. [EIP-7716 downtime calculator: client failure tiers and wrong-fork lockout model](https://validatordowntime.obol.org) · validatordowntime.obol.org
+3. [get_inactivity_penalty_deltas (inactivity leak)](https://github.com/ethereum/consensus-specs/blob/master/specs/bellatrix/beacon-chain.md#modified-get_inactivity_penalty_deltas) · ethereum/consensus-specs, Bellatrix
+4. [Holešky incident debrief, 26 February 2025](https://ethereum-magicians.org/t/holesky-incident-debrief-february-26-2025/22998) · Ethereum Magicians
+5. [Client diversity, including stake-weighted execution client shares from supermajority.info](https://clientdiversity.org/) · clientdiversity.org
+6. [Validator queue history](https://github.com/etheralpha/validatorqueue-com) · validatorqueue.com (etheralpha/validatorqueue-com)
+7. [process_slashings and slash_validator](https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md#modified-process_slashings) · ethereum/consensus-specs, Electra
+8. [EIP-7716: Anti-correlation attestation penalties](https://eips.ethereum.org/EIPS/eip-7716) · Ethereum Improvement Proposals
+9. [EIP-7251: Increase the MAX_EFFECTIVE_BALANCE (consolidations)](https://eips.ethereum.org/EIPS/eip-7251) · Ethereum Improvement Proposals
+
 ## Related
 
 - [Validator Downtime](https://validatordowntime.obol.org/) ([llms.txt](https://validatordowntime.obol.org/llms.txt)): what correlated downtime would cost under EIP-7716. Client Diversity is the safety side of the same story: a supermajority-client bug is either mass slashing or, with refuse-to-attest, correlated downtime.

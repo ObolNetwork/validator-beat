@@ -1,7 +1,7 @@
 import { FONT, OG_ACCENT, OG_HEAD, OG_LABEL, OG_SUB, escapeXml, ogCta, ogHeader, ogPulse, ogShell } from "@lib/share/og-card";
 import { fmtEth } from "@lib/cost/format";
 import { DEFAULT_PARAMS } from "@lib/cost/params";
-import { economics, outcomeCases } from "@lib/cost/model";
+import { outcomeCases } from "@lib/cost/model";
 
 // Dark-mode chart tokens (styles/theme-tokens.css --theme-cost-s0/s1), validated on dark surfaces.
 const S0 = "#dd603c";
@@ -36,34 +36,39 @@ function waffle(x0: number, y0: number, loss: number, stake: number, color: stri
   return out.join("");
 }
 
+/** The card's own scenario: a round 1M ETH, so the question reads cleanly in a feed. */
+export const OG_SCENARIO = { ...DEFAULT_PARAMS, stakeEth: 1_000_000 };
+
 /**
- * OG card for /cost-of-failure: the headline loss at the page's defaults,
- * solo operators (Stage 0) vs a multi-operator DV (Stage 1) as to-scale waffles. Rendered to
- * public/og/cost-of-failure.png at build time.
+ * OG card for /cost-of-failure: "what's safer, N operators staking X each or
+ * one DV cluster staking N·X?", answered with the model for OG_SCENARIO, as
+ * to-scale waffles. Rendered to public/og/cost-of-failure.png at build time.
  */
 export function costOgSvg(displayHost: string = "validatorbeat.com"): string {
-  const p = DEFAULT_PARAMS;
+  const p = OG_SCENARIO;
   const full = outcomeCases(p).find((c) => c.id === "full")!;
   const loss0 = full.stage0.breakdown.totalEth;
   const loss1 = full.stage1.breakdown.totalEth;
-  const premiumYears = loss0 / economics(p).premiumPerYearEth;
+  const compact = (eth: number) => (eth >= 1e6 ? `${eth / 1e6}M` : `${Math.round(eth / 1e3)}K`);
+  const each = compact(p.stakeEth / p.operators);
+  const total = compact(p.stakeEth);
   const gx = 712;
 
   return ogShell(`
   ${ogHeader(displayHost)}
-  <text x="64" y="176" font-family="${FONT}" font-size="19" font-weight="600" fill="${OG_ACCENT}" letter-spacing="0.12em">THE COST OF ONE FAILURE</text>
-  <text x="64" y="250" font-family="${FONT}" font-size="62" font-weight="700" fill="${OG_HEAD}">One leaked key.</text>
-  <text x="64" y="324" font-family="${FONT}" font-size="62" font-weight="700" fill="${S0}">${escapeXml(fmtEth(loss0))}</text>
-  <text x="64" y="380" font-family="${FONT}" font-size="25" fill="${OG_SUB}">${escapeXml(fmtEth(p.stakeEth))} across ${p.operators} solo operators; one is slashed.</text>
-  <text x="64" y="418" font-family="${FONT}" font-size="25" fill="${OG_SUB}">Run together as a DV: <tspan fill="${OG_HEAD}" font-weight="700">about ${escapeXml(fmtEth(loss1))}</tspan>.</text>
-  <text x="64" y="456" font-family="${FONT}" font-size="25" fill="${OG_SUB}">${escapeXml(`= ${Math.round(premiumYears)} years of paying ${p.fee1Pct}% instead of ${p.fee0Pct}%.`)}</text>
-  ${ogPulse(500)}
-  ${ogCta("Run the numbers for your stake →", 568)}
+  <text x="64" y="168" font-family="${FONT}" font-size="19" font-weight="600" fill="${OG_ACCENT}" letter-spacing="0.12em">WHAT&apos;S SAFER?</text>
+  <text x="64" y="228" font-family="${FONT}" font-size="44" font-weight="700" fill="${OG_HEAD}">${p.operators} operators staking</text>
+  <text x="64" y="280" font-family="${FONT}" font-size="44" font-weight="700" fill="${OG_HEAD}">${each} ETH each, or one</text>
+  <text x="64" y="332" font-family="${FONT}" font-size="44" font-weight="700" fill="${OG_HEAD}">DV cluster staking ${total}?</text>
+  <text x="64" y="390" font-family="${FONT}" font-size="24" fill="${OG_SUB}">One operator&apos;s keys leak and are slashed:</text>
+  <text x="64" y="426" font-family="${FONT}" font-size="24" fill="${OG_SUB}">solo, <tspan fill="${S0}" font-weight="700">${escapeXml(fmtEth(loss0))}</tspan> gone. The DV: <tspan fill="${OG_HEAD}" font-weight="700">about ${escapeXml(fmtEth(loss1))}</tspan>.</text>
+  ${ogPulse(474)}
+  ${ogCta("Run the numbers for your stake →", 548)}
   <rect x="${gx}" y="170" width="14" height="4" rx="2" fill="${S0}"/>
   <text x="${gx + 22}" y="177" font-family="${FONT}" font-size="20" font-weight="700" fill="${OG_LABEL}" letter-spacing="0.06em">SOLO OPERATORS · ${escapeXml(fmtEth(loss0))}</text>
   ${waffle(gx, 192, loss0, p.stakeEth, S0)}
   <rect x="${gx}" y="370" width="14" height="4" rx="2" fill="${S1}"/>
   <text x="${gx + 22}" y="377" font-family="${FONT}" font-size="20" font-weight="700" fill="${OG_LABEL}" letter-spacing="0.06em">MULTI-OPERATOR DV · ${escapeXml(fmtEth(loss1))}</text>
   ${waffle(gx, 392, loss1, p.stakeEth, S1)}
-  <text x="${gx}" y="566" font-family="${FONT}" font-size="19" fill="${OG_LABEL}">Each square: ${escapeXml(fmtEth(p.stakeEth / (COLS * ROWS)))}. To scale.</text>`);
+  <text x="${gx}" y="566" font-family="${FONT}" font-size="19" fill="${OG_LABEL}">Each square: ${escapeXml(fmtEth(p.stakeEth / (COLS * ROWS)))} of ${total} ETH. To scale.</text>`);
 }

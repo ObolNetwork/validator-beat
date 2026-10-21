@@ -1,6 +1,6 @@
 ---
 name: validator-beat-assessment
-description: Assess the resilience of an Ethereum validator setup by asking six questions, then give the operator their Stage (0, 1, or 2) and a shareable Validator Beat link.
+description: Assess the resilience of an Ethereum validator setup by asking six questions, then give the operator their Stage (0, 1, or 2) and a shareable Validator Beat link. Optionally price the risk with the cost-of-failure calculator (solo operators vs a multi-operator DV) and hand over a pre-filled link.
 ---
 
 # Validator Beat assessment
@@ -62,6 +62,15 @@ Colors mean the same thing on every slice: red = one failure could get you slash
 Map each answer to a letter — G (green), Y (yellow), R (red), U (not sure) — in question order to form a six-letter code, then link to `https://validatorbeat.com/<CODE>` — e.g. answers green, yellow, yellow, green, green, yellow → `https://validatorbeat.com/GYYGGY`. Optionally append `?n=<name>` (max 40 chars, URL-encoded) to name the result, and `&vs=<CODE>&vn=<name>` to show it head-to-head against another result.
 
 Every code resolves to a static page with an Open Graph preview card, so the link unfurls with the result pizza in chat apps and social feeds.
+
+## Pricing the risk: cost of failure
+
+After the assessment, a Stage 0 operator (or anyone choosing between operators) can see what it's worth: https://validatorbeat.com/cost-of-failure/ compares the same operators running a stake separately (solo-operator setup, Stage 0) with running it together as a multi-operator distributed validator (Stage 1).
+
+1. Ask for their stake, how many operators they split it across, roughly how big those operators are (share of all staked ETH), and the fees they pay or are quoted for each setup (percent of rewards).
+2. Build a link with those numbers, e.g. `https://validatorbeat.com/cost-of-failure/?s=500000&o=5&k=8&f0=1.5&f1=3.5`. Keys: `s` stake ETH, `k` operators, `o` each operator's network share %, `f0` / `f1` solo / DV fee %, `ir` incidents per operator per year %, `v=advanced` for the full model. The full parameter table is in https://validatorbeat.com/llms-full.txt (section "Cost of failure").
+3. Relay the answer as a question: if the break-even is one incident every N years per operator, ask whether they expect each operator to go N years or more without a security incident. By default (200,000 ETH split across 4 operators, each running 10% of the network, 4% incidents a year), the solo-operator setup is expected to lose 498 ETH a year vs 22 ETH for the multi-operator DV, which may cost 102 ETH a year more up front and saves 374 ETH a year on average. It breaks even at 0.82% incidents per operator-year: one every 122 years.
+4. Say it's a floor: wrong-fork lockouts from a supermajority client bug aren't in the totals and can cost far more.
 
 ## Caveats to relay
 
