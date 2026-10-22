@@ -1,6 +1,7 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import { Card } from "@components/assessment/stitches";
-import { fmtUsd } from "@lib/cost/format";
+import { fmtUsd, sinceYear } from "@lib/cost/format";
+import { SNAPSHOT_YEAR } from "@lib/cost/network";
 import { SETUP } from "@lib/cost/labels";
 import {
   DEFAULT_PARAMS,
@@ -10,9 +11,11 @@ import {
   applySeverity,
   type CostParams,
   type FrequencyId,
+  parseOps,
   type SeverityId,
 } from "@lib/cost/params";
 import { Chips, NumberField, Slider } from "./controls";
+import { OperatorList } from "./OperatorList";
 import { SeverityShape } from "./Odds";
 import * as s from "./styles";
 
@@ -28,6 +31,7 @@ const sub = { display: "flex", flexDirection: "column", gap: 18 } as const;
 
 export function Setup({ params: p, update, replace, probabilities }: Props) {
   const advanced = p.view === "advanced";
+  const custom = parseOps(p.opList) !== null;
   return (
     <Card as="section" aria-labelledby="setup" css={{ ...s.cardPad, display: "flex", flexDirection: "column", gap: 24 }}>
       <Box>
@@ -42,10 +46,12 @@ export function Setup({ params: p, update, replace, probabilities }: Props) {
       <NumberField
         label="Your stake"
         value={p.stakeEth}
-        min={32}
+        min={1}
         max={10_000_000}
         step={1000}
-        suffix={`ETH · ${fmtUsd(p.stakeEth * p.ethUsd)}`}
+        readOnly={custom}
+        suffix={custom ? `ETH across ${p.operators} operators` : `ETH · ${fmtUsd(p.stakeEth * p.ethUsd)}`}
+        hint={custom ? "The total of the operators listed in Advanced → General setup." : undefined}
         onChange={(v) => update({ stakeEth: v })}
       />
 
@@ -53,7 +59,11 @@ export function Setup({ params: p, update, replace, probabilities }: Props) {
         <Chips
           label="How often a key is compromised"
           value={p.frequency}
-          options={(Object.keys(FREQUENCY_PRESETS) as FrequencyId[]).map((id) => ({ id, ...FREQUENCY_PRESETS[id] }))}
+          options={(Object.keys(FREQUENCY_PRESETS) as FrequencyId[]).map((id) => ({
+            id,
+            ...FREQUENCY_PRESETS[id],
+            hint: `${FREQUENCY_PRESETS[id].hint}: no incident at an operator since about ${sinceYear(FREQUENCY_PRESETS[id].incidentRatePct, SNAPSHOT_YEAR)}`,
+          }))}
           onChange={(id) => replace((q) => applyFrequency(q, id))}
         />
         {advanced && (
@@ -64,7 +74,7 @@ export function Setup({ params: p, update, replace, probabilities }: Props) {
               min={0}
               max={15}
               step={0.5}
-              format={(v) => `${v}%`}
+              format={(v) => (v > 0 ? `${v}% · none since ${sinceYear(v, SNAPSHOT_YEAR)}` : "0%")}
               defaultValue={DEFAULT_PARAMS.incidentRatePct}
               onChange={(v) => update({ incidentRatePct: v, frequency: "custom" })}
               hint="Base rate: about 8 public key or operator incidents across about 50 major operators since April 2023, so 4–5% a year. The data is thin: treat it as a starting point, not a measurement."
@@ -147,28 +157,7 @@ export function Setup({ params: p, update, replace, probabilities }: Props) {
           <Text as="legend" css={{ ...blockTitle, padding: "0 6px" }}>
             General setup
           </Text>
-          <Slider
-            label="Operator's share of all staked ETH"
-            value={p.operatorSharePct}
-            min={0.5}
-            max={33}
-            step={0.5}
-            format={(v) => `${v}%`}
-            defaultValue={DEFAULT_PARAMS.operatorSharePct}
-            onChange={(v) => update({ operatorSharePct: v })}
-            hint="The operator's whole book, not just your slice. A compromise there affects all of it, and the correlation penalty and exit queues scale with it."
-          />
-          <Slider
-            label="Split your stake across"
-            value={p.operators}
-            min={1}
-            max={10}
-            step={1}
-            format={(v) => (v === 1 ? "1 operator" : `${v} operators`)}
-            defaultValue={DEFAULT_PARAMS.operators}
-            onChange={(v) => update({ operators: v })}
-            hint="Each runs its share alone and holds the network share above. Splitting shrinks each loss but adds more chances of one. Run together as a multi-operator DV, the same operators remove the single point of failure instead."
-          />
+          <OperatorList params={p} update={update} />
           <Slider
             label="Years"
             value={p.years}

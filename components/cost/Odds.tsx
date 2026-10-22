@@ -1,7 +1,7 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import { useMemo, useState } from "react";
 import { Card, Eyebrow } from "@components/assessment/stitches";
-import { fmtCompact, fmtEth, fmtPct, fmtYears, fmtYearsBetween } from "@lib/cost/format";
+import { fmtCompact, fmtEth, fmtPct, fmtShareOfStake, fmtYears, fmtYearsBetween } from "@lib/cost/format";
 import { HEATMAP_RUNS, HEATMAP_YEARS, betaShape, expectations, type Heatmap, type MonteCarloResult } from "@lib/cost/montecarlo";
 import { DEFAULT_PARAMS, type CostParams } from "@lib/cost/params";
 import type { Economics } from "@lib/cost/model";
@@ -453,9 +453,8 @@ export function HeatGrid({ hm, rate, years, view }: { hm: Heatmap; rate: number;
         </Text>
       </Box>
       <Text css={{ ...s.small, marginTop: 8 }}>
-        Each row is an incident rate per operator: 4% a year means about one security incident every 25 years at each
-        operator. The rows at 2% and below assume every operator goes 50 years or more without one, which is a lot of
-        luck to bank on.
+        4% a year is about one incident every 25 years per operator. The rows at 2% and below assume 50 years or more
+        without one: a lot of luck to bank on.
       </Text>
       <Text css={{ ...s.small, marginTop: 8 }}>
         {view === "chance" ? (
@@ -507,11 +506,15 @@ export function AheadMap({
   params: p,
   update,
   heatmap,
+  mc,
 }: {
   params: CostParams;
   update: (patch: Partial<CostParams>) => void;
   heatmap: Heatmap | null;
+  mc: MonteCarloResult | null;
 }) {
+  const last = mc?.years[mc.years.length - 1];
+  const ratio = last && last.soloGainWhenAhead > 0 ? last.soloLossWhenBehind / last.soloGainWhenAhead : 0;
   return (
     <Card
       as="section"
@@ -531,14 +534,14 @@ export function AheadMap({
         <Text as="p" css={{ ...s.prose, fontSize: "$2", marginTop: 10 }}>
           {p.heatView === "chance" ? (
             <>
-              Each cell is the share of simulated runs where the {SETUP.s0.name.toLowerCase()} is still ahead: no incident yet,
-              or only small ones its lower fees have covered. With {Math.max(1, Math.round(p.operators))} separate operators there
-              are that many chances of an incident each year, so the odds fall quickly.
+              The share of simulated runs where running your operators separately is still ahead. With{" "}
+              {Math.max(1, Math.round(p.operators))} operators there are that many chances of an incident each year, so the
+              odds fall fast.
             </>
           ) : (
             <>
-              Each cell is the average result, in years of rewards. Blue means the multi-operator DV comes out ahead on
-              average, even where the solo setup wins most individual runs: when it loses, it loses a lot.
+              The average result, in years of rewards. Blue means running together comes out ahead on average, even where
+              the solo setup wins most runs: when it loses, it loses a lot.
             </>
           )}
         </Text>
@@ -554,6 +557,33 @@ export function AheadMap({
           onChange={(heatView) => update({ heatView })}
           css={{ marginTop: 14, maxWidth: 360 }}
         />
+        {last && last.soloGainWhenAhead > 0 && last.soloLossWhenBehind > 0 && (
+          <Box
+            css={{ marginTop: 20, display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 14 }}
+            aria-label={`After ${p.years} years: wins by ${fmtShareOfStake(last.soloGainWhenAhead)} of stake, loses by ${fmtShareOfStake(last.soloLossWhenBehind)}`}
+          >
+            <Box>
+              <Text css={{ ...s.small, fontWeight: "$semibold" }}>
+                <Box as="span" css={s.swatch(s.S0)} />
+                When solo comes out ahead
+              </Text>
+              <Text css={{ ...s.statValue, fontSize: 24, marginTop: 4 }}>+{fmtShareOfStake(last.soloGainWhenAhead)}</Text>
+              <Text css={s.small}>of your stake, on average</Text>
+            </Box>
+            <Box>
+              <Text css={{ ...s.small, fontWeight: "$semibold" }}>
+                <Box as="span" css={s.swatch(s.S0)} />
+                When it falls behind
+              </Text>
+              <Text css={{ ...s.statValue, fontSize: 24, marginTop: 4 }}>−{fmtShareOfStake(last.soloLossWhenBehind)}</Text>
+              <Text css={s.small}>of your stake, on average</Text>
+            </Box>
+            <Text css={{ ...s.small, gridColumn: "1 / -1" }}>
+              After {p.years} years, from {p.runs.toLocaleString("en-US")} simulated runs: running separately wins small and
+              loses big{ratio >= 2 ? `, about ${Math.round(ratio)}× more than it wins` : ""}.
+            </Text>
+          </Box>
+        )}
       </Box>
       <Box>
         <Text css={{ ...s.small }}>

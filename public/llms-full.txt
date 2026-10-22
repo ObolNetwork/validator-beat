@@ -282,10 +282,14 @@ Every assumption is a query parameter; only values that differ from the defaults
 - Default view: https://validatorbeat.com/cost-of-failure/
 - 500,000 ETH across 8 operators, each 5% of the network, frequent incidents: https://validatorbeat.com/cost-of-failure/?s=500000&o=5&k=8&fr=frequent&ir=10
 - Same as the default, in the Advanced view at the outage case with EIP-7716: https://validatorbeat.com/cost-of-failure/?e=outage&x7=1&v=advanced
+- Operators of different sizes (each slice keeps its own operator's network share, exit queue and correlation penalty), with your own node in the DV: https://validatorbeat.com/cost-of-failure/?ops=318000:9.96,183000:6.53,91847:0.71&xn=1
+- Pinned for a report or PDF, so the numbers don't drift when the snapshot or defaults change: https://validatorbeat.com/cost-of-failure/?s=318000&o=9.96&k=1&snap=2026-10-19
+
+With operators of different sizes, the single-incident figures are shown at your largest exposure (the operator whose every-key-slashed case costs most), and the break-even uses the actual split.
 
 | Key | Parameter | Default | Allowed | Meaning |
 |---|---|---|---|---|
-| `s` | stakeEth | 200000 | 32–10000000 | Your total stake, ETH. |
+| `s` | stakeEth | 200000 | 1–10000000 | Your total stake, ETH. |
 | `o` | operatorSharePct | 10 | 0.5–33 | Each operator's share of all staked ETH, percent. Drives the correlation penalty and how long its book takes to exit. |
 | `k` | operators | 4 | 1–10, whole numbers | How many operators your stake is split across (solo setup), or that run it together (multi-operator DV). |
 | `apr` | aprPct | 2.55 | 1.5–4.5 | Staking APR, consensus plus execution, percent. |
@@ -321,6 +325,9 @@ Every assumption is a query parameter; only values that differ from the defaults
 | `seed` | seed | 7716 | 0–4294967295, whole numbers | Random seed: the same seed and settings reproduce the same runs. |
 | `hv` | heatView | chance | chance, average | Heatmap view: chance (of the solo setup being ahead) or average (outcome). |
 | `v` | view | basic | basic, advanced | Page view: basic or advanced. |
+| `ops` | opList | (none) | up to 10 stake:share% pairs, comma-separated | Operators of different sizes, as stake:share% pairs separated by commas (e.g. 318000:9.96,183000:6.53). Overrides s, k and o. |
+| `xn` | extraNodes | 0 | 0–3, whole numbers | Extra multi-operator DV cluster members with no stake of their own, such as your own node. |
+| `snap` | snap | (none) | a pinned snapshot id: 2026-10-19 | Pin a network snapshot and that day's defaults (e.g. 2026-10-19), so a shared link keeps its numbers. |
 
 Preset parameters (`q`, `fr`, `sv`) only label the view; the numeric parameters are what the model uses, so set those too when you change one (e.g. `fr=frequent&ir=10`).
 

@@ -15,8 +15,9 @@ import {
   outageCost,
 } from "./rewards";
 import { correlationPenaltyPerEth, goodLeaver, safetyEvent, type SafetyEventInput } from "./events";
-import { DEFAULT_PARAMS, applyQueuePreset, decodeParams, encodeParams, sanitizeParams, type CostParams } from "./params";
-import { outcomeCases, safetyCase, stage1Compromise } from "./model";
+import { DEFAULT_PARAMS, applyQueuePreset, decodeParams, defaultsFor, encodeParams, parseOps, sanitizeParams, type CostParams } from "./params";
+import { LATEST_PIN, PINNED } from "./snapshots";
+import { economics, forOperator, operatorsOf, outcomeCases, safetyCase, stage1Compromise } from "./model";
 import { expectations, simulate } from "./montecarlo";
 import { fmtDays, fmtYearsBetween } from "./format";
 
@@ -273,7 +274,7 @@ describe("URL state", () => {
     expect(p.runs).toBe(20_000);
     expect(p.years).toBe(20);
     expect(p.operators).toBe(10);
-    expect(p.stakeEth).toBe(32);
+    expect(p.stakeEth).toBe(1);
     expect(p.seed).toBe(2);
     expect(p.operatorSharePct).toBe(33);
   });
@@ -285,5 +286,96 @@ describe("URL state", () => {
   it("ignores junk", () => {
     expect(decodeParams("s=abc&e=nope&x7=1").stakeEth).toBe(DEFAULT_PARAMS.stakeEth);
     expect(decodeParams("e=nope").focus).toBe(DEFAULT_PARAMS.focus);
+  });
+});
+
+describe("operators of different sizes", () => {
+  const SHARPLINK = "ops=318000:9.96,183000:6.53,91847:0.71";
+
+  it("parses and normalises the ops list", () => {
+    expect(parseOps("318000:9.96, 183000:6.53")).toEqual([
+      { stakeEth: 318000, sharePct: 9.96 },
+      { stakeEth: 183000, sharePct: 6.53 },
+    ]);
+    expect(parseOps("")).toBeNull();
+    expect(parseOps("abc")).toBeNull();
+    expect(parseOps("100:0")).toBeNull();
+    const p = decodeParams(SHARPLINK);
+    expect(p.stakeEth).toBe(592847);
+    expect(p.operators).toBe(3);
+  });
+
+  it("an explicit equal list gives exactly the equal-split numbers", () => {
+    const list = decodeParams("ops=50000:10,50000:10,50000:10,50000:10");
+    const a = expectations(DEFAULT_PARAMS);
+    const b = expectations(list);
+    expect(b.loss0PerYearEth).toBeCloseTo(a.loss0PerYearEth, 9);
+    expect(b.loss1PerYearEth).toBeCloseTo(a.loss1PerYearEth, 9);
+    expect(b.breakEvenRatePct).toBeCloseTo(a.breakEvenRatePct, 9);
+    const sa = simulate({ ...DEFAULT_PARAMS, runs: 300 });
+    const sb = simulate({ ...list, runs: 300 });
+    expect(sb.years[9].mean).toBeCloseTo(sa.years[9].mean, 6);
+  });
+
+  // Regression against the Sharplink risk report (snapshot 2026-10-19, site defaults).
+  it("reproduces the report's per-operator losses", () => {
+    const p = decodeParams(SHARPLINK);
+    const near = (got: number, want: number) => expect(Math.abs(got / want - 1)).toBeLessThan(0.005);
+    const [coinbase, figment, galaxy] = operatorsOf(p).map((op) => forOperator(p, op));
+    near(safetyCase(coinbase, 1).breakdown.totalEth, 61_842);
+    near(safetyCase(coinbase, 0.25).breakdown.totalEth, 5_255);
+    near(safetyCase(coinbase, 0).breakdown.totalEth, 1_124);
+    near(safetyCase(figment, 1).breakdown.totalEth, 35_483);
+    near(safetyCase(galaxy, 1).breakdown.totalEth, 2_451);
+    // The worst case shown is the largest exposure (Coinbase).
+    near(outcomeCases(p).find((c) => c.id === "full")!.stage0.breakdown.totalEth, 61_842);
+  });
+
+  it("reproduces the report's expected losses, fee and break-even", () => {
+    const p = decodeParams(SHARPLINK);
+    const want: Record<number, number> = { 1: 332, 2: 646, 4: 1274, 5: 1588, 10: 3157 };
+    for (const [rate, loss0] of Object.entries(want)) {
+      expect(Math.round(expectations({ ...p, incidentRatePct: Number(rate) }).loss0PerYearEth)).toBe(loss0);
+    }
+    expect(Math.round(economics(p).premiumPerYearEth)).toBe(302);
+    expect(expectations(p).breakEvenRatePct).toBeCloseTo(0.95, 2);
+  });
+
+  it("extra cluster members add DV incidents but no solo stake", () => {
+    const p = decodeParams(SHARPLINK);
+    const a = expectations(p);
+    const b = expectations({ ...p, extraNodes: 1 });
+    expect(b.loss0PerYearEth).toBeCloseTo(a.loss0PerYearEth, 9);
+    expect(b.loss1PerYearEth).toBeGreaterThan(a.loss1PerYearEth);
+  });
+
+  it("reports how much running separately wins by, and loses by", () => {
+    const y = simulate({ ...decodeParams(SHARPLINK), runs: 4000 }).years[9];
+    expect(y.soloGainWhenAhead).toBeGreaterThan(0.003);
+    expect(y.soloGainWhenAhead).toBeLessThan(0.007);
+    expect(y.soloLossWhenBehind).toBeGreaterThan(10 * y.soloGainWhenAhead);
+  });
+});
+
+describe("pinned snapshots", () => {
+  it("the latest pinned defaults are today's defaults (publish a new pin when they change)", () => {
+    const pinned = defaultsFor(LATEST_PIN);
+    for (const [k, v] of Object.entries(PINNED[LATEST_PIN].defaults)) {
+      expect([k, (DEFAULT_PARAMS as unknown as Record<string, unknown>)[k]]).toEqual([k, v]);
+    }
+    expect(pinned.snap).toBe(LATEST_PIN);
+  });
+
+  it("a pinned link keeps its snap and round-trips; unknown pins are dropped", () => {
+    const p = decodeParams(`snap=${LATEST_PIN}&s=318000&o=9.96&k=1`);
+    expect(p.snap).toBe(LATEST_PIN);
+    expect(p.stakeEth).toBe(318000);
+    expect(decodeParams(encodeParams(p))).toEqual(p);
+    expect(decodeParams("snap=1999-01-01").snap).toBe("");
+  });
+
+  it("typing-friendly bounds: stake can go down to 1 ETH", () => {
+    expect(decodeParams("s=1").stakeEth).toBe(1);
+    expect(decodeParams("s=0").stakeEth).toBe(1);
   });
 });

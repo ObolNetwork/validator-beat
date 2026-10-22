@@ -9,7 +9,8 @@ import {
   activationExitChurnEth,
   sweepWaitDays,
 } from "@lib/cost/network";
-import { DEFAULT_PARAMS, applyQueuePreset, networkFromParams, type CostParams } from "@lib/cost/params";
+import { DEFAULT_PARAMS, applyQueuePreset, encodeParams, networkFromParams, type CostParams } from "@lib/cost/params";
+import { LATEST_PIN } from "@lib/cost/snapshots";
 import { EPOCHS_PER_DAY } from "@lib/cost/protocol";
 import type { MonteCarloResult } from "@lib/cost/montecarlo";
 import type { OutcomeCase } from "@lib/cost/model";
@@ -171,6 +172,7 @@ const GROUP_IDS: Record<GroupId, string> = {
 
 export function Assumptions({ params: p, update, replace, reset, cases, mc }: Props) {
   const [copied, setCopied] = useState(false);
+  const [pinnedCopied, setPinnedCopied] = useState(false);
   const [open, setOpen] = useState<Record<GroupId, boolean>>({ network: false, event: false, stage1: false, sim: false });
   const allOpen = Object.values(open).every(Boolean);
   const setGroup = (g: GroupId) => (v: boolean) => setOpen((o) => ({ ...o, [g]: v }));
@@ -234,6 +236,22 @@ export function Assumptions({ params: p, update, replace, reset, cases, mc }: Pr
               }}
             >
               {copied ? "Link copied" : "Copy link to this view"}
+            </Box>
+            <Box
+              as="button"
+              type="button"
+              css={actionButton}
+              title="For reports and PDFs: the link keeps today's network snapshot and defaults, so its numbers don't drift."
+              onClick={() => {
+                const q = encodeParams({ ...p, snap: p.snap || LATEST_PIN });
+                const url = `${window.location.origin}${window.location.pathname}?${q}`;
+                navigator.clipboard?.writeText(url).then(() => {
+                  setPinnedCopied(true);
+                  window.setTimeout(() => setPinnedCopied(false), 1600);
+                });
+              }}
+            >
+              {pinnedCopied ? "Pinned link copied" : "Copy a pinned link (for reports)"}
             </Box>
             <Box as="button" type="button" css={actionButton} onClick={exportCsv}>
               Download CSV

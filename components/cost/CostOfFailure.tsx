@@ -61,26 +61,37 @@ export function CostOfFailure() {
         <Intro params={params} update={update} />
 
         <Box css={{ ...s.wrap, paddingBottom: 28 }}>
+          {/* Desktop: Setup and the lockout note beside Results. Phones: Setup → Results → lockout,
+              so the answer comes straight after the inputs. */}
           <Box
             css={{
               display: "grid",
               gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+              gridTemplateAreas: advanced ? '"setup results"' : '"setup results" "lock results"',
+              gridTemplateRows: advanced ? "auto" : "auto 1fr",
               gap: 22,
               alignItems: "start",
-              "@media (max-width: 900px)": { gridTemplateColumns: "minmax(0, 1fr)" },
+              "@media (max-width: 900px)": {
+                gridTemplateColumns: "minmax(0, 1fr)",
+                gridTemplateAreas: advanced ? '"setup" "results"' : '"setup" "results" "lock"',
+                gridTemplateRows: "auto",
+              },
             }}
           >
-            <Box css={{ display: "flex", flexDirection: "column", gap: 22 }}>
+            <Box css={{ gridArea: "setup" }}>
               <Setup params={params} update={update} replace={replace} probabilities={probabilities} />
-              {/* Basic: the short lockout caveat fills the column beside the taller Results. */}
-              {!advanced && <Lockout compact />}
             </Box>
-            <Box css={{ position: "sticky", top: 84, "@media (max-width: 900px)": { position: "static" } }}>
+            <Box css={{ gridArea: "results", position: "sticky", top: 84, "@media (max-width: 900px)": { position: "static" } }}>
               <Results params={params} econ={econ} cases={cases} />
             </Box>
+            {!advanced && (
+              <Box css={{ gridArea: "lock" }}>
+                <Lockout compact />
+              </Box>
+            )}
           </Box>
           <Box css={{ marginTop: 22 }}>
-            <AheadMap params={params} update={update} heatmap={heatmap} />
+            <AheadMap params={params} update={update} heatmap={heatmap} mc={mc} />
           </Box>
           {advanced && (
             <Box css={{ marginTop: 22 }}>

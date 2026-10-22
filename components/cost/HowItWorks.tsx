@@ -9,6 +9,7 @@ import { simulate } from "@lib/cost/montecarlo";
 import { SPEC_REFS, SPEC_VERSION } from "@lib/cost/protocol";
 import { FORMULAS } from "@lib/cost/methodology";
 import { TableView, srOnly } from "./controls";
+import { Plateau } from "./Plateau";
 import { Ref } from "./refs";
 import { useWidth } from "./useWidth";
 import { Anchor } from "./Anchor";
@@ -140,6 +141,7 @@ export function HowItWorks() {
           not the 3× correlation penalty<Ref k="slashings" />. This is current behaviour (unchanged in Gloas). A simpler model that charges every
           slashed validator the full penalty overstates this worst case by about half.
         </Text>
+        <Plateau />
 
         <Anchor as="h3" id="simplified-model" css={{ ...s.h3, marginTop: 36 }}>
           How this compares to a simpler model

@@ -1,12 +1,13 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import { Card, Eyebrow } from "@components/assessment/stitches";
 import { fmtDays, fmtEth, fmtYears } from "@lib/cost/format";
-import { DEFAULT_PARAMS, type CostParams, type FocusEvent } from "@lib/cost/params";
+import { DEFAULT_PARAMS, parseOps, type CostParams, type FocusEvent } from "@lib/cost/params";
 import type { Economics, OutcomeCase } from "@lib/cost/model";
 import { Chips, Slider, Toggle } from "./controls";
 import { AreaCompare } from "./AreaCompare";
 import { Ref } from "./refs";
 import { SETUP } from "@lib/cost/labels";
+import { primaryOperator } from "@lib/cost/model";
 import { Anchor } from "./Anchor";
 import * as s from "./styles";
 
@@ -19,7 +20,12 @@ const FOCUS: { id: FocusEvent; label: string; hint: string }[] = [
 
 export function describeCase(p: CostParams): string {
   const k = Math.max(1, Math.round(p.operators));
-  const op = k > 1 ? `one of your ${k} operators (each runs ${p.operatorSharePct}% of the network)` : `an operator running ${p.operatorSharePct}% of the network`;
+  const big = primaryOperator(p);
+  const op = parseOps(p.opList)
+    ? `your largest exposure (the operator with ${fmtEth(big.stakeEth)} of yours, ${big.sharePct}% of the network)`
+    : k > 1
+      ? `one of your ${k} operators (each runs ${p.operatorSharePct}% of the network)`
+      : `an operator running ${p.operatorSharePct}% of the network`;
   switch (p.focus) {
     case "lucky":
       return `A key compromise at ${op}, caught before anything is slashed. ${p.operatorWide ? "The whole operator exits and re-stakes." : "Your validators exit and re-stake."}`;

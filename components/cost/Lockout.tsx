@@ -31,11 +31,10 @@ export function Lockout({ compact = false }: { compact?: boolean }) {
         The worst case isn&apos;t on this page: a client bug can lock you out
       </Anchor>
       <Text as="p" css={{ ...s.prose, maxWidth: 900 }}>
-        These figures price a key compromise at one operator. A bug in the clients most of the network runs can cost
-        far more: on the Holešky testnet in February 2025, validators were trapped on an invalid chain
-        <Ref k="holesky" />. On mainnet, a lockout like that would cost each trapped validator about{" "}
-        <strong>72–93% of its balance</strong>
-        <Ref k="lockout" />. A multi-operator DV with diverse clients across its key shares is far less exposed.
+        A bug in the clients most of the network runs can cost far more than a leaked key: on the Holešky testnet in 2025
+        it trapped validators on an invalid chain
+        <Ref k="holesky" />. On mainnet that could cost each trapped validator <strong>72–93% of its balance</strong>
+        <Ref k="lockout" />. A multi-operator DV with diverse clients is far less exposed.
       </Text>
       {compact ? (
         <Box
@@ -44,14 +43,17 @@ export function Lockout({ compact = false }: { compact?: boolean }) {
         >
           <Box as="summary">How a lockout works, and the numbers</Box>
           <Detail />
+          <Text css={{ ...s.small, marginTop: 12 }}>Lockouts aren&apos;t added to this page&apos;s totals or odds.</Text>
         </Box>
       ) : (
         <Detail />
       )}
-      <Text css={{ ...s.small, marginTop: 12, maxWidth: 900 }}>
-        This page does not add lockouts to its totals or its odds: how often they happen and how they play out on mainnet
-        are far less certain than slashing mechanics.
-      </Text>
+      {!compact && (
+        <Text css={{ ...s.small, marginTop: 12, maxWidth: 900 }}>
+          This page does not add lockouts to its totals or its odds: how often they happen and how they play out on mainnet
+          are far less certain than slashing mechanics.
+        </Text>
+      )}
     </Card>
   );
 }

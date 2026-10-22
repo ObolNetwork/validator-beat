@@ -35,6 +35,7 @@ import { FORMULAS } from "@lib/cost/methodology";
 import { SNAPSHOT } from "@lib/cost/network";
 import {
   DEFAULT_PARAMS,
+  MAX_OPERATORS,
   PARAM_BOUNDS,
   PARAM_DOCS,
   PARAM_ENUMS,
@@ -45,6 +46,7 @@ import {
 import { SPEC_REFS, SPEC_VERSION } from "@lib/cost/protocol";
 import { REFS } from "@lib/cost/references";
 import { costSummary } from "@lib/cost/summary";
+import { LATEST_PIN, PINNED } from "@lib/cost/snapshots";
 
 const BASE = SITE_URL.replace(/\/$/, "");
 const DOWNTIME_URL = DOWNTIME_CALCULATOR_URL.replace(/\/$/, "");
@@ -270,6 +272,8 @@ ${costSection()}
 
 /** Allowed values for a parameter, for the URL table. */
 function allowed(k: keyof CostParams): string {
+  if (k === "opList") return `up to ${MAX_OPERATORS} stake:share% pairs, comma-separated`;
+  if (k === "snap") return `a pinned snapshot id: ${Object.keys(PINNED).join(", ")}`;
   const def = DEFAULT_PARAMS[k];
   if (typeof def === "boolean") return "0 or 1";
   if (typeof def === "number") {
@@ -285,7 +289,7 @@ function costSection(): string {
   const rows = (Object.keys(URL_KEYS) as (keyof CostParams)[])
     .map((k) => {
       const d = DEFAULT_PARAMS[k];
-      const shown = typeof d === "boolean" ? (d ? "1" : "0") : String(d);
+      const shown = typeof d === "boolean" ? (d ? "1" : "0") : d === "" ? "(none)" : String(d);
       return `| \`${URL_KEYS[k]}\` | ${k} | ${shown} | ${allowed(k)} | ${PARAM_DOCS[k]} |`;
     })
     .join("\n");
@@ -331,6 +335,10 @@ Every assumption is a query parameter; only values that differ from the defaults
 - Default view: ${costLink()}
 - 500,000 ETH across 8 operators, each 5% of the network, frequent incidents: ${costLink({ stakeEth: 500_000, operators: 8, operatorSharePct: 5, frequency: "frequent", incidentRatePct: 10 })}
 - Same as the default, in the Advanced view at the outage case with EIP-7716: ${costLink({ view: "advanced", focus: "outage", eip7716: true })}
+- Operators of different sizes (each slice keeps its own operator's network share, exit queue and correlation penalty), with your own node in the DV: ${costLink({ opList: "318000:9.96,183000:6.53,91847:0.71", extraNodes: 1 })}
+- Pinned for a report or PDF, so the numbers don't drift when the snapshot or defaults change: ${costLink({ snap: LATEST_PIN, stakeEth: 318_000, operators: 1, operatorSharePct: 9.96 })}
+
+With operators of different sizes, the single-incident figures are shown at your largest exposure (the operator whose every-key-slashed case costs most), and the break-even uses the actual split.
 
 | Key | Parameter | Default | Allowed | Meaning |
 |---|---|---|---|---|
@@ -383,7 +391,7 @@ Every code resolves to a static page with an Open Graph preview card, so the lin
 After the assessment, a Stage 0 operator (or anyone choosing between operators) can see what it's worth: ${COST} compares the same operators running a stake separately (${SETUP.s0.name.toLowerCase()}, ${SETUP.s0.stage}) with running it together as a ${SETUP.s1.name.toLowerCase()} (${SETUP.s1.stage}).
 
 1. Ask for their stake, how many operators they split it across, roughly how big those operators are (share of all staked ETH), and the fees they pay or are quoted for each setup (percent of rewards).
-2. Build a link with those numbers, e.g. \`${costLink({ stakeEth: 500_000, operators: 8, operatorSharePct: 5, fee0Pct: 1.5, fee1Pct: 3.5 })}\`. Keys: \`s\` stake ETH, \`k\` operators, \`o\` each operator's network share %, \`f0\` / \`f1\` solo / DV fee %, \`ir\` incidents per operator per year %, \`v=advanced\` for the full model. The full parameter table is in ${BASE}/llms-full.txt (section "Cost of failure").
+2. Build a link with those numbers, e.g. \`${costLink({ stakeEth: 500_000, operators: 8, operatorSharePct: 5, fee0Pct: 1.5, fee1Pct: 3.5 })}\`. Keys: \`s\` stake ETH, \`k\` operators, \`o\` each operator's network share %, \`f0\` / \`f1\` solo / DV fee %, \`ir\` incidents per operator per year %, \`v=advanced\` for the full model. For operators of different sizes use \`ops=stake:share,stake:share\` (e.g. \`ops=318000:9.96,183000:6.53\`) instead of \`s\`, \`k\` and \`o\`; add \`xn=1\` if they also run their own node in the cluster. If the link goes into a report or document, add \`snap=${LATEST_PIN}\` so its numbers stay fixed. The full parameter table is in ${BASE}/llms-full.txt (section "Cost of failure").
 3. Relay the answer as a question: if the break-even is one incident every N years per operator, ask whether they expect each operator to go N years or more without a security incident. ${costHeadline()}
 4. Say it's a floor: wrong-fork lockouts from a supermajority client bug aren't in the totals and can cost far more.
 

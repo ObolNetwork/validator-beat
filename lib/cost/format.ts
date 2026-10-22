@@ -59,3 +59,15 @@ export function fmtYearsBetween(ratePct: number): string {
   if (years >= 10) return `${Math.round(years).toLocaleString("en-US")} years`;
   return `${years.toFixed(1)} years`;
 }
+
+/** The year of the last incident you'd expect, at this annual rate, counting back from `fromYear`: 4% in 2026 → 2001. */
+export function sinceYear(ratePct: number, fromYear: number): number {
+  return Math.round(fromYear - 100 / ratePct);
+}
+
+/** A fraction of stake as % and, below 1%, basis points: 0.0048 → "0.48% (48 bps)". */
+export function fmtShareOfStake(x: number): string {
+  const pct = x * 100;
+  if (pct < 1) return `${pct.toFixed(2)}% (${Math.round(pct * 100)} bps)`;
+  return `${pct.toFixed(1)}%`;
+}

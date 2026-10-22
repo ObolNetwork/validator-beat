@@ -5,7 +5,7 @@
  */
 import { EPOCHS_PER_DAY } from "./protocol";
 import { inactivityLeakEth } from "./rewards";
-import { F_GRID, costTable, interp, stakePerOperator, type CostTable } from "./model";
+import { F_GRID, costTables, interp, operatorsOf, primaryOperatorIndex, type CostTable } from "./model";
 import type { CostParams } from "./params";
 
 // ── Seeded RNG ──────────────────────────────────────────────────────────────
@@ -75,6 +75,10 @@ export interface YearStats {
   p95: number;
   /** P(Stage 0 has earned more than Stage 1 by this year). */
   pStage0Ahead: number;
+  /** In runs where Stage 0 is ahead: its average lead, as a fraction of total stake. */
+  soloGainWhenAhead: number;
+  /** In runs where Stage 0 is behind: its average shortfall, as a fraction of total stake. */
+  soloLossWhenBehind: number;
 }
 
 export interface MonteCarloResult {
@@ -94,8 +98,8 @@ export interface SimOptions {
   incidentRatePct?: number;
   runs?: number;
   years?: number;
-  /** Precomputed table (the heatmap reuses one across cells). */
-  table?: CostTable;
+  /** Precomputed per-operator tables (the heatmap reuses them across cells). */
+  tables?: CostTable[];
 }
 
 function quantile(sorted: Float64Array, q: number): number {
@@ -109,11 +113,15 @@ function quantile(sorted: Float64Array, q: number): number {
 const FULL_THRESHOLD = 0.9;
 
 export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult {
-  const table = opts.table ?? costTable(p);
+  const ops = operatorsOf(p);
+  const tables = opts.tables ?? costTables(p);
+  // Stage 1 replacement costs are per ETH of the pool; residual slashing uses
+  // the largest exposure's curve.
+  const t1 = tables[primaryOperatorIndex(p)];
   const runs = Math.max(1, Math.round(opts.runs ?? p.runs));
   const Y = Math.max(1, Math.round(opts.years ?? p.years));
-  const k = Math.max(1, Math.round(p.operators));
-  const s = stakePerOperator(p);
+  const k = ops.length;
+  const m = Math.max(0, Math.round(p.extraNodes));
   const apr = p.aprPct / 100;
   const keep0 = 1 - p.fee0Pct / 100;
   const keep1 = 1 - p.fee1Pct / 100;
@@ -129,14 +137,21 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
   const diff = new Float64Array(runs * Y);
   const incidents = { lucky: 0, partial: 0, full: 0, outages: 0, runs };
   let worst = 0;
-  // Stage 0: k separate slices. Stage 1: one pool run by all k operators.
+  // Stage 0: one slice per operator. Stage 1: one pool run by all of them.
   const bal0 = new Float64Array(k);
   const S = p.stakeEth;
+
+  /** A compromise touching the Stage 1 pool: usually a replacement; rarely the threshold falls too. */
+  const stage1Hit = (fg: number, pr: number, bal1: number): [number, number] => {
+    if (rng() < res) return [bal1 * fg * keep1, bal1 * pr];
+    const c = rng() < reshare ? t1.good1 : t1.bad1;
+    return [bal1 * c.forgone * keep1, bal1 * c.principal];
+  };
 
   for (let run = 0; run < runs; run++) {
     // The incident rate itself is uncertain: one draw per run (Gamma, mean λ).
     const lambda = cv > 0 && lambdaMean > 0 ? gamma(rng, 1 / (cv * cv)) * lambdaMean * cv * cv : lambdaMean;
-    bal0.fill(s);
+    for (let o = 0; o < k; o++) bal0[o] = ops[o].stakeEth;
     let bal1 = S;
     let net0 = 0;
     let net1 = 0;
@@ -144,6 +159,7 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
     for (let y = 0; y < Y; y++) {
       net1 += bal1 * apr * keep1;
       for (let o = 0; o < k; o++) {
+        const table = tables[o];
         net0 += bal0[o] * apr * keep0;
 
         const nInc = poisson(rng, lambda);
@@ -155,23 +171,14 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
           else incidents.partial++;
           const fg = interp(table.forgone0, f);
           const pr = interp(table.principal0, f);
-          // Stage 0
-          const l0 = bal0[o] * (fg * keep0 + pr);
+          // Stage 0: only this operator's slice, which can be slashed.
           net0 -= bal0[o] * fg * keep0;
-          loss0 += l0;
-          const p0 = bal0[o] * pr;
-          bal0[o] -= p0;
-          // Stage 1: the compromised operator holds a share of every validator,
-          // so the whole pool is affected. Usually a key replacement; rarely
-          // the attacker reaches a threshold too and the pool is exposed.
-          if (rng() < res) {
-            net1 -= bal1 * fg * keep1;
-            bal1 -= bal1 * pr;
-          } else {
-            const c = rng() < reshare ? table.good1 : table.bad1;
-            net1 -= bal1 * c.forgone * keep1;
-            bal1 -= bal1 * c.principal;
-          }
+          loss0 += bal0[o] * (fg * keep0 + pr);
+          bal0[o] -= bal0[o] * pr;
+          // Stage 1: the same operator holds a share of every validator.
+          const [forgone1, principal1] = stage1Hit(fg, pr, bal1);
+          net1 -= forgone1;
+          bal1 -= principal1;
         }
 
         const nOut = poisson(rng, p.outagesPerYear);
@@ -184,7 +191,19 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
           loss0 += bal0[o] * perEth;
           // One operator down can't stop a threshold cluster; the uncovered
           // share are correlated failures, costed on the same slice of stake.
-          if (rng() >= cover) net1 -= (bal1 / k) * perEth;
+          if (rng() >= cover) net1 -= bal1 * (ops[o].stakeEth / S) * perEth;
+        }
+      }
+      // Extra cluster members (e.g. your own node) can be compromised too, but
+      // only on the Stage 1 side: they hold no Stage 0 stake.
+      for (let j = 0; j < m; j++) {
+        const nInc = poisson(rng, lambda);
+        for (let i = 0; i < nInc; i++) {
+          const slashed = rng() < pSlash;
+          const f = slashed ? beta(rng, p.betaA, p.betaB) : 0;
+          const [forgone1, principal1] = stage1Hit(interp(t1.forgone0, f), interp(t1.principal0, f), bal1);
+          net1 -= forgone1;
+          bal1 -= principal1;
         }
       }
       // Lost principal is lost wealth: count it in the position.
@@ -200,12 +219,19 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
   for (let y = 0; y < Y; y++) {
     let sum = 0;
     let behind = 0;
+    let gain = 0;
+    let shortfall = 0;
     for (let r = 0; r < runs; r++) {
       const v = diff[r * Y + y];
       col[r] = v;
       sum += v;
-      if (v < 0) behind++;
+      if (v < 0) {
+        behind++;
+        gain -= v;
+      } else if (v > 0) shortfall += v;
     }
+    const ahead0 = behind;
+    const behind0 = runs - behind;
     col.sort();
     years.push({
       year: y + 1,
@@ -216,6 +242,8 @@ export function simulate(p: CostParams, opts: SimOptions = {}): MonteCarloResult
       p75: quantile(col, 0.75),
       p95: quantile(col, 0.95),
       pStage0Ahead: behind / runs,
+      soloGainWhenAhead: ahead0 > 0 ? gain / ahead0 / S : 0,
+      soloLossWhenBehind: behind0 > 0 ? shortfall / behind0 / S : 0,
     });
   }
   return {
@@ -244,9 +272,9 @@ export interface Heatmap {
 }
 
 export function heatmap(p: CostParams, maxYears = HEATMAP_YEARS, runs = HEATMAP_RUNS): Heatmap {
-  const table = costTable(p);
+  const tables = costTables(p);
   const runsByRate = HEATMAP_RATES.map((rate, i) =>
-    simulate({ ...p, seed: p.seed + i + 1 }, { incidentRatePct: rate, runs, years: maxYears, table }),
+    simulate({ ...p, seed: p.seed + i + 1 }, { incidentRatePct: rate, runs, years: maxYears, tables }),
   );
   return {
     rates: HEATMAP_RATES,
@@ -273,9 +301,13 @@ function betaExpectation(a: number, b: number, g: (f: number) => number): number
 }
 
 export interface Expectations {
-  /** Expected loss per incident at one operator, ETH (net of fee on forgone rewards). Stage 0 hits that operator's slice; Stage 1 the whole pool. */
+  /** Expected loss per incident at one operator, averaged over your operators, ETH (net of fee on forgone rewards). Stage 0 hits that operator's slice. */
   perIncident0Eth: number;
+  /** Expected loss per incident touching the Stage 1 pool, ETH. */
   perIncident1Eth: number;
+  /** Expected loss a year, incidents plus outages, each stage, ETH. */
+  loss0PerYearEth: number;
+  loss1PerYearEth: number;
   /** Expected outage loss per year, each stage, ETH. */
   outage0PerYearEth: number;
   outage1PerYearEth: number;
@@ -285,42 +317,55 @@ export interface Expectations {
   breakEvenRatePct: number;
 }
 
-export function expectations(p: CostParams, table: CostTable = costTable(p)): Expectations {
-  const s = stakePerOperator(p);
-  const k = Math.max(1, Math.round(p.operators));
+/**
+ * Expected values, summed over your operators. Each Stage 0 operator loses
+ * its own slice (with its own share, so its own correlation penalty and exit
+ * queue); the Stage 1 pool is touched by every operator's incidents, plus any
+ * extra cluster members'.
+ */
+export function expectations(p: CostParams, tables: CostTable[] = costTables(p)): Expectations {
+  const ops = operatorsOf(p);
+  const k = ops.length;
+  const m = Math.max(0, Math.round(p.extraNodes));
+  const t1 = tables[primaryOperatorIndex(p)];
   const keep0 = 1 - p.fee0Pct / 100;
   const keep1 = 1 - p.fee1Pct / 100;
   const pSlash = p.pSlashPct / 100;
-  const cost0 = (f: number) => interp(table.forgone0, f) * keep0 + interp(table.principal0, f);
-  const cost0at1 = (f: number) => interp(table.forgone0, f) * keep1 + interp(table.principal0, f);
-  const eSlash = betaExpectation(p.betaA, p.betaB, cost0);
-  const eSlashAt1 = betaExpectation(p.betaA, p.betaB, cost0at1);
-  const per0 = s * ((1 - pSlash) * cost0(0) + pSlash * eSlash);
-  const res = p.s1ResidualPct / 100;
-  const w = p.s1ResharePct / 100;
-  const repl = w * (table.good1.forgone * keep1 + table.good1.principal) + (1 - w) * (table.bad1.forgone * keep1 + table.bad1.principal);
-  // A multi-operator DV is touched as a whole by any operator's incident.
-  const per1 = p.stakeEth * ((1 - res) * repl + res * ((1 - pSlash) * cost0at1(0) + pSlash * eSlashAt1));
-
   // E[hours] for log-normal(σ = 1) = median × e^{1/2}.
   const meanEpochs = p.outageMedianHours * Math.exp(0.5) * (EPOCHS_PER_DAY / 24);
-  const outPerOp = s * table.outagePerEthPerEpoch * meanEpochs;
-  const outage0 = k * p.outagesPerYear * outPerOp;
+
+  let sumPer0 = 0;
+  let outage0 = 0;
+  ops.forEach((op, i) => {
+    const t = tables[i];
+    const cost0 = (f: number) => interp(t.forgone0, f) * keep0 + interp(t.principal0, f);
+    sumPer0 += op.stakeEth * ((1 - pSlash) * cost0(0) + pSlash * betaExpectation(p.betaA, p.betaB, cost0));
+    outage0 += p.outagesPerYear * op.stakeEth * t.outagePerEthPerEpoch * meanEpochs;
+  });
+
+  const res = p.s1ResidualPct / 100;
+  const w = p.s1ResharePct / 100;
+  const repl = w * (t1.good1.forgone * keep1 + t1.good1.principal) + (1 - w) * (t1.bad1.forgone * keep1 + t1.bad1.principal);
+  const cost0at1 = (f: number) => interp(t1.forgone0, f) * keep1 + interp(t1.principal0, f);
+  const eSlashAt1 = betaExpectation(p.betaA, p.betaB, cost0at1);
+  // A multi-operator DV is touched as a whole by any member's incident.
+  const per1 = p.stakeEth * ((1 - res) * repl + res * ((1 - pSlash) * cost0at1(0) + pSlash * eSlashAt1));
   const outage1 = outage0 * (1 - p.s1LivenessCoverPct / 100);
 
   const premium = (p.stakeEth * p.aprPct * (p.fee1Pct - p.fee0Pct)) / 1e4;
   const lambda = p.incidentRatePct / 100;
-  const perIncDiff = per0 - per1;
-  const annualAdvantageEth = k * lambda * perIncDiff + (outage0 - outage1) - premium;
-  const breakEvenRatePct =
-    perIncDiff > 0 ? (100 * Math.max(0, premium - (outage0 - outage1))) / (k * perIncDiff) : Infinity;
+  const loss0 = lambda * sumPer0 + outage0;
+  const loss1 = lambda * (k + m) * per1 + outage1;
+  const perRateDiff = sumPer0 - (k + m) * per1;
   return {
-    perIncident0Eth: per0,
+    perIncident0Eth: sumPer0 / k,
     perIncident1Eth: per1,
+    loss0PerYearEth: loss0,
+    loss1PerYearEth: loss1,
     outage0PerYearEth: outage0,
     outage1PerYearEth: outage1,
-    annualAdvantageEth,
-    breakEvenRatePct,
+    annualAdvantageEth: loss0 - loss1 - premium,
+    breakEvenRatePct: perRateDiff > 0 ? (100 * Math.max(0, premium - (outage0 - outage1))) / perRateDiff : Infinity,
   };
 }
 

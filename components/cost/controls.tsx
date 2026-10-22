@@ -1,6 +1,6 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import type { CSS } from "@stitches/react";
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { InfoTip } from "./InfoTip";
 
 export const ui = {
@@ -259,31 +259,71 @@ interface NumberFieldProps {
   step?: number;
   suffix?: string;
   hint?: ReactNode;
+  /** Read-only (e.g. a total computed from other inputs). */
+  readOnly?: boolean;
+  /** Visually hide the label (it still names the field). */
+  hideLabel?: boolean;
 }
 
-export function NumberField({ label, value, onChange, min, max, step, suffix, hint }: NumberFieldProps) {
+/**
+ * A number input that never fights the keyboard: any text is accepted while
+ * typing (in-range values apply live), and the value is clamped to its bounds
+ * on blur or Enter. Typing 592847 no longer snaps to the minimum after "5".
+ */
+export function NumberField({ label, value, onChange, min, max, step, suffix, hint, readOnly, hideLabel }: NumberFieldProps) {
   const id = useId();
+  const [text, setText] = useState(String(value));
+  const [editing, setEditing] = useState(false);
+  useEffect(() => {
+    if (!editing) setText(String(value));
+  }, [value, editing]);
+  const clamp = (v: number) => Math.min(max ?? Infinity, Math.max(min ?? -Infinity, v));
+  const commit = () => {
+    const v = Number(text.replace(/[,_\s]/g, ""));
+    const next = Number.isFinite(v) && text.trim() !== "" ? clamp(v) : value;
+    setEditing(false);
+    setText(String(next));
+    if (next !== value) onChange(next);
+  };
   return (
     <Box css={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <Box css={{ display: "flex", alignItems: "center" }}>
+      <Box css={{ display: "flex", alignItems: "center", ...(hideLabel ? srOnly : {}) }}>
         <Text as="label" htmlFor={id} css={ui.label}>
           {label}
         </Text>
-        {hint && <InfoTip label={label}>{hint}</InfoTip>}
+        {hint && !hideLabel && <InfoTip label={label}>{hint}</InfoTip>}
       </Box>
       <Box css={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Box
           as="input"
           id={id}
-          type="number"
+          type="text"
           inputMode="decimal"
-          value={value}
-          min={min}
-          max={max}
-          step={step}
+          autoComplete="off"
+          value={editing ? text : String(value)}
+          readOnly={readOnly}
+          aria-readonly={readOnly || undefined}
+          data-min={min}
+          data-max={max}
+          data-step={step}
+          onFocus={() => {
+            if (readOnly) return;
+            setEditing(true);
+            setText(String(value));
+          }}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const v = Number(e.target.value);
-            if (Number.isFinite(v)) onChange(Math.min(max ?? Infinity, Math.max(min ?? -Infinity, v)));
+            const t = e.target.value;
+            setText(t);
+            const v = Number(t.replace(/[,_\s]/g, ""));
+            // Apply live only when it's already valid; otherwise wait for blur/Enter.
+            if (t.trim() !== "" && Number.isFinite(v) && v === clamp(v)) onChange(v);
+          }}
+          onBlur={commit}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              commit();
+              (e.target as HTMLInputElement).blur();
+            }
           }}
           css={{
             width: "100%",
@@ -292,7 +332,7 @@ export function NumberField({ label, value, onChange, min, max, step, suffix, hi
             fontWeight: "$semibold",
             fontVariantNumeric: "tabular-nums",
             color: "$body",
-            backgroundColor: "$bg02",
+            backgroundColor: readOnly ? "$bg03" : "$bg02",
             border: "1px solid $bg05",
             borderRadius: "$3",
             padding: "9px 12px",

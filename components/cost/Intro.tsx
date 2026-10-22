@@ -26,11 +26,10 @@ export function Intro({ params: p, update }: { params: CostParams; update: (patc
               Is it worth paying your operators to run your validators together?
             </Text>
             <Text as="p" css={s.lede}>
-              Large stakers usually split their stake across several operators, each running its share alone (
-              <strong>Stage 0</strong>). The same operators can instead run every validator together as a{" "}
-              <strong>multi-operator distributed validator</strong> (<strong>Stage 1</strong>), so that no single compromise
-              can get you slashed. That usually costs more. This calculator estimates whether the risk it removes is worth the
-              extra cost.
+              Splitting your stake across operators that each run their share alone (<strong>Stage 0</strong>) leaves each
+              share one leaked key away from slashing. Running every validator together as a{" "}
+              <strong>multi-operator distributed validator</strong> (<strong>Stage 1</strong>) removes that, for a higher fee.
+              Is it worth it?
             </Text>
           </Box>
           <Chips
@@ -45,6 +44,46 @@ export function Intro({ params: p, update }: { params: CostParams; update: (patc
             css={{ width: 220, flexShrink: 0, "@media (max-width: 760px)": { width: "100%", maxWidth: 320 } }}
           />
         </Box>
+
+        {p.snap && (
+          <Box
+            role="note"
+            css={{
+              marginTop: 22,
+              padding: "12px 16px",
+              borderRadius: 10,
+              border: "1px solid $bg05",
+              backgroundColor: "$bg03",
+              display: "flex",
+              gap: 14,
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              maxWidth: 980,
+            }}
+          >
+            <Text css={{ ...s.small, fontSize: "$2", color: "$body" }}>
+              <strong>Pinned to the {p.snap} network snapshot</strong> and that day&apos;s defaults, so these numbers match
+              wherever this link was shared.
+            </Text>
+            <Box
+              as="button"
+              type="button"
+              onClick={() => update({ snap: "" })}
+              css={{
+                all: "unset",
+                cursor: "pointer",
+                fontSize: "$2",
+                fontWeight: "$semibold",
+                color: s.LINK,
+                textDecoration: "underline",
+                "&:focus-visible": { outline: "2px solid var(--theme-brand)", outlineOffset: 2, borderRadius: 3 },
+              }}
+            >
+              Use the latest numbers
+            </Box>
+          </Box>
+        )}
 
         <Box
           as="dl"

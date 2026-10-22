@@ -45,6 +45,8 @@ export interface QueueDay {
 }
 
 export const SNAPSHOT = snapshot;
+/** The year the snapshot was taken: "none since YEAR" counts back from it. */
+export const SNAPSHOT_YEAR = Number(snapshot.asOf.slice(0, 4));
 export const QUEUE_HISTORY: QueueDay[] = history.days;
 export const QUEUE_HISTORY_SOURCE = history.source;
 

@@ -6,7 +6,7 @@
 import { EPOCHS_PER_DAY } from "./protocol";
 import { badLeaver, goodLeaver, safetyEvent, type EventResult, type LossBreakdown } from "./events";
 import { outageCost } from "./rewards";
-import { networkFromParams, type CostParams, type FocusEvent } from "./params";
+import { networkFromParams, parseOps, type CostParams, type FocusEvent, type Operator } from "./params";
 
 export interface OutcomeCase {
   id: FocusEvent;
@@ -45,8 +45,45 @@ export function economics(p: CostParams): Economics {
 }
 
 /** Your stake per operator under an n-way split. */
+/** Your operators: the explicit list, or an equal split of the stake. */
+export function operatorsOf(p: CostParams): Operator[] {
+  const list = parseOps(p.opList);
+  if (list) return list;
+  const k = Math.max(1, Math.round(p.operators));
+  return Array.from({ length: k }, () => ({ stakeEth: p.stakeEth / k, sharePct: p.operatorSharePct }));
+}
+
+/** The same assumptions, seen from one operator: its slice, its network share. */
+export function forOperator(p: CostParams, op: Operator): CostParams {
+  return { ...p, stakeEth: op.stakeEth, operators: 1, operatorSharePct: op.sharePct, opList: "" };
+}
+
+/**
+ * Index of your largest single-operator exposure: the operator whose
+ * every-key-slashed case costs the most ETH. With an equal split, the first.
+ */
+export function primaryOperatorIndex(p: CostParams): number {
+  const ops = operatorsOf(p);
+  if (!parseOps(p.opList)) return 0;
+  let best = 0;
+  let bestLoss = -1;
+  ops.forEach((op, i) => {
+    const loss = safetyCase(forOperator(p, op), 1).breakdown.totalEth;
+    if (loss > bestLoss) {
+      bestLoss = loss;
+      best = i;
+    }
+  });
+  return best;
+}
+
+export function primaryOperator(p: CostParams): Operator {
+  return operatorsOf(p)[primaryOperatorIndex(p)];
+}
+
+/** Stake at the operator the single-incident views describe (your largest exposure). */
 export function stakePerOperator(p: CostParams): number {
-  return p.stakeEth / Math.max(1, Math.round(p.operators));
+  return parseOps(p.opList) ? primaryOperator(p).stakeEth : p.stakeEth / Math.max(1, Math.round(p.operators));
 }
 
 export function safetyCase(p: CostParams, slashedFraction: number, stakeEth = stakePerOperator(p)): EventResult {
@@ -157,9 +194,11 @@ function scaled(r: EventResult, k: number): EventResult {
 export function outcomeCases(p: CostParams): OutcomeCase[] {
   const res = p.s1ResidualPct / 100;
   const s1 = stage1Compromise(p).result;
-  const scale = p.stakeEth / stakePerOperator(p);
+  // Stage 0 cases are at your largest exposure (any operator, on an equal split).
+  const q = parseOps(p.opList) ? forOperator(p, primaryOperator(p)) : p;
+  const scale = p.stakeEth / stakePerOperator(q);
   const make = (id: FocusEvent, label: string, f: number): OutcomeCase => {
-    const s0 = safetyCase(p, f);
+    const s0 = safetyCase(q, f);
     return {
       id,
       label,
@@ -233,6 +272,16 @@ export function costTable(p: CostParams): CostTable {
     outagePerEthPerEpoch: (one.breakdown.totalEth - one.breakdown.leakEth) / (EPOCHS_PER_DAY / 24),
     outageLeak: p.operatorSharePct / 100 > 1 / 3,
   };
+}
+
+/** One cost table per operator (shared when the split is equal, since they're identical). */
+export function costTables(p: CostParams): CostTable[] {
+  const ops = operatorsOf(p);
+  if (!parseOps(p.opList)) {
+    const t = costTable(p);
+    return ops.map(() => t);
+  }
+  return ops.map((op) => costTable(forOperator(p, op)));
 }
 
 export function interp(grid: number[], f: number): number {

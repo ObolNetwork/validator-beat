@@ -3,6 +3,7 @@
  * key. The page state is one `CostParams`; a shared link reproduces it.
  */
 import { DEFAULT_NETWORK, QUEUE_PRESETS, SNAPSHOT, type NetworkState, type QueuePresetId } from "./network";
+import { PINNED } from "./snapshots";
 
 export type FocusEvent = "lucky" | "partial" | "full" | "outage";
 export type FrequencyId = "rare" | "central" | "frequent";
@@ -68,12 +69,53 @@ export interface CostParams {
   heatView: "chance" | "average";
   /** Basic shows the answer; Advanced shows the model and every assumption. */
   view: "basic" | "advanced";
+  /**
+   * Operators of different sizes, as "stake:share%,stake:share%,…" (e.g.
+   * "318000:9.96,183000:6.53"). Empty means an equal split of `stakeEth`
+   * across `operators`, each at `operatorSharePct`. When set, it overrides
+   * those three (sanitizeParams keeps them in sync).
+   */
+  opList: string;
+  /** Extra DV cluster members that hold no stake of their own (e.g. your own node). */
+  extraNodes: number;
+  /** Pin a network snapshot and its defaults (e.g. "2026-10-19"); empty = latest. */
+  snap: string;
+}
+
+export interface Operator {
+  stakeEth: number;
+  sharePct: number;
+}
+
+export const MAX_OPERATORS = 10;
+
+/** Parse "stake:share,…" into operators; null if empty or malformed. Values are clamped. */
+export function parseOps(text: string): Operator[] | null {
+  if (!text || !text.trim()) return null;
+  const parts = text.split(",").map((x) => x.trim()).filter(Boolean);
+  if (parts.length === 0 || parts.length > MAX_OPERATORS) return null;
+  const ops: Operator[] = [];
+  for (const part of parts) {
+    const [a, b] = part.split(":");
+    const stake = Number(a);
+    const share = Number(b);
+    if (!Number.isFinite(stake) || !Number.isFinite(share) || stake <= 0 || share <= 0) return null;
+    ops.push({
+      stakeEth: Math.min(10_000_000, Math.max(1, stake)),
+      sharePct: Math.min(33, Math.max(0.1, Math.round(share * 100) / 100)),
+    });
+  }
+  return ops;
+}
+
+export function formatOps(ops: Operator[]): string {
+  return ops.map((o) => `${Math.round(o.stakeEth)}:${o.sharePct}`).join(",");
 }
 
 export const FREQUENCY_PRESETS: Record<FrequencyId, { label: string; hint: string; incidentRatePct: number }> = {
   rare: { label: "Rare", hint: "1 in 100 operator-years", incidentRatePct: 1 },
   central: { label: "Base rate", hint: "~8 incidents across ~50 operators since 2023", incidentRatePct: 4 },
-  frequent: { label: "Frequent", hint: "1 in 10 operator-years", incidentRatePct: 10 },
+  frequent: { label: "AI-era", hint: "Cheaper, AI-assisted intrusion: 1 in 10 operator-years", incidentRatePct: 10 },
 };
 
 /**
@@ -133,11 +175,16 @@ export const DEFAULT_PARAMS: CostParams = {
   seed: 7716,
   heatView: "chance",
   view: "basic",
+  opList: "",
+  extraNodes: 0,
+  snap: "",
 };
 
 export function networkFromParams(p: CostParams): NetworkState {
+  const pin = p.snap ? PINNED[p.snap] : undefined;
   return {
     ...DEFAULT_NETWORK,
+    ...(pin ? { totalActiveEth: pin.network.totalActiveEth, activeValidators: pin.network.activeValidators } : {}),
     exitQueueEth: p.exitQueueEth,
     depositQueueEth: p.depositQueueEth,
     depositInflowEthPerEpoch: p.depositInflowEthPerEpoch,
@@ -201,6 +248,9 @@ export const PARAM_DOCS: Record<keyof CostParams, string> = {
   seed: "Random seed: the same seed and settings reproduce the same runs.",
   heatView: "Heatmap view: chance (of the solo setup being ahead) or average (outcome).",
   view: "Page view: basic or advanced.",
+  opList: "Operators of different sizes, as stake:share% pairs separated by commas (e.g. 318000:9.96,183000:6.53). Overrides s, k and o.",
+  extraNodes: "Extra multi-operator DV cluster members with no stake of their own, such as your own node.",
+  snap: "Pin a network snapshot and that day's defaults (e.g. 2026-10-19), so a shared link keeps its numbers.",
 };
 
 /** The query-string key for every parameter (shared links, llms-full.txt). */
@@ -241,6 +291,9 @@ export const URL_KEYS: Record<Key, string> = {
   seed: "seed",
   heatView: "hv",
   view: "v",
+  opList: "ops",
+  extraNodes: "xn",
+  snap: "snap",
 };
 
 /** Allowed values for the enum parameters. */
@@ -253,15 +306,24 @@ export const PARAM_ENUMS: Partial<Record<Key, readonly string[]>> = {
   view: ["basic", "advanced"],
 };
 
-/** Only parameters that differ from the defaults go in the URL. */
+/** The defaults a link is read against: the latest, or a pinned snapshot's. */
+export function defaultsFor(snap: string): CostParams {
+  const pin = snap ? PINNED[snap] : undefined;
+  return pin ? { ...DEFAULT_PARAMS, ...(pin.defaults as Partial<CostParams>), snap } : DEFAULT_PARAMS;
+}
+
+/** Only parameters that differ from the defaults (or the pinned defaults) go in the URL. */
 export function encodeParams(p: CostParams): string {
   const q = new URLSearchParams();
+  const base = defaultsFor(p.snap);
   (Object.keys(URL_KEYS) as Key[]).forEach((k) => {
     const v = p[k];
-    if (v === DEFAULT_PARAMS[k]) return;
+    if (v === base[k] && k !== "snap") return;
+    if (k === "snap" && !v) return;
     q.set(URL_KEYS[k], typeof v === "boolean" ? (v ? "1" : "0") : String(v));
   });
-  return q.toString();
+  // ":" and "," are safe in a query value; keep ops=318000:9.96,183000:6.53 readable in reports.
+  return q.toString().replace(/%3A/gi, ":").replace(/%2C/gi, ",");
 }
 
 /**
@@ -271,7 +333,7 @@ export function encodeParams(p: CostParams): string {
  */
 type NumKey = { [K in keyof CostParams]: CostParams[K] extends number ? K : never }[keyof CostParams];
 export const PARAM_BOUNDS: Record<NumKey, { min: number; max: number; int?: boolean }> = {
-  stakeEth: { min: 32, max: 10_000_000 },
+  stakeEth: { min: 1, max: 10_000_000 },
   operatorSharePct: { min: 0.5, max: 33 },
   operators: { min: 1, max: 10, int: true },
   aprPct: { min: 1.5, max: 4.5 },
@@ -299,11 +361,12 @@ export const PARAM_BOUNDS: Record<NumKey, { min: number; max: number; int?: bool
   years: { min: 1, max: 20, int: true },
   runs: { min: 1000, max: 20_000, int: true },
   seed: { min: 0, max: 2 ** 32 - 1, int: true },
+  extraNodes: { min: 0, max: 3, int: true },
 };
 
 /** Clamp every number to its bounds and reset unknown enum or boolean values to defaults. */
 export function sanitizeParams(input: Partial<CostParams>): CostParams {
-  const out: CostParams = { ...DEFAULT_PARAMS };
+  const out: CostParams = { ...defaultsFor(typeof input.snap === "string" && PINNED[input.snap] ? input.snap : "") };
   const rec = out as unknown as Record<string, unknown>;
   (Object.keys(DEFAULT_PARAMS) as Key[]).forEach((k) => {
     const v = (input as Record<string, unknown>)[k];
@@ -319,12 +382,21 @@ export function sanitizeParams(input: Partial<CostParams>): CostParams {
       rec[k] = v;
     }
   });
+  // Free-text parameters: an operator list and a snapshot id.
+  const ops = parseOps(typeof input.opList === "string" ? input.opList : "");
+  if (ops) {
+    out.opList = formatOps(ops);
+    out.stakeEth = Math.round(ops.reduce((a, o) => a + o.stakeEth, 0));
+    out.operators = ops.length;
+  }
+  if (typeof input.snap === "string" && PINNED[input.snap]) out.snap = input.snap;
   return out;
 }
 
 export function decodeParams(search: string): CostParams {
   const q = new URLSearchParams(search);
-  const out: CostParams = { ...DEFAULT_PARAMS };
+  const snap = q.get(URL_KEYS.snap) ?? "";
+  const out: CostParams = { ...defaultsFor(PINNED[snap] ? snap : "") };
   (Object.keys(URL_KEYS) as Key[]).forEach((k) => {
     const raw = q.get(URL_KEYS[k]);
     if (raw === null) return;
@@ -335,6 +407,8 @@ export function decodeParams(search: string): CostParams {
       const v = Number(raw);
       if (Number.isFinite(v)) (out as unknown as Record<string, unknown>)[k] = v;
     } else if (PARAM_ENUMS[k]?.includes(raw)) {
+      (out as unknown as Record<string, unknown>)[k] = raw;
+    } else if (k === "opList" || k === "snap") {
       (out as unknown as Record<string, unknown>)[k] = raw;
     }
   });

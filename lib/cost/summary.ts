@@ -29,7 +29,6 @@ export interface CostSummary {
 
 export function costSummary(p: CostParams = DEFAULT_PARAMS): CostSummary {
   const k = Math.max(1, Math.round(p.operators));
-  const lambda = p.incidentRatePct / 100;
   const e = expectations(p);
   const econ = economics(p);
   const cases = outcomeCases(p);
@@ -41,8 +40,8 @@ export function costSummary(p: CostParams = DEFAULT_PARAMS): CostSummary {
   return {
     params: p,
     stakePerOperatorEth: p.stakeEth / k,
-    lossPerYearSoloEth: k * lambda * e.perIncident0Eth + e.outage0PerYearEth,
-    lossPerYearDvEth: k * lambda * e.perIncident1Eth + e.outage1PerYearEth,
+    lossPerYearSoloEth: e.loss0PerYearEth,
+    lossPerYearDvEth: e.loss1PerYearEth,
     premiumPerYearEth: econ.premiumPerYearEth,
     netPerYearEth: e.annualAdvantageEth,
     breakEvenRatePct: be,

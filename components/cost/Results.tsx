@@ -1,9 +1,12 @@
 import { Box, Text } from "@obolnetwork/obol-ui";
 import { useMemo } from "react";
 import { Card } from "@components/assessment/stitches";
-import { fmtEth, fmtUsd, fmtYears, fmtYearsBetween } from "@lib/cost/format";
+import { fmtEth, fmtUsd, fmtYears, fmtYearsBetween, sinceYear } from "@lib/cost/format";
+import { SNAPSHOT_YEAR } from "@lib/cost/network";
 import { SETUP } from "@lib/cost/labels";
 import { expectations } from "@lib/cost/montecarlo";
+import { primaryOperator } from "@lib/cost/model";
+import { parseOps } from "@lib/cost/params";
 import type { Economics, OutcomeCase } from "@lib/cost/model";
 import type { CostParams } from "@lib/cost/params";
 import { AreaCompare } from "./AreaCompare";
@@ -17,7 +20,6 @@ interface Props {
 }
 
 const label = { fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "$textMiddle" } as const;
-const big = { fontSize: 34, lineHeight: 1.05, fontWeight: "$bold", letterSpacing: "-0.025em", color: "$body", fontVariantNumeric: "tabular-nums", marginTop: 6 } as const;
 
 /**
  * The answer, from expected values (no simulation): what each setup is
@@ -26,9 +28,10 @@ const big = { fontSize: 34, lineHeight: 1.05, fontWeight: "$bold", letterSpacing
 export function Results({ params: p, econ, cases }: Props) {
   const exp = useMemo(() => expectations(p), [p]);
   const k = Math.max(1, Math.round(p.operators));
-  const lambda = p.incidentRatePct / 100;
-  const loss0 = k * lambda * exp.perIncident0Eth + exp.outage0PerYearEth;
-  const loss1 = k * lambda * exp.perIncident1Eth + exp.outage1PerYearEth;
+  const custom = parseOps(p.opList) !== null;
+  const biggest = primaryOperator(p);
+  const loss0 = exp.loss0PerYearEth;
+  const loss1 = exp.loss1PerYearEth;
   const premium = econ.premiumPerYearEth;
   const net = exp.annualAdvantageEth;
   const full = cases.find((c) => c.id === "full")!;
@@ -50,139 +53,114 @@ export function Results({ params: p, econ, cases }: Props) {
     >
       <Box>
         <Text css={{ fontSize: "$1", fontWeight: "$bold", textTransform: "uppercase", letterSpacing: "0.06em", color: s.LINK }}>
-          Step 2
+          Step 2 · Results
         </Text>
-        <Text as="h2" id="results" css={{ ...s.h3, fontSize: 22, marginTop: 4 }}>
-          Results
+        <Text as="h2" id="results" css={{ fontSize: 26, lineHeight: 1.25, letterSpacing: "-0.015em", fontWeight: "$bold", color: "$body", margin: "8px 0 0", textWrap: "balance" }}>
+          {Number.isFinite(be) && be > 0 ? (
+            <>
+              Do you expect {k > 1 ? `each of your ${k} operators` : "your operator"} to go{" "}
+              <Box as="span" css={{ color: s.LINK }}>{fmtYearsBetween(be)}</Box> without a security incident?
+            </>
+          ) : be === 0 ? (
+            <>Running your operators together pays for itself even if no key is ever compromised.</>
+          ) : (
+            <>With these settings, running your operators separately comes out ahead on average.</>
+          )}
         </Text>
-      </Box>
-
-      <Box>
-        <Box css={{ display: "flex", alignItems: "center" }}>
-          <Text as="h3" css={{ fontSize: "$2", fontWeight: "$semibold", color: "$body", margin: 0 }}>
-            Expected loss a year
+        {Number.isFinite(be) && be > 0 && (
+          <Text css={{ ...s.small, fontSize: "$2", marginTop: 8 }}>
+            That&apos;s how rare incidents must be for running them separately to pay off: none at an operator since about{" "}
+            {sinceYear(be, SNAPSHOT_YEAR)}.{" "}
+            {p.incidentRatePct > 0
+              ? `You assumed about one every ${fmtYearsBetween(p.incidentRatePct)} per operator, or none since ${sinceYear(p.incidentRatePct, SNAPSHOT_YEAR)}.`
+              : "You assumed none."}
+            {p.view === "advanced" && ` (Break-even: ${be}% of operator-years.)`}
           </Text>
-          <InfoTip label="expected loss a year">
-            Incidents a year × the average cost of one, plus outages. Most years the real loss is zero; some years it is far
-            larger. Advanced shows the spread.
-          </InfoTip>
-        </Box>
-        <Box css={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 18, marginTop: 12 }}>
-          {([
-            ["s0", loss0, s.S0],
-            ["s1", loss1, s.S1],
-          ] as const).map(([key, v, color]) => (
-            <Box key={key}>
-              <Text css={label}>
-                <Box as="span" css={s.swatch(color)} />
-                {SETUP[key].short}
-                <Box as="span" css={{ fontWeight: "$medium", textTransform: "none", letterSpacing: 0 }}> · {SETUP[key].stage}</Box>
-              </Text>
-              <Text css={big}>{fmtEth(v)}</Text>
-              <Text css={{ ...s.small, marginTop: 4 }}>{usd(v)} a year</Text>
-            </Box>
-          ))}
-        </Box>
-      </Box>
-
-      <Box css={{ borderTop: "1px solid $bg05", paddingTop: 18 }}>
-        <Text css={{ fontSize: "$4", lineHeight: 1.45, color: "$body" }}>
-          The multi-operator setup may cost <strong>{fmtEth(premium)} a year more</strong> up front.
-        </Text>
-        <Text css={{ ...s.small, marginTop: 4 }}>
-          {usd(premium)}: fees of {p.fee1Pct}% instead of {p.fee0Pct}% on {fmtEth(econ.rewardsPerYearEth)} of rewards a year.
-          One worst-case incident at a solo operator would cost as much as <strong>{fmtYears(worstYears)}</strong> of it.
-        </Text>
+        )}
       </Box>
 
       <Box
         css={{
           borderRadius: 12,
-          padding: "16px 18px",
+          padding: "14px 16px",
           backgroundColor: net >= 0 ? "color-mix(in srgb, var(--theme-cost-s1) 10%, transparent)" : "$bg03",
           border: "1px solid",
           borderColor: net >= 0 ? "color-mix(in srgb, var(--theme-cost-s1) 45%, transparent)" : "$bg05",
         }}
       >
-        <Text css={{ fontSize: "$4", lineHeight: 1.45, color: "$body", fontWeight: "$semibold" }}>
+        <Text css={{ fontSize: "$3", lineHeight: 1.5, color: "$body", fontWeight: "$semibold" }}>
           {net >= 0 ? (
             <>
-              On average though, the multi-operator DV saves you <strong>{fmtEth(net)} a year</strong> ({usd(net)}) after
-              its additional cost.
+              If not, run them together. On average the multi-operator DV saves you <strong>{fmtEth(net)} a year</strong>{" "}
+              ({usd(net)}) after its extra cost.
             </>
           ) : (
             <>
-              On average, the multi-operator DV costs you <strong>{fmtEth(-net)} a year</strong> ({usd(-net)}) more than it saves at
-              this incident rate.
+              At your setting, the multi-operator DV costs about <strong>{fmtEth(-net)} a year</strong> ({usd(-net)}) more
+              than it saves.
             </>
-          )}
-        </Text>
-        <Text css={{ ...s.small, fontSize: "$2", marginTop: 6 }}>
-          {Number.isFinite(be) && be > 0 ? (
-            <>
-              It pays for itself if key incidents happen more than <strong>{be}%</strong> of
-              operator-years. You assumed {p.incidentRatePct}%.
-            </>
-          ) : be === 0 ? (
-            <>It pays for itself at any incident rate, even zero.</>
-          ) : (
-            <>With these settings the multi-operator DV doesn&apos;t pay for itself at any incident rate.</>
           )}
         </Text>
       </Box>
 
-      {Number.isFinite(be) && (
-        <Box css={{ borderLeft: "3px solid var(--theme-brand)", paddingLeft: 14 }}>
-          {be > 0 ? (
-            <>
-              <Text css={{ fontSize: "$4", lineHeight: 1.45, color: "$body", fontWeight: "$semibold" }}>
-                Do you expect {k > 1 ? `each of your ${k} operators` : "your operator"} to go{" "}
-                <strong>{fmtYearsBetween(be)} or more</strong> without a security incident?
+      <Box css={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 18, "@media (max-width: 420px)": { gridTemplateColumns: "minmax(0, 1fr)" } }}>
+        <Box>
+          <Box css={{ display: "flex", alignItems: "center" }}>
+            <Text css={label}>Expected loss a year</Text>
+            <InfoTip label="expected loss a year">
+              Incidents a year × the average cost of one, plus outages. Most years the real loss is zero; some years it is
+              far larger.
+            </InfoTip>
+          </Box>
+          {([
+            ["s0", loss0, s.S0],
+            ["s1", loss1, s.S1],
+          ] as const).map(([key, v, color]) => (
+            <Text key={key} css={{ fontSize: "$3", color: "$body", marginTop: 8, fontVariantNumeric: "tabular-nums" }}>
+              <Box as="span" css={s.swatch(color)} />
+              <strong>{fmtEth(v)}</strong>{" "}
+              <Text as="span" css={{ display: "inline", ...s.small }}>
+                {SETUP[key].short} · {SETUP[key].stage}
               </Text>
-              <Text css={{ ...s.small, fontSize: "$2", marginTop: 6 }}>
-                If not, the multi-operator DV is likely worth its extra fee.{" "}
-                {p.incidentRatePct > 0
-                  ? `Your setting assumes a ${p.incidentRatePct}% chance of a security incident each year, which means you'd expect about one incident every ${fmtYearsBetween(p.incidentRatePct)} for each operator.`
-                  : "You assumed no incidents at all."}
-              </Text>
-            </>
-          ) : (
-            <Text css={{ fontSize: "$3", lineHeight: 1.5, color: "$body", fontWeight: "$semibold" }}>
-              With these settings the multi-operator DV pays for itself even if no key is ever compromised: the outages it
-              rides through cover its extra fee.
             </Text>
-          )}
+          ))}
         </Box>
-      )}
+        <Box>
+          <Text css={label}>Extra cost of running together</Text>
+          <Text css={{ fontSize: "$3", color: "$body", marginTop: 8 }}>
+            <strong>{fmtEth(premium)} a year</strong> up front
+          </Text>
+          <Text css={{ ...s.small, marginTop: 4 }}>
+            {p.fee1Pct}% instead of {p.fee0Pct}% of rewards. One worst case costs {fmtYears(worstYears)} of it.
+          </Text>
+        </Box>
+      </Box>
 
-      <Box css={{ borderTop: "1px solid $bg05", paddingTop: 18 }}>
-        <Text as="h3" css={{ fontSize: "$2", fontWeight: "$semibold", color: "$body", margin: "0 0 14px" }}>
-          If one operator&apos;s keys leak and the attacker slashes them all
+      <Box css={{ borderTop: "1px solid $bg05", paddingTop: 16 }}>
+        <Text as="h3" css={{ ...label, margin: "0 0 12px" }}>
+          {custom
+            ? `Your largest exposure: the operator with ${fmtEth(biggest.stakeEth)} of yours (${biggest.sharePct}% of the network) has its keys leaked and all slashed`
+            : "The worst case: one operator's keys leak and are all slashed"}
         </Text>
         <AreaCompare
           big={{
             label: `${SETUP.s0.short}: slashed and exited`,
-            sub: k > 1 ? `the ${fmtEth(p.stakeEth / k)} that operator ran` : "your whole stake",
+            sub: k > 1 ? `the ${fmtEth(biggest.stakeEth)} that operator ran` : "your whole stake",
             eth: worst,
           }}
           small={{
             label: `${SETUP.s1.short}: replace the operator`,
-            sub: "reshare or consolidate, at your own pace",
+            sub: "at your own pace",
             eth: dvRoute,
           }}
           ethUsd={p.ethUsd}
-          maxSide={220}
+          maxSide={170}
         />
-
       </Box>
 
-      <Text css={{ ...s.small, fontSize: "$2" }}>
-        These are averages. Most years nothing happens and the solo-operator setup simply costs less.{" "}
-        <a href="#ahead-heatmap" style={{ color: "var(--theme-brand)", fontWeight: 600, textDecoration: "underline" }}>
-          See how the odds play out
-        </a>
-        .
-      </Text>
+      <a href="#ahead-heatmap" style={{ color: "var(--theme-brand)", fontWeight: 600, textDecoration: "underline", fontSize: 14 }}>
+        See how often the solo setup still comes out ahead ↓
+      </a>
     </Card>
   );
 }
