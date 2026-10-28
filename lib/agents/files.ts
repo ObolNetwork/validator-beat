@@ -98,7 +98,7 @@ export function llmsTxt(): string {
 
   return `# Validator Beat
 
-> A free, client-side self-assessment that scores Ethereum validator setups **Stage 0, 1, or 2** across six single points of failure. Nothing is stored or sent to a server; results are shareable via six-letter codes. Built by Obol as a public good, in partnership with Lido.
+> A free, client-side self-assessment that scores Ethereum validator setups **Stage 0, 1, or 2** across six single points of failure. Nothing is stored or sent to a server; results are shareable via six-letter codes. Built by Obol as a public good, with the help of Lido.
 
 Staking earns roughly 2% APR; slashing can take far more, and correlated failures are penalized super-linearly. Validator Beat makes a validator's resilience legible: six banded questions, each mapping to a green/yellow/red (or "not sure") "pizza slice", rolling up to one Stage.
 
@@ -189,7 +189,7 @@ export function llmsFullTxt(): string {
 
   return `# Validator Beat — full reference
 
-> A free, client-side self-assessment that scores Ethereum validator setups **Stage 0, 1, or 2** across six single points of failure. Six banded questions, each mapping to a green/yellow/red (or "not sure") slice, roll up to one Stage. Nothing is stored or sent to a server. Built by Obol as a public good, in partnership with Lido (the stewards of ValOS).
+> A free, client-side self-assessment that scores Ethereum validator setups **Stage 0, 1, or 2** across six single points of failure. Six banded questions, each mapping to a green/yellow/red (or "not sure") slice, roll up to one Stage. Nothing is stored or sent to a server. Built by Obol as a public good, with the help of Lido (the funder of ValOS).
 
 This file is the whole site in one document, generated from the scoring code at build time. Site: ${BASE}/ · Short summary: ${BASE}/llms.txt · Agent skill for running the assessment conversationally: ${BASE}/skill.md · Source: ${GITHUB_URL} (Apache-2.0; scoring lives in \`lib/rubric\`).
 

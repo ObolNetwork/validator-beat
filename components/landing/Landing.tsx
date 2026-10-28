@@ -333,7 +333,7 @@ function LHero() {
         <Box css={s.heroGrid}>
           <Box>
             <Eyebrow as="p" css={{ margin: "0 0 16px" }}>
-              A simple view into validator operations
+              Making validator risks simple
             </Eyebrow>
             <Text as="h1" css={s.h1}>
               The validator ecosystem is missing its{" "}
@@ -556,16 +556,16 @@ function LSides() {
           <Card css={{ ...s.cardPad, display: "flex", flexDirection: "column" }}>
             <Eyebrow as="p" css={{ margin: "0 0 12px" }}>If you delegate your ETH</Eyebrow>
             <Text as="h3" css={{ ...s.h3, fontSize: 22, marginBottom: 12 }}>
-              Read any operator&apos;s profile in five seconds.
+              Ask your operator where they stand.
             </Text>
             <Text css={{ fontSize: "$3", lineHeight: 1.6, color: "$textMiddle" }}>
               Before you stake, not after an incident: ask for their Validator Beat link or badge. A
-              Stage and six colors give you insight into validator operations that the marketing
-              page never will.
+              Stage and six colors tell you more about how your validators are run than a marketing
+              page ever will.
             </Text>
           </Card>
           <Card css={{ ...s.cardPad, display: "flex", flexDirection: "column" }}>
-            <Eyebrow as="p" css={{ margin: "0 0 12px" }}>If you&apos;re an operatooor</Eyebrow>
+            <Eyebrow as="p" css={{ margin: "0 0 12px" }}>If you&apos;re an operator</Eyebrow>
             <Text as="h3" css={{ ...s.h3, fontSize: 22, marginBottom: 12 }}>Proof of work.</Text>
             <Text css={{ fontSize: "$3", lineHeight: 1.6, color: "$textMiddle" }}>
               Run the assessment, earn your stages, and show off your pizza — or embed the badge —
@@ -640,8 +640,8 @@ function LNeutral() {
           <Eyebrow as="p" css={{ margin: "0 0 16px" }}>Credibility</Eyebrow>
           <Text as="h2" css={s.h2}>A neutral yardstick, built in the open</Text>
           <Text as="p" css={s.prose}>
-            Validator Beat is built by Obol, in partnership with Lido, the stewards of ValOS. It is
-            deliberately neutral and no single team owns the rubric. The methodology is public and is meant to be adopted, challenged,
+            Validator Beat is built by Obol, with the help of Lido, the funder of ValOS. It is
+            designed to be neutral, and no single team owns the rubric. The methodology is public and is meant to be adopted, challenged,
             and improved by the whole ecosystem.
           </Text>
           <Text as="p" css={s.prose}>

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-Validator Beat is a **client-side, public-good self-assessment** for Ethereum validator operators. Six banded questions → six "pizza slices" (each green/yellow/red, or grey for "not sure") → one Stage (0, 1, or 2). The whole thing runs in the browser; nothing is submitted, stored, or fetched at runtime. The static export ships to GitHub Pages. Built by Obol, in partnership with Lido (the stewards of ValOS) — never call Lido a co-author.
+Validator Beat is a **client-side, public-good self-assessment** for Ethereum validator operators. Six banded questions → six "pizza slices" (each green/yellow/red, or grey for "not sure") → one Stage (0, 1, or 2). The whole thing runs in the browser; nothing is submitted, stored, or fetched at runtime. The static export ships to GitHub Pages. Built by Obol, with the help of Lido (the funder of ValOS). Never call Lido a partner, co-author or steward: legal constraints on their side; "with the help of" and "funder of ValOS" are the approved framings.
 
 The rubric's source of truth is `lib/rubric/` plus the public methodology page (`pages/methodology.tsx`). Pre-launch, breaking rubric/share-code changes are fine — update every surface rather than documenting the old behaviour.
 

@@ -41,7 +41,7 @@ export const getStaticProps: GetStaticProps = () => {
   const base = SITE_URL.replace(/\/$/, "");
   return {
     props: {
-      title: "The standard for staking security",
+      title: "Making validator risks simple",
       description:
         "Staking earns ~2% APR — slashing can take everything. Six questions score any Ethereum validator Stage 0, 1, or 2. Don't stake below Stage 1.",
       ogImage: `${base}/og/landing.png`,

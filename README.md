@@ -86,4 +86,4 @@ Deployment, link-preview debugging, and theming notes are in [`docs/DEVELOPMENT.
 
 ## Credits
 
-Built by [Obol](https://obol.org), in partnership with [Lido](https://lido.fi). Licensed under [Apache 2.0](./LICENSE).
+Built by [Obol](https://obol.org), with the help of [Lido](https://lido.fi). Licensed under [Apache 2.0](./LICENSE).

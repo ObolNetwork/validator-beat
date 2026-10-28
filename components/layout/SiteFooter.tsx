@@ -50,7 +50,7 @@ export function SiteFooter({ contentWidth = 1140 }: SiteFooterProps) {
           </Text>
         </Text>
         <Text css={{ fontSize: "$2", color: "$textMiddle" }}>
-          A simple view into validator operations
+          Making validator risks simple
         </Text>
         <TopSpacer />
         <TopNavLink href={COST_PATH}>Cost of failure</TopNavLink>
