@@ -75,5 +75,6 @@ After the assessment, a Stage 0 operator (or anyone choosing between operators) 
 ## Caveats to relay
 
 - This is a self-assessment: it reflects the operator's answers, not verified facts.
+- A Validator Beat Stage measures resilience to single points of failure. It is not a ValOS assessment or certification, and doesn't show conformance with any ValOS control. For each slice that isn't green, point the operator at its related ValOS controls (listed per slice in llms-full.txt).
 - The infrastructure slices (provider, OS, CPU, geography) assume an active/active setup — several cooperating nodes backing the same stake. Active/passive failover makes Provider and Geography yellow.
 - Full nuances: https://validatorbeat.com/methodology/#nuances, or all of it in one file: https://validatorbeat.com/llms-full.txt

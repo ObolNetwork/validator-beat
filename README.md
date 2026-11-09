@@ -69,7 +69,7 @@ There is no backend. The site is a static export on GitHub Pages; scoring runs i
 
 The rubric is meant to be challenged. It lives in one place — [`lib/rubric/`](./lib/rubric) for stages, slices, and tips, and [`lib/assessment/questions.ts`](./lib/assessment/questions.ts) for question copy — and is fully unit-tested. Open an issue or PR with the scenario the current bands get wrong.
 
-For the operational controls behind each slice, see [ValOS, the Validator Operations Standard](https://lidofinance.github.io/valos/valos-spec.html).
+For the operational controls behind each slice, see [ValOS, the Validator Operations Standard](https://www.valos.global/valos-spec.html).
 
 ## Develop
 

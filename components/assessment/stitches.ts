@@ -904,6 +904,16 @@ export const UpTip = styled(Text, {
   marginTop: 5,
 });
 
+/** The ValOS controls behind a slice, under its tip. */
+export const UpValos = styled(Text, {
+  fontSize: "$1",
+  lineHeight: 1.5,
+  color: "$textMiddle",
+  marginTop: 6,
+  "& a": { color: "inherit", textDecoration: "underline", textUnderlineOffset: 2 },
+  "& a:hover": { color: "$body" },
+});
+
 /* ---- Slice summary ------------------------------------------------------ */
 
 /* ---- Share card / modal ------------------------------------------------- */

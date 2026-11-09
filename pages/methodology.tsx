@@ -3,7 +3,8 @@ import { Fragment } from "react";
 import { AnchorHeading } from "@components/methodology/AnchorHeading";
 import { SiteHeader } from "@components/layout/SiteHeader";
 import { SiteFooter } from "@components/layout/SiteFooter";
-import { ASSESS_PATH, COST_PATH, DOWNTIME_CALCULATOR_URL, GITHUB_URL, SITE_NAME, SITE_URL } from "@constants/index";
+import { ASSESS_PATH, COST_PATH, DOWNTIME_CALCULATOR_URL, GITHUB_URL, SITE_NAME, SITE_URL, VALOS_URL } from "@constants/index";
+import { NOT_VALOS_CONFORMANCE, VALOS_CONTROLS, valosLink } from "@lib/valos";
 import { AskAnAgent } from "@components/agents/AskAnAgent";
 import { Inline } from "@components/methodology/Inline";
 import { assessPrompt } from "@lib/agents/prompts";
@@ -273,6 +274,35 @@ export default function MethodologyPage() {
         </section>
 
         <section>
+          <AnchorHeading id="valos">Validator Beat and ValOS</AnchorHeading>
+          <p>
+            Each slice points at the{" "}
+            <a href={VALOS_URL} target="_blank" rel="noopener noreferrer">
+              ValOS
+            </a>{" "}
+            controls closest to the risk it covers. ValOS sets out how to run validators well;
+            these controls are where to start when a slice isn&apos;t green.
+          </p>
+          <ul>
+            {SLICES.map((s) => (
+              <li key={s.id}>
+                <strong>{s.label}</strong>:{" "}
+                {VALOS_CONTROLS[s.id].map((c, i) => (
+                  <Fragment key={c.id}>
+                    {i > 0 && ", "}
+                    <a href={valosLink(c.anchor)} target="_blank" rel="noopener noreferrer">
+                      {c.id} {c.title}
+                    </a>{" "}
+                    ({c.level})
+                  </Fragment>
+                ))}
+              </li>
+            ))}
+          </ul>
+          <p>{NOT_VALOS_CONFORMANCE}</p>
+        </section>
+
+        <section>
           <AnchorHeading id="whats-next">What&apos;s next</AnchorHeading>
           <p>
             A future <strong>operator registry</strong> will publish verified operator profiles
@@ -290,7 +320,7 @@ export default function MethodologyPage() {
             </li>
             <li>
               <a
-                href="https://lidofinance.github.io/valos/valos-spec.html"
+                href={VALOS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
               >

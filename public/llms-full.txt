@@ -56,11 +56,16 @@ Safety slice: red or not sure holds the result at Stage 0. Bands offered: green,
 
 **Real-world risk:** A single key-management compromise once forced one large operator to preemptively exit roughly 10% of all Ethereum validators — billions of dollars of stake withdrawn, tens of millions of dollars in opportunity cost, as a precaution because no one could rule out that whole signing keys had been exposed. With threshold signing split across independent parties — for example a multi-operator distributed validator, or HA remote signers like Dirk or Web3Signer fronted by Vouch or Vero — no single compromise can reconstruct a usable key.
 
+**Related ValOS controls:**
+
+- [ValOS 5.5.1 Key Management](https://www.valos.global/valos-spec.html#ctrl-key-management) (MUST)
+- [ValOS 5.4.3 Signature management](https://www.valos.global/valos-spec.html#ctrl-signature-management) (MUST)
+
 **References:**
 
-- [ValOS: Key Custody Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-keys)
-- [ValOS: Key Management](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-key-management)
-- [ValOS: Signature Management](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-signature-management)
+- [ValOS: Key Custody Risk](https://www.valos.global/valos-spec.html#sec-risks-keys)
+- [ValOS: Key Management](https://www.valos.global/valos-spec.html#sec-mit-key-management)
+- [ValOS: Signature Management](https://www.valos.global/valos-spec.html#sec-mit-signature-management)
 - [Obol docs — distributed validators](https://docs.obol.org/)
 
 ### 2. Client Diversity (`clientDiversity`, share-code position 2)
@@ -82,11 +87,16 @@ Safety slice: red or not sure holds the result at Stage 0. Bands offered: green,
 
 **Real-world risk:** On a recent public test network, a bug in one consensus client caused every validator using it to sign an incorrect chain. Because that client held a supermajority share of the testnet's validators, the result was mass slashing — the same pattern on mainnet would have destroyed billions of dollars of stake. Ethereum's slashing penalty already scales with how many validators are slashed in the same window, so a correlated event costs each affected validator far more than an isolated slashing would. Refuse-to-attest only saves you when your clients disagree; if they all run software in the bad supermajority, they fork in unison and the safeguard never fires.
 
+**Related ValOS controls:**
+
+- [ValOS 5.4.4 Client Diversity](https://www.valos.global/valos-spec.html#ctrl-client-diversity) (MUST)
+- [ValOS 5.4.2 Anti-slashing Database](https://www.valos.global/valos-spec.html#ctrl-anti-slashing-database) (MUST)
+
 **References:**
 
-- [ValOS: Slashing Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-slashing)
-- [ValOS: Client Diversity](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-client-diversity)
-- [ValOS: Anti-Slashing DB](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-antislash-db)
+- [ValOS: Slashing Risk](https://www.valos.global/valos-spec.html#sec-risks-slashing)
+- [ValOS: Client Diversity](https://www.valos.global/valos-spec.html#sec-mit-client-diversity)
+- [ValOS: Anti-Slashing DB](https://www.valos.global/valos-spec.html#sec-mit-antislash-db)
 - [clientdiversity.org](https://clientdiversity.org/)
 - [Obol docs — chain_split_halt](https://docs.obol.org/)
 
@@ -108,11 +118,15 @@ Liveness slice: it only stands between the result and Stage 2. Bands offered: gr
 
 **Real-world risk:** A major hosting provider once suffered a security incident in which stored disk images may have been exposed. Any validator whose keystore and its decryption material lived on that provider's disks would have been at risk of complete key exfiltration in one stroke. Beyond breaches, single-provider outages routinely take large fractions of the network offline simultaneously — concentrating your nodes turns a vendor incident into your incident.
 
+**Related ValOS controls:**
+
+- [ValOS 5.8.2 Distribute Validators physically](https://www.valos.global/valos-spec.html#ctrl-distribute-validators-physically) (SHOULD)
+
 **References:**
 
-- [ValOS: Infrastructure Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-infra)
-- [ValOS: Physically Distributed Infrastructure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware)
-- [ValOS: Utility Failure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-utilities)
+- [ValOS: Infrastructure Risk](https://www.valos.global/valos-spec.html#sec-risks-infra)
+- [ValOS: Physically Distributed Infrastructure](https://www.valos.global/valos-spec.html#sec-mit-distribute-hardware)
+- [ValOS: Utility Failure](https://www.valos.global/valos-spec.html#sec-mit-protect-utilities)
 - [EIP-7716: Anti-correlation penalties](https://eips.ethereum.org/EIPS/eip-7716)
 - [EIP-7716 downtime calculator](https://validatordowntime.obol.org)
 
@@ -134,11 +148,16 @@ Safety slice: red or not sure holds the result at Stage 0. Bands offered: green,
 
 **Real-world risk:** Operating systems regularly ship critical remote-code-execution disclosures, and their package managers and build pipelines have repeatedly been targeted by supply-chain attacks. A single poisoned update to a popular distro could backdoor every validator running it — mixing distros forces an attacker to compromise multiple independent supply chains to reach you.
 
+**Related ValOS controls:**
+
+- [ValOS 5.4.1 Keep Software Updated](https://www.valos.global/valos-spec.html#ctrl-keep-software-updated) (MUST)
+- [ValOS 5.9.4 Check Third-party Code for Vulnerabilities before Updating](https://www.valos.global/valos-spec.html#ctrl-check-third-party-code-for-vulnerabilities-before-updating) (MUST)
+
 **References:**
 
-- [ValOS: Hacking Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-hacking)
-- [ValOS: Supply-chain Malware](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-against-malware)
-- [ValOS: Third-party Software Updates](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-update-software)
+- [ValOS: Hacking Risk](https://www.valos.global/valos-spec.html#sec-risks-hacking)
+- [ValOS: Supply-chain Malware](https://www.valos.global/valos-spec.html#sec-mit-protect-against-malware)
+- [ValOS: Third-party Software Updates](https://www.valos.global/valos-spec.html#sec-mit-update-software)
 
 ### 5. CPU Architecture (`cpuDiversity`, share-code position 5)
 
@@ -158,10 +177,15 @@ Safety slice: red or not sure holds the result at Stage 0. Bands offered: green,
 
 **Real-world risk:** CPU architectures have repeatedly disclosed speculative-execution and side-channel vulnerabilities — Spectre, Meltdown, and a long tail of successors — that let one process read memory belonging to another process on the same machine, including, in principle, signing keys held by a co-located component. A second architecture across your fleet limits the blast radius of any single hardware-class vulnerability.
 
+**Related ValOS controls:**
+
+- [ValOS 5.4.5 Secure Devices](https://www.valos.global/valos-spec.html#ctrl-secure-devices) (MUST)
+- [ValOS 5.8.3 Manage Equipment Lifecycles](https://www.valos.global/valos-spec.html#ctrl-manage-equipment-lifecycles) (SHOULD)
+
 **References:**
 
-- [ValOS: Hacking Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-hacking)
-- [ValOS: Physically Distributed Infrastructure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware)
+- [ValOS: Hacking Risk](https://www.valos.global/valos-spec.html#sec-risks-hacking)
+- [ValOS: Physically Distributed Infrastructure](https://www.valos.global/valos-spec.html#sec-mit-distribute-hardware)
 
 ### 6. Geographic Diversity (`geoDiversity`, share-code position 6)
 
@@ -181,12 +205,17 @@ Liveness slice: it only stands between the result and Stage 2. Bands offered: gr
 
 **Real-world risk:** Entire countries lose grid power for hours or days — the 2025 Iberian Peninsula blackout cut electricity to tens of millions of people across two countries simultaneously. Natural disasters, accidental cascading failures, and sovereign actions all show up as common-mode risk for validators concentrated in one country or region.
 
+**Related ValOS controls:**
+
+- [ValOS 5.8.2 Distribute Validators physically](https://www.valos.global/valos-spec.html#ctrl-distribute-validators-physically) (SHOULD)
+- [ValOS 5.8.1 Manage Environmental Threats](https://www.valos.global/valos-spec.html#ctrl-manage-environmental-threats) (SHOULD)
+
 **References:**
 
-- [ValOS: Downtime Risk](https://lidofinance.github.io/valos/valos-spec.html#sec-risks-downtime)
-- [ValOS: Physically Distributed Infrastructure](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware)
-- [ValOS: Environmental Threat Protection](https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-from-environment)
-- [ValOS: Environmental Controls](https://lidofinance.github.io/valos/valos-spec.html#sec-controls-environment)
+- [ValOS: Downtime Risk](https://www.valos.global/valos-spec.html#sec-risks-downtime)
+- [ValOS: Physically Distributed Infrastructure](https://www.valos.global/valos-spec.html#sec-mit-distribute-hardware)
+- [ValOS: Environmental Threat Protection](https://www.valos.global/valos-spec.html#sec-mit-protect-from-environment)
+- [ValOS: Environmental Controls](https://www.valos.global/valos-spec.html#sec-controls-environment)
 - [EIP-7716: Anti-correlation penalties](https://eips.ethereum.org/EIPS/eip-7716)
 - [EIP-7716 downtime calculator](https://validatordowntime.obol.org)
 
@@ -346,6 +375,6 @@ Preset parameters (`q`, `fr`, `sv`) only label the view; the numeric parameters 
 ## Related
 
 - [Validator Downtime](https://validatordowntime.obol.org/) ([llms.txt](https://validatordowntime.obol.org/llms.txt)): what correlated downtime would cost under EIP-7716. Client Diversity is the safety side of the same story: a supermajority-client bug is either mass slashing or, with refuse-to-attest, correlated downtime.
-- [ValOS — the Validator Operations Standard](https://lidofinance.github.io/valos/valos-spec.html): the risk-and-mitigation catalog each question links into.
+- [ValOS — the Validator Operations Standard](https://www.valos.global/valos-spec.html): the risk-and-mitigation catalog each question links into. A Validator Beat Stage measures resilience to single points of failure. It is not a ValOS assessment or certification, and doesn't show conformance with any ValOS control.
 - [clientdiversity.org](https://clientdiversity.org/): live network share for each execution and consensus client.
 - [Obol docs](https://docs.obol.org/): distributed validators, Charon, and chain-split safety settings.

@@ -1,11 +1,12 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { Pizza } from "@components/pizza/Pizza";
 import { VbButton } from "@components/ui/VbButton";
-import { DOWNTIME_CALCULATOR_URL } from "@constants/index";
+import { DOWNTIME_CALCULATOR_URL, VALOS_URL } from "@constants/index";
 import { badgeSvg } from "@lib/share/badge-svg";
 import { copyText } from "@lib/share/clipboard";
 import { downloadElementAsPng } from "@lib/share/download-image";
 import { SHARE_NAME_MAX, badgeUrl } from "@lib/share/share-url";
+import { NOT_VALOS_CONFORMANCE, VALOS_CONTROLS, valosLink } from "@lib/valos";
 import { SLICES, STAGE_META, blockers, getTip, shareCode, sliceTarget } from "@lib/rubric";
 import type { Answers, SliceColor, SliceId, Stage } from "@lib/rubric/types";
 import type { SliceMeta } from "@lib/rubric/types";
@@ -59,6 +60,7 @@ import {
   UpHead,
   UpSlice,
   UpTip,
+  UpValos,
   WinBadge,
   WinBody,
   WinCard,
@@ -159,6 +161,17 @@ export function LevelUp({ answers, stage, guest = false }: LevelUpProps) {
           </UpFlag>
         </UpHead>
         <UpTip>{getTip(slice.id, color)}</UpTip>
+        <UpValos>
+          ValOS:{" "}
+          {VALOS_CONTROLS[slice.id].map((c, i) => (
+            <React.Fragment key={c.id}>
+              {i > 0 && " · "}
+              <a href={valosLink(c.anchor)} target="_blank" rel="noopener noreferrer">
+                {c.id} {c.title}
+              </a>
+            </React.Fragment>
+          ))}
+        </UpValos>
       </UpBody>
     </UpCard>
   );
@@ -207,6 +220,12 @@ export function LevelUp({ answers, stage, guest = false }: LevelUpProps) {
           )}
         </LevelSection>
       )}
+      <UpValos>
+        {NOT_VALOS_CONFORMANCE}{" "}
+        <a href={VALOS_URL} target="_blank" rel="noopener noreferrer">
+          Read the ValOS controls ↗
+        </a>
+      </UpValos>
     </LevelRoot>
   );
 }
