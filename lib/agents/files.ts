@@ -5,6 +5,7 @@
  */
 import { DOWNTIME_CALCULATOR_URL, GITHUB_URL, SITE_URL, VALOS_URL } from "@constants/index";
 import { QUESTIONS } from "@lib/assessment/questions";
+import { NOT_VALOS_CONFORMANCE, VALOS_CONTROLS, valosLink } from "@lib/valos";
 import {
   ACTIVE_ACTIVE,
   BAND_MATH,
@@ -162,6 +163,9 @@ function sliceSection(slice: SliceMeta, i: number): string {
       ? "Safety slice: red or not sure holds the result at Stage 0."
       : "Liveness slice: it only stands between the result and Stage 2.";
   const refs = (q.references ?? []).map((r) => `- [${r.label}](${r.url})`).join("\n");
+  const controls = VALOS_CONTROLS[slice.id]
+    .map((c) => `- [ValOS ${c.id} ${c.title}](${valosLink(c.anchor)}) (${c.level})`)
+    .join("\n");
   return [
     `### ${i + 1}. ${slice.label} (\`${slice.id}\`, share-code position ${i + 1})`,
     "",
@@ -177,6 +181,10 @@ function sliceSection(slice: SliceMeta, i: number): string {
     "",
     bandLines(slice),
     ...(q.risk ? ["", `**Real-world risk:** ${q.risk}`] : []),
+    "",
+    "**Related ValOS controls:**",
+    "",
+    controls,
     ...(refs ? ["", "**References:**", "", refs] : []),
   ].join("\n");
 }
@@ -263,7 +271,7 @@ ${costSection()}
 ## Related
 
 - [Validator Downtime](${DOWNTIME_URL}/) ([llms.txt](${DOWNTIME_URL}/llms.txt)): what correlated downtime would cost under EIP-7716. Client Diversity is the safety side of the same story: a supermajority-client bug is either mass slashing or, with refuse-to-attest, correlated downtime.
-- [ValOS — the Validator Operations Standard](${VALOS_URL}): the risk-and-mitigation catalog each question links into.
+- [ValOS — the Validator Operations Standard](${VALOS_URL}): the risk-and-mitigation catalog each question links into. ${NOT_VALOS_CONFORMANCE}
 - [clientdiversity.org](https://clientdiversity.org/): live network share for each execution and consensus client.
 - [Obol docs](https://docs.obol.org/): distributed validators, Charon, and chain-split safety settings.
 `;
@@ -398,6 +406,7 @@ After the assessment, a Stage 0 operator (or anyone choosing between operators) 
 ## Caveats to relay
 
 - This is a self-assessment: it reflects the operator's answers, not verified facts.
+- ${NOT_VALOS_CONFORMANCE} For each slice that isn't green, point the operator at its related ValOS controls (listed per slice in llms-full.txt).
 - The infrastructure slices (provider, OS, CPU, geography) assume an active/active setup — several cooperating nodes backing the same stake. Active/passive failover makes Provider and Geography yellow.
 - Full nuances: ${BASE}/methodology/#nuances, or all of it in one file: ${BASE}/llms-full.txt
 `;

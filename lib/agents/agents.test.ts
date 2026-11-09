@@ -8,6 +8,7 @@ import { DEFAULT_PARAMS, URL_KEYS, decodeParams } from "@lib/cost/params";
 import { REFS } from "@lib/cost/references";
 import { costSummary } from "@lib/cost/summary";
 import { fmtEth } from "@lib/cost/format";
+import { NOT_VALOS_CONFORMANCE, VALOS_CONTROLS, valosLink } from "@lib/valos";
 
 describe("llms-full.txt", () => {
   const doc = llmsFullTxt();
@@ -92,5 +93,24 @@ describe("cost of failure in the agent docs", () => {
     expect(skillMd()).toContain("/cost-of-failure/");
     expect(sitemapXml()).toContain("/cost-of-failure/</loc>");
     expect(costPrompt()).toContain("/llms-full.txt");
+  });
+});
+
+describe("ValOS in the agent docs", () => {
+  it("llms-full.txt lists every slice's ValOS controls and the not-certification caveat", () => {
+    const doc = llmsFullTxt();
+    for (const s of SLICES) {
+      expect(VALOS_CONTROLS[s.id].length).toBeGreaterThan(0);
+      for (const c of VALOS_CONTROLS[s.id]) expect(doc).toContain(valosLink(c.anchor));
+    }
+    expect(doc).toContain(NOT_VALOS_CONFORMANCE);
+  });
+
+  it("skill.md tells agents a Stage is not ValOS conformance", () => {
+    expect(skillMd()).toContain(NOT_VALOS_CONFORMANCE);
+  });
+
+  it("links only to the current ValOS host", () => {
+    expect(llmsFullTxt()).not.toContain("lidofinance.github.io/valos");
   });
 });

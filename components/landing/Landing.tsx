@@ -603,6 +603,11 @@ function LValos() {
               the hard work and implementing the mitigations should dig into ValOS. Follow ValOS, and
               you&apos;ll end up at Stage 2.
             </Text>
+            <Text as="p" css={s.prose}>
+              Every next step in your result links to the ValOS controls behind that slice. A
+              Stage is not a ValOS assessment or certification, though: it only shows how your setup
+              handles single points of failure.
+            </Text>
             <Box css={s.ctaRow}>
               <Box as="a" href={VALOS} target="_blank" rel="noopener noreferrer" css={s.ghostLink}>
                 Learn more about ValOS <IconExternalLink size={16} />

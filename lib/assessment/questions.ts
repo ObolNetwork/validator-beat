@@ -1,4 +1,5 @@
 import type { SliceColor, SliceId } from "@lib/rubric/types";
+import { valosLink } from "@lib/valos";
 
 export type QuestionOption = {
   color: SliceColor;
@@ -45,9 +46,9 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
     risk: "A single key-management compromise once forced one large operator to preemptively exit roughly 10% of all Ethereum validators — billions of dollars of stake withdrawn, tens of millions of dollars in opportunity cost, as a precaution because no one could rule out that whole signing keys had been exposed. With threshold signing split across independent parties — for example a multi-operator distributed validator, or HA remote signers like Dirk or Web3Signer fronted by Vouch or Vero — no single compromise can reconstruct a usable key.",
     references: [
-      { label: "ValOS: Key Custody Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-keys" },
-      { label: "ValOS: Key Management", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-key-management" },
-      { label: "ValOS: Signature Management", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-signature-management" },
+      { label: "ValOS: Key Custody Risk", url: valosLink("sec-risks-keys") },
+      { label: "ValOS: Key Management", url: valosLink("sec-mit-key-management") },
+      { label: "ValOS: Signature Management", url: valosLink("sec-mit-signature-management") },
       { label: "Obol docs — distributed validators", url: "https://docs.obol.org/" },
     ],
   },
@@ -74,9 +75,9 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
     risk: "On a recent public test network, a bug in one consensus client caused every validator using it to sign an incorrect chain. Because that client held a supermajority share of the testnet's validators, the result was mass slashing — the same pattern on mainnet would have destroyed billions of dollars of stake. Ethereum's slashing penalty already scales with how many validators are slashed in the same window, so a correlated event costs each affected validator far more than an isolated slashing would. Refuse-to-attest only saves you when your clients disagree; if they all run software in the bad supermajority, they fork in unison and the safeguard never fires.",
     references: [
-      { label: "ValOS: Slashing Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-slashing" },
-      { label: "ValOS: Client Diversity", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-client-diversity" },
-      { label: "ValOS: Anti-Slashing DB", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-antislash-db" },
+      { label: "ValOS: Slashing Risk", url: valosLink("sec-risks-slashing") },
+      { label: "ValOS: Client Diversity", url: valosLink("sec-mit-client-diversity") },
+      { label: "ValOS: Anti-Slashing DB", url: valosLink("sec-mit-antislash-db") },
       { label: "clientdiversity.org", url: "https://clientdiversity.org/" },
       { label: "Obol docs — chain_split_halt", url: "https://docs.obol.org/" },
     ],
@@ -99,9 +100,9 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
     risk: "A major hosting provider once suffered a security incident in which stored disk images may have been exposed. Any validator whose keystore and its decryption material lived on that provider's disks would have been at risk of complete key exfiltration in one stroke. Beyond breaches, single-provider outages routinely take large fractions of the network offline simultaneously — concentrating your nodes turns a vendor incident into your incident.",
     references: [
-      { label: "ValOS: Infrastructure Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-infra" },
-      { label: "ValOS: Physically Distributed Infrastructure", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware" },
-      { label: "ValOS: Utility Failure", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-utilities" },
+      { label: "ValOS: Infrastructure Risk", url: valosLink("sec-risks-infra") },
+      { label: "ValOS: Physically Distributed Infrastructure", url: valosLink("sec-mit-distribute-hardware") },
+      { label: "ValOS: Utility Failure", url: valosLink("sec-mit-protect-utilities") },
       { label: "EIP-7716: Anti-correlation penalties", url: "https://eips.ethereum.org/EIPS/eip-7716" },
       { label: "EIP-7716 downtime calculator", url: "https://validatordowntime.obol.org" },
     ],
@@ -124,9 +125,9 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
     risk: "Operating systems regularly ship critical remote-code-execution disclosures, and their package managers and build pipelines have repeatedly been targeted by supply-chain attacks. A single poisoned update to a popular distro could backdoor every validator running it — mixing distros forces an attacker to compromise multiple independent supply chains to reach you.",
     references: [
-      { label: "ValOS: Hacking Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-hacking" },
-      { label: "ValOS: Supply-chain Malware", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-against-malware" },
-      { label: "ValOS: Third-party Software Updates", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-update-software" },
+      { label: "ValOS: Hacking Risk", url: valosLink("sec-risks-hacking") },
+      { label: "ValOS: Supply-chain Malware", url: valosLink("sec-mit-protect-against-malware") },
+      { label: "ValOS: Third-party Software Updates", url: valosLink("sec-mit-update-software") },
     ],
   },
   cpuDiversity: {
@@ -147,8 +148,8 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
     risk: "CPU architectures have repeatedly disclosed speculative-execution and side-channel vulnerabilities — Spectre, Meltdown, and a long tail of successors — that let one process read memory belonging to another process on the same machine, including, in principle, signing keys held by a co-located component. A second architecture across your fleet limits the blast radius of any single hardware-class vulnerability.",
     references: [
-      { label: "ValOS: Hacking Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-hacking" },
-      { label: "ValOS: Physically Distributed Infrastructure", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware" },
+      { label: "ValOS: Hacking Risk", url: valosLink("sec-risks-hacking") },
+      { label: "ValOS: Physically Distributed Infrastructure", url: valosLink("sec-mit-distribute-hardware") },
     ],
   },
   geoDiversity: {
@@ -169,10 +170,10 @@ export const QUESTIONS: Record<SliceId, Question> = {
     ],
     risk: "Entire countries lose grid power for hours or days — the 2025 Iberian Peninsula blackout cut electricity to tens of millions of people across two countries simultaneously. Natural disasters, accidental cascading failures, and sovereign actions all show up as common-mode risk for validators concentrated in one country or region.",
     references: [
-      { label: "ValOS: Downtime Risk", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-risks-downtime" },
-      { label: "ValOS: Physically Distributed Infrastructure", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-distribute-hardware" },
-      { label: "ValOS: Environmental Threat Protection", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-mit-protect-from-environment" },
-      { label: "ValOS: Environmental Controls", url: "https://lidofinance.github.io/valos/valos-spec.html#sec-controls-environment" },
+      { label: "ValOS: Downtime Risk", url: valosLink("sec-risks-downtime") },
+      { label: "ValOS: Physically Distributed Infrastructure", url: valosLink("sec-mit-distribute-hardware") },
+      { label: "ValOS: Environmental Threat Protection", url: valosLink("sec-mit-protect-from-environment") },
+      { label: "ValOS: Environmental Controls", url: valosLink("sec-controls-environment") },
       { label: "EIP-7716: Anti-correlation penalties", url: "https://eips.ethereum.org/EIPS/eip-7716" },
       { label: "EIP-7716 downtime calculator", url: "https://validatordowntime.obol.org" },
     ],
